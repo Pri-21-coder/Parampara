@@ -125,7 +125,7 @@ body > * {
   margin: 0;
   padding: 0;
   flex: 1;
-  justify-content: center;
+  justify-content: end;
   flex-wrap: nowrap;
 }
 
@@ -186,7 +186,6 @@ body > * {
 .btn-primary:hover {
   background: var(--clay-orange);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(205, 133, 63, 0.4);
 }
 
 .btn-secondary {
@@ -198,7 +197,6 @@ body > * {
 .btn-secondary:hover {
   background: var(--success);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 142, 35, 0.4);
 }
 
 /* ===== HERO SECTION ===== */
@@ -215,7 +213,7 @@ body > * {
 
 /* Left Panel */
 .hero-texts {
-  width: 50%;
+  width: 75vw;
   min-height: 88vh;
   display: flex;
   flex-direction: column;
@@ -342,7 +340,7 @@ body > * {
 
 /* Right Panel */
 .hero-visual {
-  width: 50%;
+  width: 25vw;
   min-height: 88vh;
   position: relative;
   overflow: hidden;
@@ -392,7 +390,7 @@ body > * {
 
 .floating-card {
   position: absolute;
-  bottom: 2.5rem;
+  bottom: 3.5rem;
   left: 1.5rem;
   background: rgba(15, 6, 2, 0.8);
   backdrop-filter: blur(16px);
@@ -429,7 +427,7 @@ body > * {
 .floating-card-2 {
   position: absolute;
   top: 2rem;
-  right: 1.5rem;
+  left: 1rem;
   background: rgba(205, 133, 63, 0.15);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -594,9 +592,9 @@ body > * {
 
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
-  max-width: 1200px;
+  max-width: 95vw;
   margin: 0 auto;
 }
 
@@ -875,8 +873,21 @@ body > * {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1120px) {
+  .navbar {
+    height: fit-content;
+    padding: 0.75rem 0;
+  }
+
   .nav-container {
-    gap: 1rem;
+    gap: 10rem;
+  }
+
+  .floating-card-2 {
+    font-size: 0.7rem;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
   }
 }
 
@@ -1051,6 +1062,10 @@ body > * {
 
   .features-grid {
     grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
   }
 }
 /* Form validation styles */
