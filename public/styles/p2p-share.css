@@ -1,0 +1,246 @@
+/* p2p-share.css */
+.p2p-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  margin-top: 80px;
+}
+
+.p2p-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.p2p-header h1 {
+  font-family: 'Playfair Display', serif;
+  color: var(--primary-color, #2c3e50);
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.p2p-header p {
+  color: var(--text-muted, #7f8c8d);
+  font-size: 1.1rem;
+}
+
+.p2p-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+}
+
+.card {
+  background: var(--bg-card, #ffffff);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.card h2 {
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--accent-color, #3498db);
+  padding-bottom: 10px;
+  display: inline-block;
+}
+
+/* Status Card */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #e74c3c;
+}
+.dot.active {
+  background-color: #2ecc71;
+  box-shadow: 0 0 8px #2ecc71;
+}
+
+.my-node {
+  background: var(--bg-light, #f8f9fa);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-family: monospace;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+/* Peers List */
+.peers-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.peer-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.peer-item:hover {
+  border-color: var(--accent-color, #3498db);
+  background-color: var(--bg-hover, #f1f8ff);
+}
+
+.peer-item.selected {
+  border-color: var(--accent-color, #3498db);
+  background-color: var(--accent-color, #3498db);
+  color: white;
+}
+
+.peer-item.selected .peer-status {
+  color: #e0f7fa;
+}
+
+.peer-icon {
+  font-size: 1.5rem;
+  margin-right: 15px;
+}
+
+.peer-info strong {
+  display: block;
+}
+
+.peer-status {
+  font-size: 0.8rem;
+  color: var(--text-muted, #7f8c8d);
+}
+.peer-status.connected { color: #2ecc71; }
+
+/* File Transfer Area */
+.file-drop-zone {
+  border: 2px dashed var(--border-color, #bdc3c7);
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  transition: all 0.3s;
+  background: var(--bg-light, #fafafa);
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.file-drop-zone:hover, .file-drop-zone.dragover {
+  border-color: var(--accent-color, #3498db);
+  background: var(--bg-hover, #f1f8ff);
+}
+
+.file-drop-zone i {
+  font-size: 3rem;
+  color: var(--accent-color, #3498db);
+  margin-bottom: 15px;
+}
+
+.file-input {
+  display: none;
+}
+
+.send-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--accent-color, #3498db);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.send-btn:hover {
+  background-color: #2980b9;
+}
+.send-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* Progress Area */
+.transfer-progress-area {
+  margin-top: 30px;
+}
+
+.transfer-item {
+  background: var(--bg-light, #f8f9fa);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--accent-color, #3498db);
+}
+
+.transfer-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.progress-bar-bg {
+  background: #e0e0e0;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background: var(--accent-color, #3498db);
+  height: 100%;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.transfer-speed {
+  font-size: 0.8rem;
+  color: var(--text-muted, #7f8c8d);
+  margin-top: 5px;
+  text-align: right;
+}
+
+/* Received Files Area */
+.received-files-area {
+  margin-top: 30px;
+}
+
+.received-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #def7ec;
+  border: 1px solid #84e1bc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.received-file .download-btn {
+  background: #03543f;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .p2p-dashboard {
+    grid-template-columns: 1fr;
+  }
+}

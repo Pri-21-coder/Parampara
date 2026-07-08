@@ -7,15 +7,17 @@ let isLoading = false;
 let hasMore = true;
 let observer = null;
 // SVG hearts (inline, no font dependency)
-const HEART_FILLED = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#e53e3e" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
-const HEART_EMPTY = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+const HEART_FILLED =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#e53e3e" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+const HEART_EMPTY =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
 
 document.addEventListener('DOMContentLoaded', () => {
   setupIntersectionObserver();
-  
+
   window.galleryTimeMachine = new TimeMachineEngine({
     containerId: 'gallery-time-machine-container',
-    eras: ['All', '1950', '1980', '2000', '2025']
+    eras: ['All', '1950', '1980', '2000', '2025'],
   });
 
   window.addEventListener('parampara:timemachine:change', (e) => {
@@ -33,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadGalleryItems(1, false);
   setupEventListeners();
-  setupFavDelegation();  // ← single listener handles ALL heart clicks
+  setupFavDelegation(); // ← single listener handles ALL heart clicks
   setupShareDelegation();
 
   // Setup Markdown live preview
@@ -59,9 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
           ['bold', 'italic', 'underline'],
           [{ header: [1, 2, 3, false] }],
           [{ list: 'ordered' }, { list: 'bullet' }],
-          ['link']
-        ]
-      }
+          ['link'],
+        ],
+      },
     });
   }
 
@@ -79,14 +81,17 @@ function setupFavDelegation() {
   grid.addEventListener('click', function (e) {
     // Walk up from the clicked element to find a .favorite-btn
     const btn = e.target.closest('.favorite-btn');
-    if (!btn) return;          // not a heart button click
-    e.stopPropagation();       // don't open the item card
+    if (!btn) return; // not a heart button click
+    e.stopPropagation(); // don't open the item card
 
     const itemId = btn.dataset.itemId;
     if (!itemId) return;
 
     const fm = window.FavoritesManager;
-    if (!fm) { console.warn('FavoritesManager not loaded'); return; }
+    if (!fm) {
+      console.warn('FavoritesManager not loaded');
+      return;
+    }
 
     fm.toggleFavorite(itemId);
     const isFav = fm.isFavorite(itemId);
@@ -96,7 +101,12 @@ function setupFavDelegation() {
     btn.classList.toggle('favorited', isFav);
     btn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
 
-    console.log('[Parampara] Favorite toggled:', itemId, '→', isFav ? 'ADDED' : 'REMOVED');
+    console.log(
+      '[Parampara] Favorite toggled:',
+      itemId,
+      '→',
+      isFav ? 'ADDED' : 'REMOVED'
+    );
   });
 }
 
@@ -111,14 +121,18 @@ function setupShareDelegation() {
     const itemId = btn.dataset.itemId;
     if (!itemId) return;
 
-    const item = allItems.find(i => i.id === itemId);
+    const item = allItems.find((i) => i.id === itemId);
     if (!item) return;
 
     if (window.ShareManager) {
       window.ShareManager.share({
         title: item.title,
         text: item.description,
-        url: window.location.origin + window.location.pathname + '?item=' + encodeURIComponent(item.id)
+        url:
+          window.location.origin +
+          window.location.pathname +
+          '?item=' +
+          encodeURIComponent(item.id),
       });
     } else {
       console.warn('ShareManager not loaded');
@@ -127,6 +141,41 @@ function setupShareDelegation() {
 }
 
 function setupEventListeners() {
+  const grid = document.getElementById('gallery-grid');
+  if (grid) {
+    grid.addEventListener('click', function(e) {
+      const reportBtn = e.target.closest('.report-card-btn');
+      if (!reportBtn) return;
+      e.stopPropagation();
+
+      const itemId = reportBtn.dataset.itemId;
+      if (!itemId) return;
+
+      if (confirm('Are you sure you want to report this item for inappropriate content?')) {
+        fetch('/api/moderation/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: itemId, type: 'culturalItem' })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Item reported successfully. Thank you for keeping our community safe.');
+            if (data.isHidden) {
+              // Reload gallery to remove hidden item
+              currentPage = 1;
+              hasMore = true;
+              loadGalleryItems(1, false);
+            }
+          } else {
+            alert(data.error || 'Failed to report item');
+          }
+        })
+        .catch(err => console.error('Error reporting item:', err));
+      }
+    });
+  }
+
   document.getElementById('add-item-btn').addEventListener('click', () => {
     document.getElementById('add-item-modal').classList.add('active');
   });
@@ -165,10 +214,19 @@ function setupEventListeners() {
     .getElementById('type-filter')
     .addEventListener('change', filterItems);
 
+  const stateFilterEl = document.getElementById('state-filter');
+  if (stateFilterEl) {
+    stateFilterEl.addEventListener('change', filterItems);
+  }
+  const sortSelectEl = document.getElementById('sort-select');
+  if (sortSelectEl) {
+    sortSelectEl.addEventListener('change', filterItems);
+  }
+
   // Setup Image Compression
   const imageUpload = document.getElementById('image-upload');
   const imageQuality = document.getElementById('image-quality');
-  
+
   if (imageUpload) {
     const handleImageCompression = async () => {
       const file = imageUpload.files[0];
@@ -184,21 +242,25 @@ function setupEventListeners() {
 
       uiContainer.style.display = 'block';
       origSizeEl.textContent = 'Processing...';
-      
+
       try {
         if (!window.ImageOptimizer) {
           throw new Error('ImageOptimizer not loaded');
         }
-        
+
         const stats = await window.ImageOptimizer.compressImage(file, quality);
-        
-        origSizeEl.textContent = window.ImageOptimizer.formatBytes(stats.originalSize);
-        compSizeEl.textContent = window.ImageOptimizer.formatBytes(stats.compressedSize);
+
+        origSizeEl.textContent = window.ImageOptimizer.formatBytes(
+          stats.originalSize
+        );
+        compSizeEl.textContent = window.ImageOptimizer.formatBytes(
+          stats.compressedSize
+        );
         savePercentEl.textContent = stats.savingsPercent + '%';
-        
+
         previewEl.src = stats.dataUrl;
         previewEl.style.display = 'inline-block';
-        
+
         // Auto-fill the URL input with base64 data
         if (urlInput) {
           urlInput.value = stats.dataUrl;
@@ -222,28 +284,31 @@ function setupIntersectionObserver() {
   const sentinel = document.getElementById('intersection-sentinel');
   if (!sentinel) return;
 
-  observer = new IntersectionObserver((entries) => {
-    const entry = entries[0];
-    if (entry.isIntersecting && !isLoading && hasMore) {
-      currentPage++;
-      loadGalleryItems(currentPage, true);
+  observer = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+      if (entry.isIntersecting && !isLoading && hasMore) {
+        currentPage++;
+        loadGalleryItems(currentPage, true);
+      }
+    },
+    {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0.1,
     }
-  }, {
-    root: null,
-    rootMargin: '100px',
-    threshold: 0.1
-  });
+  );
 
   observer.observe(sentinel);
 }
 
 async function loadGalleryItems(page = 1, append = false) {
-  if (isLoading || !hasMore && append) return;
+  if (isLoading || (!hasMore && append)) return;
 
   isLoading = true;
   const galleryGrid = document.getElementById('gallery-grid');
   const loadingIndicator = document.getElementById('loading-indicator');
-  
+
   if (window.SkeletonEngine) {
     if (append) {
       window.SkeletonEngine.show(galleryGrid, 'card', limit, true);
@@ -257,8 +322,10 @@ async function loadGalleryItems(page = 1, append = false) {
   try {
     const searchTerm = document.getElementById('search-input').value.trim();
     const typeFilter = document.getElementById('type-filter').value;
+    const stateFilter = document.getElementById('state-filter');
+    const sortSelect = document.getElementById('sort-select');
 
-    let url = `/api/items?page=${page}&limit=${limit}`;
+    let url = `/api/gallery?page=${page}&limit=${limit}`;
     if (typeFilter !== 'all') url += `&type=${typeFilter}`;
     if (window.galleryActiveEra && window.galleryActiveEra !== 'All') {
       url += `&year=${window.galleryActiveEra}`;
@@ -266,8 +333,17 @@ async function loadGalleryItems(page = 1, append = false) {
     if (searchTerm) {
       url += `&search=${encodeURIComponent(searchTerm)}`;
       if (window.Telemetry) {
-        window.Telemetry.track('search', { query: searchTerm, type: typeFilter });
+        window.Telemetry.track('search', {
+          query: searchTerm,
+          type: typeFilter,
+        });
       }
+    }
+    if (stateFilter && stateFilter.value !== 'all') {
+      url += `&state=${encodeURIComponent(stateFilter.value)}`;
+    }
+    if (sortSelect && sortSelect.value) {
+      url += `&sort=${encodeURIComponent(sortSelect.value)}`;
     }
 
     const response = await fetch(url);
@@ -275,7 +351,10 @@ async function loadGalleryItems(page = 1, append = false) {
 
     // Check if new format
     let items = [];
-    if (result && result.data && result.meta) {
+    if (result && result.success && result.data && result.pagination) {
+      items = result.data;
+      hasMore = result.pagination.page < result.pagination.totalPages;
+    } else if (result && result.data && result.meta) {
       items = result.data;
       hasMore = result.meta.currentPage < result.meta.totalPages;
     } else {
@@ -330,99 +409,168 @@ function translateType(type) {
   return tGallery(keyMap[type] || type);
 }
 
-function getEmptyStateHtml() {
-  return `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
-            <p style="font-size: 1.2rem; margin-bottom: 1rem;">${tGallery('gallery_empty_title')}</p>
-            <p>${tGallery('gallery_empty_desc')}</p>
-        </div>
-    `;
-}
+// --- VDOM State ---
+let lastGalleryVirtualTree = null;
+let galleryViewportNode = null;
 
 // Re-render on language change
-window.addEventListener('parampara:langchange', async () => {
-  displayItems(await getCurrentFilteredItems());
+window.addEventListener('parampara:langchange', () => {
+  displayItems(allItems);
 });
 
-function displayItems(items, append = false) {
-  const galleryGrid = document.getElementById('gallery-grid');
+const GalleryItemComponent = ({ item }) => {
+  if (!window.vdom) return null;
+  const { h } = window.vdom;
+  
+  const isFav = !!(window.FavoritesManager && window.FavoritesManager.isFavorite(item.id));
+  const heartSvg = isFav ? HEART_FILLED : HEART_EMPTY;
 
-  if (!items || items.length === 0) {
-    galleryGrid.innerHTML = getEmptyStateHtml();
+  let mediaNode;
+  if (item.imageUrl) {
+    mediaNode = h('img', {
+      src: item.imageUrl,
+      alt: escapeHtml(item.title),
+      loading: 'lazy',
+      class: 'lazy-img',
+      onload: function() { this.classList.add('loaded'); },
+      style: 'width:100%;height:100%;object-fit:cover;'
+    });
+  } else {
+    mediaNode = h('span', {}, getTypeIcon(item.type));
+  }
+
+  const shareBtn = h('button', {
+    class: 'share-card-btn',
+    'data-item-id': escapeHtml(item.id),
+    'aria-label': 'Share this item',
+    title: 'Share this item',
+    innerHTML: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>'
+  });
+
+  const favBtn = h('button', {
+    class: `favorite-btn${isFav ? ' favorited' : ''}`,
+    'data-item-id': escapeHtml(item.id),
+    'aria-label': isFav ? 'Remove from favorites' : 'Add to favorites',
+    title: isFav ? 'Remove from favorites' : 'Add to favorites',
+    innerHTML: heartSvg
+  });
+
+  const reportBtn = h('button', {
+    class: 'report-card-btn',
+    'data-item-id': escapeHtml(item.id),
+    'aria-label': 'Report inappropriate content',
+    title: 'Report inappropriate content',
+    innerHTML: '🚩',
+    style: 'position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; font-size:16px; z-index:2; box-shadow:0 2px 5px rgba(0,0,0,0.2);'
+  });
+
+  let panoramaBtn = null;
+  if (item.panoramaUrl) {
+    panoramaBtn = h('button', {
+      class: 'panorama-view-btn',
+      onclick: (e) => { 
+        if (window.panoramaViewer) { window.panoramaViewer.open(item); }
+        e.stopPropagation(); 
+      },
+      title: 'View in 360',
+      style: 'position:absolute; bottom:10px; left:10px; background:rgba(0,0,0,0.7); color:#fff; border:none; padding:5px 10px; border-radius:15px; cursor:pointer; font-size:0.8rem; z-index:2; backdrop-filter: blur(4px);'
+    }, '👁️ View 360°');
+  }
+
+  const imageWrapper = h('div', { class: 'gallery-item-image', style: 'position:relative;' }, 
+    mediaNode, shareBtn, favBtn, reportBtn, panoramaBtn
+  );
+
+  let tagsNode = null;
+  if (item.tags && item.tags.length > 0) {
+    const tagElements = item.tags.map(tag => h('span', { class: 'tag' }, escapeHtml(tag)));
+    tagsNode = h('div', { class: 'gallery-item-tags' }, ...tagElements);
+  }
+
+    let badgeProps = { style: 'display:inline-flex; align-items:center; font-size: 0.75rem; padding: 2px 6px; border-radius: 12px; margin-left: 8px; vertical-align: middle; font-weight: bold; cursor: help;' };
+    let badgeText = '';
+    if (!item.hash) {
+      badgeProps.style += 'background: #f3f4f6; color: #6b7280;';
+      badgeProps.title = 'This item was created before integrity hashing was enabled.';
+      badgeText = '🛡️ Unverified';
+    } else if (item._verified) {
+      badgeProps.style += 'background: #def7ec; color: #03543f;';
+      badgeProps.title = 'Content integrity verified via SHA-256 hash.';
+      badgeText = '✅ Verified';
+    } else {
+      badgeProps.style += 'background: #fde8e8; color: #9b1c1c;';
+      badgeProps.title = 'Integrity check failed! Content may have been altered.';
+      badgeText = '⚠️ Tampered';
+    }
+    const badgeNode = h('span', badgeProps, badgeText);
+
+    const descHtml = renderMarkdown(item.description.substring(0, 100) + (item.description.length > 100 ? '...' : ''), true);
+
+    const contentWrapper = h('div', { 
+      class: 'gallery-item-content', 
+      onclick: (e) => { viewItem(item.id); e.stopPropagation(); },
+      style: 'cursor:pointer;'
+    },
+      h('span', { class: 'gallery-item-type' }, translateType(item.type)),
+      h('div', { class: 'gallery-item-location' },
+        h('span', { class: 'gallery-item-location-marker' }, '📍'),
+        h('strong', {}, escapeHtml(item.location))
+      ),
+      h('h3', { style: 'display: flex; align-items: center;' }, escapeHtml(item.title), badgeNode),
+      h('div', { class: 'markdown-body', style: 'font-size:0.9rem; margin-bottom:1rem;', innerHTML: descHtml }),
+    tagsNode
+  );
+
+  return h('div', { class: 'gallery-item', 'data-item-id': escapeHtml(item.id), key: item.id },
+    imageWrapper, contentWrapper
+  );
+};
+
+function displayItems(items, append = false) {
+  if (!window.vdom) {
+    console.warn('[Parampara Gallery] VDOM engine not loaded. Check script imports.');
     return;
   }
+  
+  const { h, diff, scheduleUpdate, render: vdomRender } = window.vdom;
 
-  const itemsHtml = items
-    .map((item) => {
-      const isFav = !!(window.FavoritesManager && window.FavoritesManager.isFavorite(item.id));
-      const heartSvg = isFav ? HEART_FILLED : HEART_EMPTY;
-
-      return `
-        <div class="gallery-item" data-item-id="${escapeHtml(item.id)}">
-            <div class="gallery-item-image" style="position:relative;">
-                ${item.imageUrl
-          ? `<img src="${item.imageUrl}" alt="${escapeHtml(item.title)}" loading="lazy" class="lazy-img" onload="this.classList.add('loaded')" style="width:100%;height:100%;object-fit:cover;">`
-          : `<span>${getTypeIcon(item.type)}</span>`
-        }
-                <button
-                  class="share-card-btn"
-                  data-item-id="${escapeHtml(item.id)}"
-                  aria-label="Share this item"
-                  title="Share this item"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-                </button>
-                <button
-                  class="favorite-btn${isFav ? ' favorited' : ''}"
-                  data-item-id="${escapeHtml(item.id)}"
-                  aria-label="${isFav ? 'Remove from favorites' : 'Add to favorites'}"
-                  title="${isFav ? 'Remove from favorites' : 'Add to favorites'}"
-                >
-                    ${heartSvg}
-                </button>
-                ${item.panoramaUrl ? `
-                <button
-                  class="panorama-view-btn"
-                  onclick="if(window.panoramaViewer) { window.panoramaViewer.open(${JSON.stringify(item).replace(/"/g, '&quot;')}); event.stopPropagation(); }"
-                  title="View in 360"
-                  style="position:absolute; bottom:10px; left:10px; background:rgba(0,0,0,0.7); color:#fff; border:none; padding:5px 10px; border-radius:15px; cursor:pointer; font-size:0.8rem; z-index:2; backdrop-filter: blur(4px);"
-                >
-                  👁️ View 360°
-                </button>
-                ` : ''}
-            </div>
-            <div class="gallery-item-content" onclick="viewItem('${escapeHtml(item.id)}'); event.stopPropagation();" style="cursor:pointer;">
-                <span class="gallery-item-type">${translateType(item.type)}</span>
-                <div class="gallery-item-location">
-                    <span class="gallery-item-location-marker">📍</span> <strong>${escapeHtml(item.location)}</strong>
-                </div>
-                <h3>${escapeHtml(item.title)}</h3>
-                <div class="markdown-body" style="font-size:0.9rem; margin-bottom:1rem;">${renderMarkdown(item.description.substring(0, 100) + (item.description.length > 100 ? '...' : ''), true)}</div>
-                ${item.tags && item.tags.length > 0
-          ? `
-                    <div class="gallery-item-tags">
-                        ${item.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
-                    </div>
-                `
-          : ''
-        }
-            </div>
-        </div>
-    `;
-    })
-    .join('');
-
-  if (append) {
-    // If appending and empty state was there, clear it first
-    if (galleryGrid.innerHTML.includes('gallery_empty_title')) {
-      galleryGrid.innerHTML = itemsHtml;
-    } else {
-      // Append without breaking existing elements
-      galleryGrid.insertAdjacentHTML('beforeend', itemsHtml);
-    }
-  } else {
-    galleryGrid.innerHTML = itemsHtml;
+  if (!galleryViewportNode) {
+    galleryViewportNode = document.getElementById('gallery-grid');
   }
+
+  scheduleUpdate(() => {
+    let currentVirtualTree;
+
+    if (!items || items.length === 0) {
+      currentVirtualTree = h('div', { id: 'gallery-grid', class: 'gallery-grid', key: 'gallery-grid' },
+        h('div', { style: 'grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);', key: 'empty-state' },
+          h('p', { style: 'font-size: 1.2rem; margin-bottom: 1rem;' }, tGallery('gallery_empty_title')),
+          h('p', {}, tGallery('gallery_empty_desc'))
+        )
+      );
+    } else {
+      const itemNodes = items.map(item => h(GalleryItemComponent, { item, key: item.id }));
+      currentVirtualTree = h('div', { id: 'gallery-grid', class: 'gallery-grid', key: 'gallery-grid' }, ...itemNodes);
+    }
+
+    if (!lastGalleryVirtualTree) {
+      // Trick VDOM into diffing the children instead of destroying the root node,
+      // which preserves event delegation (setupFavDelegation & setupShareDelegation).
+      lastGalleryVirtualTree = h('div', { id: 'gallery-grid', class: 'gallery-grid', key: 'gallery-grid' });
+      // Clear out the original server-rendered or previous innerHTML empty state safely
+      galleryViewportNode.innerHTML = '';
+    }
+
+    const renderStart = performance.now();
+    const updatedDOM = diff(galleryViewportNode, lastGalleryVirtualTree, currentVirtualTree);
+    if (updatedDOM) {
+      galleryViewportNode = updatedDOM;
+    }
+    const renderEnd = performance.now();
+    console.log(`[Gallery VDOM Patch] Completed diff in ${(renderEnd - renderStart).toFixed(2)}ms`);
+
+    lastGalleryVirtualTree = currentVirtualTree;
+  });
 }
 
 function getTypeIcon(type) {
@@ -431,7 +579,9 @@ function getTypeIcon(type) {
 }
 
 async function getCurrentFilteredItems() {
-  const searchTerm = document.getElementById('search-input').value.toLowerCase();
+  const searchTerm = document
+    .getElementById('search-input')
+    .value.toLowerCase();
   const typeFilter = document.getElementById('type-filter').value;
 
   const galleryGrid = document.getElementById('gallery-grid');
@@ -443,7 +593,7 @@ async function getCurrentFilteredItems() {
     const filtered = await window.dataWorker.runJob('filterGalleryItems', {
       items: allItems,
       typeFilter,
-      searchTerm
+      searchTerm,
     });
 
     return filtered;
@@ -460,9 +610,7 @@ async function getCurrentFilteredItems() {
 async function filterItems() {
   currentPage = 1;
   hasMore = true;
-
-  const filtered = await getCurrentFilteredItems();
-  displayItems(filtered);
+  await loadGalleryItems(1, false);
 }
 
 async function handleAddItem(e) {
@@ -499,25 +647,39 @@ async function handleAddItem(e) {
 
   function isValidUrl(str) {
     if (str.startsWith('data:image/')) return true;
-    try { new URL(str); return true; } catch { return false; }
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   if (!title) showError('title', 'Title is required.');
   if (!location) showError('location', 'Location/Village is required.');
   if (!description) showError('description', 'Description is required.');
   if (imageUrl && !isValidUrl(imageUrl))
-    showError('imageUrl', 'Please enter a valid URL (e.g. https://example.com/image.jpg).');
+    showError(
+      'imageUrl',
+      'Please enter a valid URL (e.g. https://example.com/image.jpg).'
+    );
   if (audioUrl && !isValidUrl(audioUrl))
     showError('audioUrl', 'Please enter a valid URL.');
 
   if (hasError) return;
 
   const data = {
-    title, type, location, description,
+    title,
+    type,
+    location,
+    description,
     imageUrl: imageUrl || '',
     audioUrl: audioUrl || '',
     tags: formData.get('tags')
-      ? formData.get('tags').split(',').map((t) => t.trim())
+      ? formData
+          .get('tags')
+          .split(',')
+          .map((t) => t.trim())
       : [],
   };
 
@@ -536,11 +698,16 @@ async function handleAddItem(e) {
       e.target.reset();
       const uiContainer = document.getElementById('image-optimization-ui');
       if (uiContainer) uiContainer.style.display = 'none';
-      
+
       const markdownPreview = document.getElementById('markdown-preview');
       if (markdownPreview) markdownPreview.innerHTML = '';
       document.getElementById('add-item-modal').classList.remove('active');
-      window.SyncManager ? window.SyncManager.showToast(tGallery('gallery_item_added'), 'success') : alert(tGallery('gallery_item_added'));
+      window.SyncManager
+        ? window.SyncManager.showToast(
+            tGallery('gallery_item_added'),
+            'success'
+          )
+        : alert(tGallery('gallery_item_added'));
     } else {
       throw new Error(`Server returned status ${response.status}`);
     }
@@ -548,30 +715,40 @@ async function handleAddItem(e) {
     console.error('Error adding item:', error);
 
     // Offline submission handling
-    const isNetworkError = !navigator.onLine ||
+    const isNetworkError =
+      !navigator.onLine ||
       error.message.includes('Failed to fetch') ||
       error.message.includes('NetworkError');
 
     if (isNetworkError && window.SyncManager) {
       try {
-        await window.SyncManager.enqueue('/api/items', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        }, { title: data.title });
+        await window.SyncManager.enqueue(
+          '/api/items',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          },
+          { title: data.title }
+        );
 
         e.target.reset();
         if (quillEditor) {
           quillEditor.root.innerHTML = '';
         }
         document.getElementById('add-item-modal').classList.remove('active');
-        window.SyncManager.showToast('Network is unavailable. Your submission has been saved locally and will be synced automatically when online.', 'info');
+        window.SyncManager.showToast(
+          'Network is unavailable. Your submission has been saved locally and will be synced automatically when online.',
+          'info'
+        );
       } catch (syncErr) {
         console.error('Failed to save to offline queue:', syncErr);
         window.SyncManager.showToast(tGallery('gallery_item_error'), 'error');
       }
     } else {
-      window.SyncManager ? window.SyncManager.showToast(tGallery('gallery_item_error'), 'error') : alert(tGallery('gallery_item_error'));
+      window.SyncManager
+        ? window.SyncManager.showToast(tGallery('gallery_item_error'), 'error')
+        : alert(tGallery('gallery_item_error'));
     }
   }
 }
@@ -592,19 +769,31 @@ function viewItem(id) {
 
   if (!lightbox) {
     if (window.Telemetry) window.Telemetry.track('item_view', { itemId: id });
-    alert(`${tGallery('gallery_viewing')}: ${item.title}\n\n${item.description}`);
+    alert(
+      `${tGallery('gallery_viewing')}: ${item.title}\n\n${item.description}`
+    );
     return;
   }
 
-  if (window.Telemetry) window.Telemetry.track('item_view', { itemId: id, title: item.title });
+  if (window.Telemetry)
+    window.Telemetry.track('item_view', { itemId: id, title: item.title });
   // Set Info
   document.getElementById('lightbox-title').textContent = item.title;
   document.getElementById('lightbox-location').textContent = item.location;
-  document.getElementById('lightbox-type').textContent = translateType(item.type);
-  document.getElementById('lightbox-desc').innerHTML = renderMarkdown(item.description, true);
+  document.getElementById('lightbox-type').textContent = translateType(
+    item.type
+  );
+  document.getElementById('lightbox-desc').innerHTML = renderMarkdown(
+    item.description,
+    true
+  );
 
   const tagsContainer = document.getElementById('lightbox-tags');
-  tagsContainer.innerHTML = item.tags ? item.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('') : '';
+  tagsContainer.innerHTML = item.tags
+    ? item.tags
+        .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
+        .join('')
+    : '';
 
   // Handle Image or fallback
   const lens = document.getElementById('magnifier-lens');
@@ -621,10 +810,9 @@ function viewItem(id) {
   lightbox.classList.add('active');
 }
 
-
 function setupMagnifier(img, lens, imgUrl) {
   // Disable if device supports touch/pointer is coarse
-  if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) {
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
     return;
   }
 
@@ -639,12 +827,12 @@ function setupMagnifier(img, lens, imgUrl) {
 
   lens.style.backgroundImage = `url('${imgUrl}')`;
 
-  img.addEventListener("mouseenter", () => {
-    lens.style.display = "block";
+  img.addEventListener('mouseenter', () => {
+    lens.style.display = 'block';
     lens.style.backgroundSize = `${img.width * zoomLevel}px ${img.height * zoomLevel}px`;
   });
 
-  img.addEventListener("mousemove", (e) => {
+  img.addEventListener('mousemove', (e) => {
     e.preventDefault();
     const pos = getCursorPos(e, img);
 
@@ -653,14 +841,14 @@ function setupMagnifier(img, lens, imgUrl) {
     lens.style.top = `${pos.y}px`;
 
     // Calculate background position
-    const bgX = (pos.x * zoomLevel) - (lens.offsetWidth / 2);
-    const bgY = (pos.y * zoomLevel) - (lens.offsetHeight / 2);
+    const bgX = pos.x * zoomLevel - lens.offsetWidth / 2;
+    const bgY = pos.y * zoomLevel - lens.offsetHeight / 2;
 
     lens.style.backgroundPosition = `-${bgX}px -${bgY}px`;
   });
 
-  img.addEventListener("mouseleave", () => {
-    lens.style.display = "none";
+  img.addEventListener('mouseleave', () => {
+    lens.style.display = 'none';
   });
 }
 
@@ -682,7 +870,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox || e.target.classList.contains('lightbox-layout') || e.target.classList.contains('lightbox-image-container')) {
+      if (
+        e.target === lightbox ||
+        e.target.classList.contains('lightbox-layout') ||
+        e.target.classList.contains('lightbox-image-container')
+      ) {
         lightbox.classList.remove('active');
       }
     });
@@ -702,7 +894,8 @@ function getSampleItems() {
       id: '1',
       type: 'visual',
       title: 'Kantha Embroidery Patterns',
-      description: 'Traditional Kantha embroidery from rural Bengal, featuring intricate running stitch patterns depicting village life and nature.',
+      description:
+        'Traditional Kantha embroidery from rural Bengal, featuring intricate running stitch patterns depicting village life and nature.',
       location: 'Kantha Village, Bengal',
       imageUrl: '',
       tags: ['embroidery', 'textile'],
@@ -711,7 +904,8 @@ function getSampleItems() {
       id: '2',
       type: 'audio',
       title: 'Folk Songs of Rajasthan',
-      description: 'A collection of traditional folk songs passed down through generations in rural Rajasthan.',
+      description:
+        'A collection of traditional folk songs passed down through generations in rural Rajasthan.',
       location: 'Jaisalmer, Rajasthan',
       imageUrl: '',
       tags: ['music', 'folk', 'oral-tradition'],
@@ -720,7 +914,8 @@ function getSampleItems() {
       id: '3',
       type: 'story',
       title: 'The Blue Door Legend',
-      description: 'An ancient story explaining why villagers in certain regions paint their doors blue to ward off evil spirits.',
+      description:
+        'An ancient story explaining why villagers in certain regions paint their doors blue to ward off evil spirits.',
       location: 'Jodhpur, Rajasthan',
       imageUrl: '',
       tags: ['legend', 'tradition', 'architecture'],
@@ -729,15 +924,18 @@ function getSampleItems() {
       id: '4',
       type: 'visual',
       title: 'Hawa Mahal Interior (360°)',
-      description: 'An immersive 360-degree view from inside the Palace of Winds.',
+      description:
+        'An immersive 360-degree view from inside the Palace of Winds.',
       location: 'Jaipur, Rajasthan',
-      imageUrl: 'https://images.unsplash.com/photo-1599661559863-718f6fdf3946?w=600&auto=format&fit=crop',
-      panoramaUrl: 'https://images.unsplash.com/photo-1557971370-e7298ee473cb?q=80&w=2560&auto=format&fit=crop', // Placeholder equirectangular
+      imageUrl:
+        'https://images.unsplash.com/photo-1599661559863-718f6fdf3946?w=600&auto=format&fit=crop',
+      panoramaUrl:
+        'https://images.unsplash.com/photo-1557971370-e7298ee473cb?q=80&w=2560&auto=format&fit=crop', // Placeholder equirectangular
       tags: ['architecture', '360', 'heritage'],
       hotspots: [
         { lat: 10, lon: 45, info: 'Intricate Jharokhas (windows)' },
-        { lat: -5, lon: -120, info: 'Courtyard view' }
-      ]
+        { lat: -5, lon: -120, info: 'Courtyard view' },
+      ],
     },
   ];
 }

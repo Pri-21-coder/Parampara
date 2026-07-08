@@ -8,7 +8,7 @@
       content="A community-driven digital archive preserving rural cultural heritage through stories, crafts, maps, and responsible tourism"
     />
     <title>Parampara - Preserving Rural Heritage</title>
-    <link rel="stylesheet" href="styles/main.css?v=2.0" />
+    <link rel="stylesheet" href="styles/main.css" />
     <link rel="stylesheet" href="styles/languageSelector.css" />
     <link rel="stylesheet" href="styles/theme.css" />
     <link
@@ -25,10 +25,6 @@
     />
   </head>
   <body>
-    <!-- Floating Background Decorative Glow Orbs -->
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-
     <!-- Navigation -->
     <!-- Navigation -->
     <nav class="navbar">
@@ -63,6 +59,8 @@
           </li>
           <li>
             <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li> <a href="temples.html" data-i18n="nav_temples"> Temples of India</a>
           </li>
           <li>
             <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
@@ -129,6 +127,16 @@
               ><i class="ti ti-heart"></i> My Favorites</a
             >
           </li>
+          <li>
+            <a href="#" id="nav-reviews"
+              ><i class="ti ti-star"></i> Reviews</a
+            >
+          </li>
+          <li>
+            <a href="#" id="nav-badge"
+              ><i class="ti ti-award"></i> My Badge</a
+            >
+          </li>
         </ul>
       </div>
     </nav>
@@ -142,6 +150,8 @@
             ><i class="ti ti-home"></i> Home</a
           >
           <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
           <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
           <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
           <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
@@ -178,7 +188,7 @@
       <div class="hero-content">
         <!-- Left: Text Panel -->
         <div class="hero-texts">
-          <div class="hero-badge"><span class="badge-dot"></span> 🏛️ Cultural Heritage Archive</div>
+          <div class="hero-badge">🏛️ Cultural Heritage Archive</div>
           <h2 class="hero-title" data-i18n="hero_title">
             Preserving the Stories That Matter
           </h2>
@@ -295,6 +305,34 @@
       </div>
     </section>
 
+    <!-- Featured Artisan Spotlight Section -->
+    <section class="artisan-spotlight-section">
+      <div class="container">
+        <h2 class="section-title">Artisan Spotlight</h2>
+        <p class="section-subtitle">Meet the keepers of India's ancient heritage</p>
+        <div class="spotlight-card">
+          <div class="spotlight-image-container">
+            <img src="images/heroimg.webp" alt="Featured Artisan - Ramesh Kumhar" class="spotlight-img" />
+            <span class="spotlight-badge">Featured Artisan</span>
+          </div>
+          <div class="spotlight-info">
+            <span class="spotlight-craft-tag">🏺 Khurja Blue Pottery</span>
+            <h3>Ramesh Kumhar</h3>
+            <p class="spotlight-location">📍 Khurja, Uttar Pradesh</p>
+            <p class="spotlight-bio">
+              Ramesh has been practicing the 700-year-old art of Khurja Blue Pottery for over four decades. 
+              Today, he runs free workshops teaching local youth to shape, glaze, and bake traditional clay works, 
+              ensuring the legacy thrives.
+            </p>
+            <div class="spotlight-actions">
+              <a href="artisans.html" class="btn btn-primary">View Portfolio</a>
+              <button id="btn-support-artisan" class="btn btn-secondary" style="border: 1px solid rgba(212, 168, 83, 0.35);">⭐ Send Support</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Live Updates Section -->
     <section class="live-updates">
       <div class="container">
@@ -302,27 +340,7 @@
           Live from the Village
         </h2>
         <div id="village-posts" class="posts-grid">
-          <div class="post-card-skeleton">
-            <div class="shimmer-line title-shimmer"></div>
-            <div class="shimmer-line meta-shimmer"></div>
-            <div class="shimmer-line content-shimmer-1"></div>
-            <div class="shimmer-line content-shimmer-2"></div>
-            <div class="shimmer-line badge-shimmer"></div>
-          </div>
-          <div class="post-card-skeleton">
-            <div class="shimmer-line title-shimmer"></div>
-            <div class="shimmer-line meta-shimmer"></div>
-            <div class="shimmer-line content-shimmer-1"></div>
-            <div class="shimmer-line content-shimmer-2"></div>
-            <div class="shimmer-line badge-shimmer"></div>
-          </div>
-          <div class="post-card-skeleton">
-            <div class="shimmer-line title-shimmer"></div>
-            <div class="shimmer-line meta-shimmer"></div>
-            <div class="shimmer-line content-shimmer-1"></div>
-            <div class="shimmer-line content-shimmer-2"></div>
-            <div class="shimmer-line badge-shimmer"></div>
-          </div>
+          <!-- Posts will be loaded dynamically -->
         </div>
       </div>
     </section>
@@ -338,6 +356,10 @@
             Preserving rural heritage, traditions, and stories for future
             generations.
           </p>
+          <div style="margin-top: 0.8rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="#" id="footer-rate-us" class="btn-rate-us">⭐ Rate Us</a>
+            <a href="#" id="footer-get-badge" class="btn-rate-us">🎖️ Get Badge</a>
+          </div>
         </div>
 
         <!-- Social media links -->
@@ -410,15 +432,108 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="scripts/markdown.js"></script>
     <script src="scripts/translationsData.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
+    <script src="scripts/main.js"></script>
     <script src="scripts/cacheLayer.js"></script>
-    <script src="scripts/languageSwitcher.js?v=2.0"></script>
-    <script src="scripts/main.js?v=2.0"></script>
     <script src="scripts/navbar.js"></script>
     <script src="scripts/theme.js"></script>
     <script src="scripts/sw-register.js"></script>
     <script src="scripts/telemetry.js"></script>
     <script src="scripts/idb-storage.js"></script>
-    <script src="scripts/sync-manager.js"></script>
-    <script src="scripts/offline-dashboard.js"></script>
+  <script src="scripts/sync-manager.js"></script>
+  <script src="scripts/offline-dashboard.js"></script>
+
+  <!-- Rating Modals -->
+  <div id="rateUsModal" class="rating-modal-overlay">
+    <div class="rating-modal-content">
+      <button class="rating-modal-close" id="closeRateModal">&times;</button>
+      <div class="rating-modal-header">
+        <h2>⭐ Rate Your Experience</h2>
+        <p>Your feedback helps us preserve cultural heritage better!</p>
+      </div>
+      <form id="ratingForm" class="rating-form">
+        <div class="rating-user-info">
+          <label for="ratingUserName">Your Name</label>
+          <input type="text" id="ratingUserName" placeholder="Enter your name" required />
+        </div>
+        <div class="rating-stars-container">
+          <span class="rating-star" data-value="1">★</span>
+          <span class="rating-star" data-value="2">★</span>
+          <span class="rating-star" data-value="3">★</span>
+          <span class="rating-star" data-value="4">★</span>
+          <span class="rating-star" data-value="5">★</span>
+        </div>
+        <div class="rating-desc-container">
+          <label for="ratingComment">Your Review</label>
+          <textarea id="ratingComment" rows="4" placeholder="Tell us what you like or how we can improve..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary rating-submit-btn">Submit Rating</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="reviewsListModal" class="rating-modal-overlay">
+    <div class="rating-modal-content large">
+      <button class="rating-modal-close" id="closeReviewsModal">&times;</button>
+      <div class="rating-modal-header">
+        <h2>💬 What Our Visitors Say</h2>
+        <p>Community ratings and feedback about the Parampara platform</p>
+      </div>
+      <div class="reviews-summary-container">
+        <div class="avg-rating-box">
+          <span class="avg-rating-value" id="avgRatingVal">4.8</span>
+          <div class="avg-stars" id="avgStarsRow">★★★★★</div>
+          <span class="total-reviews-count" id="totalReviewsCount">Based on 5 reviews</span>
+        </div>
+      </div>
+      <div class="reviews-scroll-list" id="reviewsScrollList">
+        <!-- Reviews load dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Badge Generator Modal -->
+  <div id="badgeModal" class="rating-modal-overlay">
+    <div class="rating-modal-content large" style="max-width: 800px;">
+      <button class="rating-modal-close" id="closeBadgeModal">&times;</button>
+      <div class="rating-modal-header" style="margin-bottom: 1.2rem;">
+        <h2>🎖️ Generate Your Contributor Badge</h2>
+        <p>Create a custom shareable credential for your preservation efforts</p>
+      </div>
+      <div class="badge-modal-body" style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <!-- Left side: Form inputs -->
+        <div class="badge-form-panel" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 1rem;">
+          <div class="rating-user-info">
+            <label for="badgeUserName" style="display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #d4a853;">Your Name</label>
+            <input type="text" id="badgeUserName" placeholder="Enter your full name" value="Aditya Sharma" required style="width: 100%; padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(212, 168, 83, 0.15); border-radius: 8px; color: #fff; font-family: 'Outfit', sans-serif;" />
+          </div>
+          <div class="rating-user-info">
+            <label for="badgeRole" style="display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #d4a853;">Contribution Role</label>
+            <select id="badgeRole" style="width: 100%; padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(212, 168, 83, 0.15); border-radius: 8px; color: #fff; font-family: 'Outfit', sans-serif;">
+              <option value="Heritage Guardian">🛡️ Heritage Guardian</option>
+              <option value="Cultural Storyteller">📜 Cultural Storyteller</option>
+              <option value="Folk Art Curator">🎨 Folk Art Curator</option>
+              <option value="Oral Historian">🗣️ Oral Historian</option>
+            </select>
+          </div>
+          <div class="rating-user-info">
+            <label for="badgeVillage" style="display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #d4a853;">Village / Region</label>
+            <input type="text" id="badgeVillage" placeholder="e.g. Khurja" value="Khurja" required style="width: 100%; padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(212, 168, 83, 0.15); border-radius: 8px; color: #fff; font-family: 'Outfit', sans-serif;" />
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem;">
+            <button id="btnShuffleStyle" class="btn btn-secondary" style="flex: 1; border: 1px solid rgba(212, 168, 83, 0.35);">🎲 Shuffle Style</button>
+            <button id="btnDownloadBadge" class="btn btn-primary" style="flex: 1.2;">📥 Download Badge</button>
+          </div>
+        </div>
+        <!-- Right side: Live preview canvas -->
+        <div class="badge-preview-panel" style="flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem;">
+          <canvas id="badgeCanvas" width="500" height="500" style="max-width: 100%; height: auto; border: 1px solid rgba(212, 168, 83, 0.3); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); background: #1e140f;"></canvas>
+          <span style="font-size: 0.8rem; color: #a8988a;">Dynamic real-time PNG preview</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

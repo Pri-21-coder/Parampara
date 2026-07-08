@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Family Archives | Parampara</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/archives.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-home">
+    <div class="nav-container">
+      <div class="logo">
+        <h1 data-i18n="brand_name">Parampara</h1>
+        <p class="tagline" data-i18n="brand_tagline">Private Archives</p>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+        <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+        <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+        <li><a href="archives.html" class="active"><i class="ti ti-vault"></i> Archives</a></li>
+        <li class="nav-dropdown">
+          <a href="javascript:void(0)" class="dropdown-trigger">More <i class="ti ti-chevron-down"></i></a>
+          <ul class="dropdown-menu">
+            <li><a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a></li>
+            <li><a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a></li>
+            <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
+          </ul>
+        </li>
+      </ul>
+      <div class="header-actions" style="margin-left: auto;">
+        <!-- Mock login for E2EE demo -->
+        <div class="mock-user-selector" style="background: rgba(0,0,0,0.1); padding: 5px; border-radius: 5px;">
+          <select id="currentUserSelect" style="background: transparent; border: none; color: inherit; outline: none; cursor: pointer;">
+            <option value="user123" selected>Aarav (user123)</option>
+            <option value="user456">Meera (user456)</option>
+            <option value="user789">Rohan (user789)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="archives-main" style="padding-top: 100px;">
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1>Private Family Archives</h1>
+        <p>End-to-End Encrypted storage for your most sensitive family heritage. 
+           Your documents are encrypted on your device and only accessible to those you choose.</p>
+      </div>
+    </section>
+
+    <!-- Key Management Section -->
+    <section id="key-management-section" class="card-section">
+      <div class="card glass-card">
+        <div class="card-header">
+          <i class="ti ti-key icon-gradient"></i>
+          <h2>Encryption Keys</h2>
+        </div>
+        <div class="card-body">
+          <p id="key-status" class="status-message info">Checking for existing encryption keys...</p>
+          <button id="generate-keys-btn" class="btn primary-btn" style="display:none;">
+            <i class="ti ti-shield-halved"></i> Generate & Register Keys
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="archives-layout" id="archives-layout-container" style="display:none;">
+      <!-- Create Archive Column -->
+      <div class="create-column">
+        <div class="card glass-card">
+          <div class="card-header">
+            <i class="ti ti-lock icon-gradient"></i>
+            <h2>Create Encrypted Archive</h2>
+          </div>
+          <div class="card-body">
+            <form id="create-archive-form">
+              <div class="form-group">
+                <label for="archive-title">Archive Title (Public)</label>
+                <input type="text" id="archive-title" placeholder="e.g., Grandfather's Diary 1947" required>
+              </div>
+              <div class="form-group">
+                <label for="archive-content">Confidential Content (Encrypted)</label>
+                <textarea id="archive-content" rows="6" placeholder="Enter the private stories, details, or transcriptions here..." required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="share-with">Share With (Optional)</label>
+                <select id="share-with" multiple class="styled-select multiselect">
+                  <!-- Populated dynamically with other users' public keys -->
+                </select>
+                <small>Hold Ctrl (or Cmd) to select multiple users</small>
+              </div>
+              <button type="submit" class="btn primary-btn w-100" id="submit-archive-btn">
+                <i class="ti ti-vault"></i> Encrypt & Save Archive
+              </button>
+              <div id="create-status" class="status-message"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Archives Column -->
+      <div class="view-column">
+        <div class="card glass-card">
+          <div class="card-header">
+            <i class="ti ti-folder-open icon-gradient"></i>
+            <h2>My Accessible Archives</h2>
+            <button id="refresh-archives-btn" class="btn icon-btn"><i class="ti ti-rotate-right"></i></button>
+          </div>
+          <div class="card-body">
+            <div id="archives-list" class="archives-list">
+              <!-- Encrypted archives will be injected here -->
+              <p class="empty-state">No archives found. Create one to get started.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal for Decrypted Content -->
+  <div id="decrypted-modal" class="modal">
+    <div class="modal-content glass-card">
+      <span class="close-btn">&times;</span>
+      <h2 id="modal-title">Archive Title</h2>
+      <div class="decryption-status">
+        <i class="ti ti-lock-open"></i> Decrypted locally on your device
+      </div>
+      <div id="modal-content-body" class="modal-body-text">
+        <!-- Decrypted content goes here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p data-i18n="footer_copy">© 2024 Parampara. Preserving rural heritage, one story at a time.</p>
+    </div>
+  </footer>
+
+  <!-- Full Width Nav Menu Overlay -->
+  <div class="nav-fullmenu" id="navFullMenu">
+    <div class="nav-fullmenu-inner">
+      <p class="nav-fullmenu-label">Navigation</p>
+      <div class="nav-fullmenu-grid">
+        <a href="index.html" class="active"><i class="ti ti-home"></i> Home</a>
+        <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+        <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+        <a href="archives.html"><i class="ti ti-vault"></i> Archives</a>
+        <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+        <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+        <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+        <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-overlay" id="navOverlay"></div>
+
+  <!-- Scripts -->
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/languageSwitcher.js"></script>
+  <script src="scripts/main.js"></script>
+  <script src="/scripts/crypto-utils.js"></script>
+  <script src="/scripts/archives.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Real-time Cultural Trivia Game by Parampara"
+    />
+    <title>Cultural Trivia - Parampara</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/trivia.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <script src="scripts/resilient-ws.js"></script>
+</head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+          🌙
+        </button>
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">
+            Preserving Living Traditions
+          </p>
+        </div>
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="map.html">Explore Map</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="paths.html">Heritage Paths</a></li>
+          <li><a href="trivia" class="active">Trivia Game</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container trivia-container">
+      <!-- Lobby Screen -->
+      <div id="screen-lobby" class="screen active">
+        <div class="card card-lobby">
+          <h2 class="section-title">Join a Cultural Trivia Room</h2>
+          <p class="section-subtitle">Test your knowledge of rural heritage, monuments, and traditions!</p>
+          <div class="form-group">
+            <input type="text" id="username" class="trivia-input" placeholder="Enter your name" maxlength="20">
+          </div>
+          <div class="form-group">
+            <input type="text" id="room-id" class="trivia-input" placeholder="Room Code (e.g. INDIA26)" maxlength="10">
+          </div>
+          <button id="btn-join" class="btn btn-primary">Join Game</button>
+        </div>
+      </div>
+
+      <!-- Waiting Room Screen -->
+      <div id="screen-waiting" class="screen">
+        <div class="card card-lobby">
+          <h2 class="section-title" id="waiting-room-title">Room: </h2>
+          <div class="player-list-container">
+            <h3>Players in Lobby:</h3>
+            <ul id="lobby-players" class="player-list"></ul>
+          </div>
+          <p class="waiting-text">Waiting for everyone to join...</p>
+          <button id="btn-start" class="btn btn-success">Start Game Now</button>
+        </div>
+      </div>
+
+      <!-- Gameplay Screen -->
+      <div id="screen-game" class="screen">
+        <div class="card card-gameplay">
+          <div class="game-header">
+            <span id="question-counter" class="badge">Question 1/5</span>
+            <span id="score-display" class="badge outline">Score: 0</span>
+          </div>
+          
+          <div class="timer-bar-container">
+            <div id="timer-bar" class="timer-bar"></div>
+          </div>
+
+          <h2 id="question-text" class="question-text">Loading question...</h2>
+          
+          <div id="options-container" class="options-grid">
+            <!-- Buttons injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Round Result / Intermission Screen -->
+      <div id="screen-intermission" class="screen">
+        <div class="card card-intermission">
+          <h2 id="round-result-text" class="section-title">Round Over!</h2>
+          <div id="correct-answer-display" class="correct-answer-box"></div>
+          
+          <div class="leaderboard-container mini">
+            <h3>Current Standings</h3>
+            <ul id="intermission-leaderboard" class="leaderboard-list"></ul>
+          </div>
+          <p class="next-question-text">Next question starting soon...</p>
+        </div>
+      </div>
+
+      <!-- Final Leaderboard Screen -->
+      <div id="screen-ended" class="screen">
+        <div class="card card-final">
+          <h2 class="section-title">Game Over! 🎉</h2>
+          <div class="leaderboard-container final">
+            <h3>Final Leaderboard</h3>
+            <ul id="final-leaderboard" class="leaderboard-list"></ul>
+          </div>
+          <button id="btn-play-again" class="btn btn-primary">Play Again</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- We can link standard UI scripts -->
+    <script src="scripts/trivia.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
+</body>
+</html>

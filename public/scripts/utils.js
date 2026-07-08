@@ -100,7 +100,22 @@ window.dataWorker = new WorkerManager();
     const options = arguments[1] || {};
     const method = (options.method || 'GET').toUpperCase();
     
-    // Only intercept state-changing methods going to our API
+    // Auto-hash outgoing JSON data
+    if (['POST', 'PUT', 'PATCH'].includes(method) && typeof url === 'string' && url.startsWith('/api/')) {
+      if (options.body && typeof options.body === 'string') {
+        try {
+          const bodyData = JSON.parse(options.body);
+          if (typeof bodyData === 'object' && window.CryptoUtils && window.CryptoUtils.hashObject) {
+            bodyData.hash = await window.CryptoUtils.hashObject(bodyData);
+            options.body = JSON.stringify(bodyData);
+          }
+        } catch (e) {
+          // ignore parsing error if it's not JSON
+        }
+      }
+    }
+
+    // CSRF token logic for state-changing methods
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && typeof url === 'string' && url.startsWith('/api/')) {
       const token = await getCsrfToken();
       if (token) {
@@ -114,6 +129,40 @@ window.dataWorker = new WorkerManager();
       }
     }
     
-    return originalFetch.apply(this, arguments);
+    const response = await originalFetch.apply(this, arguments);
+
+    // Auto-verify incoming JSON data for GET requests
+    if (method === 'GET' && typeof url === 'string' && url.startsWith('/api/') && window.CryptoUtils) {
+      // Intercept the .json() method of the response
+      const originalJson = response.json.bind(response);
+      response.json = async function() {
+        const data = await originalJson();
+        
+        async function verify(item) {
+          if (Array.isArray(item)) {
+            await Promise.all(item.map(verify));
+          } else if (item && typeof item === 'object') {
+            if (item.hash && window.IntegrityBadge && window.IntegrityBadge.verifyItem) {
+              await window.IntegrityBadge.verifyItem(item);
+            }
+            // recursively check nested properties if they are arrays (e.g. nested items)
+            for (const key in item) {
+              if (Array.isArray(item[key])) {
+                 await verify(item[key]);
+              }
+            }
+          }
+        }
+        
+        try {
+           await verify(data);
+        } catch (e) {
+           console.error("Error verifying integrity:", e);
+        }
+        return data;
+      };
+    }
+
+    return response;
   };
 })();

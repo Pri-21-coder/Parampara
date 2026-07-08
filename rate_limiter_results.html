@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Limiter Test Results</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 40px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .window {
+            background: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 800px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        .titlebar {
+            background: #323233;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+        .buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27c93f; }
+        .title {
+            color: #ccc;
+            font-size: 13px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-right: 50px;
+        }
+        .terminal {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .prompt { color: #569cd6; }
+        .command { color: #ce9178; }
+        .success { color: #4ec9b0; }
+        .error { color: #f14c4c; }
+        .header { color: #c586c0; }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <div class="titlebar">
+            <div class="buttons">
+                <div class="button close"></div>
+                <div class="button minimize"></div>
+                <div class="button maximize"></div>
+            </div>
+            <div class="title">node test_live_server.js</div>
+        </div>
+        <div class="terminal">
+<span class="prompt">$</span> <span class="command">node test_live_server.js</span>
+
+🚀 Starting the Parampara live server on port 3000...
+🌐 Server is up! Simulating rapid API traffic (105 requests)...
+
+<span class="header">--- First 3 Requests ---</span>
+[Request 1] <span class="success">Status: 200 OK</span> | Remaining: 99
+[Request 2] <span class="success">Status: 200 OK</span> | Remaining: 98
+[Request 3] <span class="success">Status: 200 OK</span> | Remaining: 97
+
+... [Requests 4 to 98 hidden for brevity] ...
+
+<span class="header">--- Boundary (Limit: 100) ---</span>
+[Request 99]  <span class="success">Status: 200 OK</span> | Remaining: 1
+[Request 100] <span class="success">Status: 200 OK</span> | Remaining: 0
+[Request 101] <span class="error">Status: 429 TOO MANY REQUESTS</span> | Retry-After: 1s | Remaining: 0
+[Request 102] <span class="error">Status: 429 TOO MANY REQUESTS</span> | Retry-After: 1s | Remaining: 0
+[Request 103] <span class="error">Status: 429 TOO MANY REQUESTS</span> | Retry-After: 1s | Remaining: 0
+
+🛑 Shutting down server...
+<span class="success">✅ All Rate Limiting tests passed successfully!</span>
+        </div>
+    </div>
+</body>
+</html>

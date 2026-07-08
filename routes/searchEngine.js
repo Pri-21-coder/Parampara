@@ -1,7 +1,7 @@
 // routes/searchEngine.routes.js
 const express = require('express');
 const router = express.Router();
-const SearchEngineService = require('../services/searchEngineService');
+const SearchEngineService = require('../server/services/searchEngineService');
 
 let searchEngine = null;
 

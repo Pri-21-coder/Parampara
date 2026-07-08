@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="styles/languageSelector.css" />
     <link rel="stylesheet" href="styles/theme.css" />
     <link rel="stylesheet" href="styles/shareModal.css" />
-<link rel="stylesheet" href="styles/timeMachine.css" />
-<link rel="stylesheet" href="styles/skeleton.css" />
+    <link rel="stylesheet" href="styles/timeMachine.css" />
+    <link rel="stylesheet" href="styles/skeleton.css" />
     <link
       href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
       rel="stylesheet"
@@ -120,6 +120,8 @@
         <p class="nav-fullmenu-label">Navigation</p>
         <div class="nav-fullmenu-grid">
           <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
           <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
           <a href="gallery.html" class="active"
             ><i class="ti ti-photo"></i> Gallery</a
@@ -167,8 +169,11 @@
           Add New Item
         </button>
       </div>
-      
-      <div id="gallery-time-machine-container" style="max-width: 800px; margin: 0 auto 1.5rem auto;"></div>
+
+      <div
+        id="gallery-time-machine-container"
+        style="max-width: 800px; margin: 0 auto 1.5rem auto"
+      ></div>
 
       <div class="filter-bar">
         <input
@@ -189,6 +194,19 @@
           <option value="story" data-i18n="gallery_filter_story">
             Stories
           </option>
+        </select>
+        <select id="state-filter" class="filter-select">
+          <option value="all">All States</option>
+          <option value="Bihar">Bihar</option>
+          <option value="West Bengal">West Bengal</option>
+          <option value="Chhattisgarh">Chhattisgarh</option>
+          <option value="Rajasthan">Rajasthan</option>
+        </select>
+        <select id="sort-select" class="filter-select">
+          <option value="latest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="name">Alphabetical (A-Z)</option>
+          <option value="name_desc">Alphabetical (Z-A)</option>
         </select>
       </div>
 
@@ -337,7 +355,10 @@
         <div class="lightbox-info">
           <h3 id="webgl-lightbox-title"></h3>
           <p id="webgl-lightbox-location" class="lightbox-meta"></p>
-          <div id="webgl-lightbox-desc" class="lightbox-desc markdown-body"></div>
+          <div
+            id="webgl-lightbox-desc"
+            class="lightbox-desc markdown-body"
+          ></div>
         </div>
       </div>
     </div>
@@ -431,13 +452,20 @@
     <script src="scripts/favoritesManager.js"></script>
     <script src="scripts/shareUtils.js"></script>
     <script src="scripts/webglLightbox.js"></script>
+    <script src="scripts/breadcrumbs.js"></script>
+    <script src="scripts/timeMachine.js"></script>
+    <script src="scripts/skeletonEngine.js"></script>
+    <script src="scripts/gallery.js?v=4"></script>
 <script src="scripts/breadcrumbs.js"></script>
 <script src="scripts/timeMachine.js"></script>
 <script src="scripts/skeletonEngine.js"></script>
+<script src="scripts/vdom.js"></script>
 <script src="scripts/gallery.js?v=4"></script>
     <script src="scripts/cacheLayer.js"></script>
     <script src="scripts/languageSwitcher.js"></script>
     <script src="scripts/navbar.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/theme.js"></script>
     <script src="scripts/sw-register.js"></script>

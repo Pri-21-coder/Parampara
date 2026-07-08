@@ -24,6 +24,7 @@ const translations = {
       "Copy .env.example to .env and add a free key from maptiler.com",
     location: "Location",
     tags: "Tags",
+    map_toggle_heritage: "Heritage Health View",
 
     trailsTitle: "Heritage Trails & Local Hosts",
     trailsDesc:
@@ -94,6 +95,7 @@ const translations = {
       ".env.example को .env में कॉपी करें और maptiler.com से एक मुफ्त कुंजी जोड़ें",
     location: "स्थान",
     tags: "टैग",
+    map_toggle_heritage: "विरासत स्वास्थ्य दृश्य",
 
     post1_title: "पालघर में वारली उत्सव प्रारंभ",
     post1_village: "पालघर, महाराष्ट्र",
@@ -164,6 +166,7 @@ const translations = {
       ".env.example ला .env मध्ये कॉपी करा आणि maptiler.com वरून विनामूल्य की जोडा",
     location: "स्थान",
     tags: "टॅग",
+    map_toggle_heritage: "वारसा आरोग्य दृश्य",
 
     trailsTitle: "वारसा ट्रेल्स आणि स्थानिक होस्ट",
     trailsDesc: "गावांना जबाबदारीने भेट द्या आणि कलाकारांना भेटा",
@@ -214,6 +217,7 @@ const PARAMPARA_TRANSLATIONS = {
     nav_home: 'Home',
     nav_map: 'Explore Map',
     nav_gallery: 'Gallery',
+    nav_temples: "Temples of India",
     nav_paths: 'Heritage Paths',
     nav_quest: 'Discovery Quest',
     nav_trails: 'Heritage Trails',
@@ -589,6 +593,12 @@ const PARAMPARA_TRANSLATIONS = {
     paths_results_count: 'Showing {n} paths',
     paths_no_match_title: 'No paths match your filters',
     paths_no_match_desc: 'Try a different theme or clear all filters to see all paths.',
+    footer_brand_desc: "A community-driven digital archive preserving rural cultural heritage through stories, crafts, maps, and responsible tourism.",
+    footer_explore_title: "Explore",
+    footer_community_title: "Community",
+    footer_newsletter_title: "Newsletter",
+    footer_newsletter_text: "Subscribe to receive monthly updates, artisan stories, and cultural discoveries from rural India.",
+    footer_contact_title: "Contact Us",
   },
 
   hi: {
@@ -971,6 +981,12 @@ const PARAMPARA_TRANSLATIONS = {
     paths_results_count: '{n} पथ दिखाए जा रहे हैं',
     paths_no_match_title: 'आपके फ़िल्टर से कोई पथ मेल नहीं खाता',
     paths_no_match_desc: 'कोई अलग थीम आज़माएं या सभी फ़िल्टर साफ़ करें।',
+    footer_brand_desc: "कहानी, शिल्प, नक्शे और जिम्मेदार पर्यटन के माध्यम से ग्रामीण सांस्कृतिक विरासत को संरक्षित करने वाला एक समुदाय-संचालित डिजिटल संग्रह।",
+    footer_explore_title: "अन्वेषण करें",
+    footer_community_title: "समुदाय",
+    footer_newsletter_title: "समाचार पत्रिका",
+    footer_newsletter_text: "ग्रामीण भारत से मासिक अपडेट, कारीगरों की कहानियाँ और सांस्कृतिक खोज प्राप्त करने के लिए सदस्यता लें।",
+    footer_contact_title: "संपर्क करें",
   },
 
   mr: {
@@ -1351,6 +1367,12 @@ const PARAMPARA_TRANSLATIONS = {
     paths_results_count: '{n} मार्ग दाखवत आहे',
     paths_no_match_title: 'तुमच्या फिल्टरशी जुळणारे कोणतेही मार्ग नाहीत',
     paths_no_match_desc: 'वेगळी थीम वापरा किंवा सर्व फिल्टर साफ करा.',
+    footer_brand_desc: "कथा, हस्तकला, नकाशे आणि जबाबदार पर्यटनाच्या माध्यमातून ग्रामीण सांस्कृतिक वारसा जतन करणारे एक समुदाय-चालित डिजिटल संग्रहण.",
+    footer_explore_title: "शोधा",
+    footer_community_title: "समुदाय",
+    footer_newsletter_title: "वृत्तपत्र",
+    footer_newsletter_text: "ग्रामीण भारतातील मासिक अद्यतने, कारागीर कथा आणि सांस्कृतिक शोध प्राप्त करण्यासाठी सदस्यता घ्या.",
+    footer_contact_title: "संपर्क साधा",
   },
 };
 

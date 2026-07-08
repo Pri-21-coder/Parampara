@@ -1,14 +1,25 @@
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        console.log('[ServiceWorker] Registration successful with scope: ', registration.scope);
-      })
-      .catch((err) => {
-        console.log('[ServiceWorker] Registration failed: ', err);
-      });
-  });
+  // Disable Service Worker caching on localhost to prevent caching issues during development
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister().then(() => {
+          console.log('[ServiceWorker] Unregistered active service worker for development on localhost');
+        });
+      }
+    });
+  } else {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('[ServiceWorker] Registration successful with scope: ', registration.scope);
+        })
+        .catch((err) => {
+          console.log('[ServiceWorker] Registration failed: ', err);
+        });
+    });
+  }
 }
 
 // Offline/Online Status Toasts
