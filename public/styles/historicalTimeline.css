@@ -1,0 +1,302 @@
+/* public/styles/historicalTimeline.css */
+.historical-timeline-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 30px auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 25px;
+  backdrop-filter: blur(15px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.historical-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+.historical-timeline-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.historical-timeline-title i {
+  color: #e76f51;
+}
+
+.historical-timeline-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.historical-timeline-controls select,
+.historical-timeline-controls button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #f8f9fa;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: #495057;
+}
+
+.historical-timeline-controls select:hover,
+.historical-timeline-controls button:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+}
+
+.historical-timeline-controls button.active {
+  background: #e76f51;
+  color: white;
+  border-color: #e76f51;
+}
+
+/* Track Container */
+.historical-timeline-track-container {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 380px;
+  cursor: grab;
+  /* Hide scrollbar for clean look */
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+
+.historical-timeline-track-container:active {
+  cursor: grabbing;
+}
+
+.historical-timeline-track-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* The actual timeline ruler */
+.historical-timeline-ruler {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  transform: translateY(-50%);
+  transition: width 0.4s ease;
+}
+
+/* Ticks on the ruler */
+.historical-timeline-tick {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 20px;
+  background: #adb5bd;
+  transform: translate(-50%, -50%);
+}
+
+.historical-timeline-tick-label {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  color: #868e96;
+  font-weight: bold;
+}
+
+/* Event Nodes */
+.timeline-event-node {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.timeline-event-dot {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 4px solid #f4a261;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.timeline-event-node:hover .timeline-event-dot {
+  transform: scale(1.3);
+  border-color: #e76f51;
+}
+
+.timeline-event-node.selected .timeline-event-dot {
+  background: #e76f51;
+  border-color: #2c3e50;
+  transform: scale(1.4);
+}
+
+/* Connecting line to card */
+.timeline-event-connector {
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  background: #f4a261;
+  transform: translateX(-50%);
+}
+
+.timeline-event-node.top .timeline-event-connector {
+  bottom: 100%;
+  height: 40px;
+}
+
+.timeline-event-node.bottom .timeline-event-connector {
+  top: 100%;
+  height: 40px;
+}
+
+/* Event Cards */
+.timeline-event-card {
+  position: absolute;
+  width: 280px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.3s ease;
+  opacity: 0.9;
+}
+
+.timeline-event-node.top .timeline-event-card {
+  bottom: calc(100% + 40px);
+}
+
+.timeline-event-node.bottom .timeline-event-card {
+  top: calc(100% + 40px);
+}
+
+.timeline-event-node:hover .timeline-event-card,
+.timeline-event-node.selected .timeline-event-card {
+  opacity: 1;
+  z-index: 20;
+  box-shadow: 0 8px 25px rgba(231, 111, 81, 0.2);
+  border-color: #f4a261;
+}
+
+.timeline-event-node.selected .timeline-event-card {
+  border-width: 2px;
+  border-color: #e76f51;
+}
+
+/* Card Content */
+.timeline-event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.timeline-event-year {
+  font-weight: 900;
+  color: #e76f51;
+  font-size: 1.2rem;
+}
+
+.timeline-event-icon {
+  font-size: 1.5rem;
+  background: #f8f9fa;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+.timeline-event-title {
+  font-weight: 700;
+  color: #2c3e50;
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.timeline-event-type {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #e9ecef;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+  text-transform: capitalize;
+  margin-bottom: 10px;
+}
+
+.timeline-event-description {
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.timeline-event-node.selected .timeline-event-description {
+  -webkit-line-clamp: unset;
+}
+
+.timeline-event-significance {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #eee;
+  font-size: 0.8rem;
+  color: #e76f51;
+  font-style: italic;
+  display: none;
+}
+
+.timeline-event-node.selected .timeline-event-significance {
+  display: block;
+}
+
+/* Loading Skeleton */
+.timeline-skeleton {
+  width: 100%;
+  height: 380px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loadingSkeleton 1.5s infinite;
+  border-radius: 12px;
+}
+
+@keyframes loadingSkeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty State */
+.timeline-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #868e96;
+  font-size: 1.1rem;
+  font-weight: 500;
+}

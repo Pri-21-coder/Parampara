@@ -226,6 +226,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderKnowledgeCards(await getFilteredKnowledge());
   updateStatistics(allKnowledge);
   setupEventListeners();
+  
+  const contributionForm = document.getElementById('contribution-form');
+  if (contributionForm && window.FormAutoSave) {
+    new window.FormAutoSave(contributionForm, { id: 'knowledge-vault' });
+  }
 });
 
 function getAllKnowledge() {

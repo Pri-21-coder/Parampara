@@ -226,11 +226,17 @@ const apiLimiter = new HeuristicRateLimiter({
 });
 app.use('/api', apiLimiter.middleware());
 
+const tenantMiddleware = require('./middleware/tenant.middleware');
+app.use('/api', tenantMiddleware);
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/gallery', galleryRoutes);
+
+const tenantRoutes = require('./routes/tenant.routes');
+app.use('/api/tenant', tenantRoutes);
 
 // Heritage Score API
 const heritageScoreRoutes = require('./routes/heritageScore.routes');
@@ -501,9 +507,11 @@ app.use('/api/tours', virtualTourRoutes);
 app.get('/virtual-tour', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'virtual-tour.html'));
 });
+
 // Add mobile app routes
 const mobileAppRoutes = require('./routes/mobileApp.routes');
 app.use('/api/mobile', mobileAppRoutes);
+
 // Add storytelling routes
 const storytellingRoutes = require('./routes/storytelling.routes');
 app.use('/api/story', storytellingRoutes);

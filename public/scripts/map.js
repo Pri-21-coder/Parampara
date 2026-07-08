@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.mapActiveEra = 'All';
+  window.mapActiveTimelineItem = null;
 
   window.addEventListener('parampara:timemachine:change', (e) => {
     const selectedEra = window.mapTimeMachine.getCurrentEra();
@@ -60,6 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
       // Re-load cultural items based on the new era
       loadCulturalItems();
     }
+  });
+
+  // Initialize Historical Timeline
+  window.historicalTimeline = new HistoricalTimelineComponent({
+    containerId: 'historical-timeline-mount'
+  });
+
+  window.addEventListener('parampara:timeline:select', (e) => {
+    const { eventId, eventData } = e.detail;
+    if (eventId && eventData) {
+      window.mapActiveTimelineItem = eventData.item;
+    } else {
+      window.mapActiveTimelineItem = null;
+    }
+    loadCulturalItems();
   });
 
   initializeMap();
@@ -891,6 +907,10 @@ async function loadCulturalItems() {
     let url = '/api/items?limit=1000';
     if (window.mapActiveEra && window.mapActiveEra !== 'All') {
       url += `&year=${window.mapActiveEra}`;
+    }
+    
+    if (window.mapActiveTimelineItem) {
+      url += `&search=${encodeURIComponent(window.mapActiveTimelineItem)}`;
     }
 
     // Attach bounding box query parameters for optimized spatial search
