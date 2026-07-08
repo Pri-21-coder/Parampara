@@ -2,10 +2,10 @@
 
 let allItems = [];
 let currentPage = 1;
-const limit = 10;
+let limit = 12;
+let totalItems = 0;
+let totalPages = 1;
 let isLoading = false;
-let hasMore = true;
-let observer = null;
 // SVG hearts (inline, no font dependency)
 const HEART_FILLED =
   '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#e53e3e" stroke="#e53e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
@@ -13,8 +13,6 @@ const HEART_EMPTY =
   '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
 
 document.addEventListener('DOMContentLoaded', () => {
-  setupIntersectionObserver();
-
   window.galleryTimeMachine = new TimeMachineEngine({
     containerId: 'gallery-time-machine-container',
     eras: ['All', '1950', '1980', '2000', '2025'],
@@ -26,14 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.galleryActiveEra !== selectedEra) {
       window.galleryActiveEra = selectedEra;
       currentPage = 1;
-      hasMore = true;
-      loadGalleryItems(1, false);
+      loadGalleryItems(1);
     }
   });
 
   window.galleryActiveEra = 'All';
 
-  loadGalleryItems(1, false);
+  loadGalleryItems(1);
   setupEventListeners();
   setupFavDelegation(); // ← single listener handles ALL heart clicks
   setupShareDelegation();
@@ -70,8 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Reload gallery if a sync completes
   window.addEventListener('parampara:sync-complete', () => {
     currentPage = 1;
-    hasMore = true;
-    loadGalleryItems(1, false);
+    loadGalleryItems(1);
   });
 });
 
@@ -164,8 +160,7 @@ function setupEventListeners() {
             if (data.isHidden) {
               // Reload gallery to remove hidden item
               currentPage = 1;
-              hasMore = true;
-              loadGalleryItems(1, false);
+              loadGalleryItems(1);
             }
           } else {
             alert(data.error || 'Failed to report item');
@@ -221,6 +216,13 @@ function setupEventListeners() {
   const sortSelectEl = document.getElementById('sort-select');
   if (sortSelectEl) {
     sortSelectEl.addEventListener('change', filterItems);
+  }
+  const limitSelectEl = document.getElementById('limit-select');
+  if (limitSelectEl) {
+    limitSelectEl.addEventListener('change', (e) => {
+      limit = parseInt(e.target.value, 10);
+      filterItems();
+    });
   }
 
   // Setup Image Compression
@@ -280,43 +282,17 @@ function setupEventListeners() {
   }
 }
 
-function setupIntersectionObserver() {
-  const sentinel = document.getElementById('intersection-sentinel');
-  if (!sentinel) return;
-
-  observer = new IntersectionObserver(
-    (entries) => {
-      const entry = entries[0];
-      if (entry.isIntersecting && !isLoading && hasMore) {
-        currentPage++;
-        loadGalleryItems(currentPage, true);
-      }
-    },
-    {
-      root: null,
-      rootMargin: '100px',
-      threshold: 0.1,
-    }
-  );
-
-  observer.observe(sentinel);
-}
-
-async function loadGalleryItems(page = 1, append = false) {
-  if (isLoading || (!hasMore && append)) return;
+async function loadGalleryItems(page = 1) {
+  if (isLoading) return;
 
   isLoading = true;
   const galleryGrid = document.getElementById('gallery-grid');
   const loadingIndicator = document.getElementById('loading-indicator');
 
   if (window.SkeletonEngine) {
-    if (append) {
-      window.SkeletonEngine.show(galleryGrid, 'card', limit, true);
-    } else {
-      window.SkeletonEngine.show(galleryGrid, 'card', limit, false);
-    }
+    window.SkeletonEngine.show(galleryGrid, 'card', limit, false);
   } else {
-    if (loadingIndicator && append) loadingIndicator.style.display = 'flex';
+    if (loadingIndicator) loadingIndicator.style.display = 'flex';
   }
 
   try {
@@ -353,41 +329,105 @@ async function loadGalleryItems(page = 1, append = false) {
     let items = [];
     if (result && result.success && result.data && result.pagination) {
       items = result.data;
-      hasMore = result.pagination.page < result.pagination.totalPages;
+      totalItems = result.pagination.totalItems || items.length;
+      totalPages = result.pagination.totalPages || 1;
     } else if (result && result.data && result.meta) {
       items = result.data;
-      hasMore = result.meta.currentPage < result.meta.totalPages;
+      totalItems = result.meta.totalItems || items.length;
+      totalPages = result.meta.totalPages || 1;
     } else {
       // Fallback if backend not updated
       items = Array.isArray(result) ? result : [];
-      hasMore = false;
+      totalItems = items.length;
+      totalPages = 1;
     }
 
-    if (append) {
-      allItems = [...allItems, ...items];
-    } else {
-      allItems = items;
-    }
+    allItems = items;
 
     if (window.SkeletonEngine) {
       window.SkeletonEngine.hide(galleryGrid);
     }
-    displayItems(allItems, append);
+    displayItems(allItems);
+    renderPagination();
+    
+    // Smoothly scroll back to the top of the gallery grid if we navigated pages
+    if (page > 1) {
+      const header = document.querySelector('.gallery-header');
+      if (header) header.scrollIntoView({ behavior: 'smooth' });
+    }
   } catch (error) {
     console.error('Error loading items:', error);
     if (window.SkeletonEngine) {
       window.SkeletonEngine.hide(galleryGrid);
     }
-    if (!append) {
-      allItems = getSampleItems();
-      displayItems(allItems, false);
-    }
-    hasMore = false;
+    allItems = getSampleItems();
+    displayItems(allItems);
+    totalItems = allItems.length;
+    totalPages = 1;
+    renderPagination();
   } finally {
     isLoading = false;
     if (loadingIndicator) loadingIndicator.style.display = 'none';
   }
 }
+
+function renderPagination() {
+  const container = document.getElementById('pagination-container');
+  if (!container) return;
+
+  if (totalItems === 0 || totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const startItem = (currentPage - 1) * limit + 1;
+  const endItem = Math.min(currentPage * limit, totalItems);
+
+  let html = `<div class="pagination-info">Showing ${startItem}–${endItem} of ${totalItems} items</div>`;
+  html += `<div class="pagination-controls">`;
+
+  // Previous button
+  html += `<button class="pagination-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&laquo; Previous</button>`;
+
+  // Page Numbers
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+  if (endPage - startPage + 1 < maxPagesToShow) {
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+
+  if (startPage > 1) {
+    html += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
+    if (startPage > 2) {
+      html += `<span class="pagination-btn" style="border:none;background:transparent;">...</span>`;
+    }
+  }
+
+  for (let p = startPage; p <= endPage; p++) {
+    html += `<button class="pagination-btn ${p === currentPage ? 'active' : ''}" onclick="changePage(${p})">${p}</button>`;
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      html += `<span class="pagination-btn" style="border:none;background:transparent;">...</span>`;
+    }
+    html += `<button class="pagination-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+  }
+
+  // Next button
+  html += `<button class="pagination-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next &raquo;</button>`;
+  
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+window.changePage = function(page) {
+  if (page < 1 || page > totalPages || page === currentPage) return;
+  currentPage = page;
+  loadGalleryItems(currentPage);
+};
 
 // ── Translation helper
 function tGallery(key) {
@@ -526,7 +566,7 @@ const GalleryItemComponent = ({ item }) => {
   );
 };
 
-function displayItems(items, append = false) {
+function displayItems(items) {
   if (!window.vdom) {
     console.warn('[Parampara Gallery] VDOM engine not loaded. Check script imports.');
     return;
@@ -609,8 +649,7 @@ async function getCurrentFilteredItems() {
 
 async function filterItems() {
   currentPage = 1;
-  hasMore = true;
-  await loadGalleryItems(1, false);
+  await loadGalleryItems(1);
 }
 
 async function handleAddItem(e) {
@@ -693,8 +732,7 @@ async function handleAddItem(e) {
     if (response.ok) {
       const newItem = await response.json();
       currentPage = 1;
-      hasMore = true;
-      loadGalleryItems(1, false);
+      loadGalleryItems(1);
       e.target.reset();
       const uiContainer = document.getElementById('image-optimization-ui');
       if (uiContainer) uiContainer.style.display = 'none';
