@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Explore the sacred natural heritage of rural India. Discover the folklore, rituals, and conservation efforts around ancient groves, rivers, ponds, and landscapes."
+    />
+    <title>Sacred Natural Heritage - Parampara</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/nature.css" />
+    <link rel="stylesheet" href="styles/markdown-editor.css" />
+    <link
+      href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/languageSelector.css" />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">Preserving Living Traditions</p>
+        </div>
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+          <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+          <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+          <li><a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a></li>
+          <li><a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a></li>
+          <li><a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a></li>
+          <li><a href="nature.html" class="active"><i class="ti ti-leaf"></i> Sacred Heritage</a></li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
+          <li><a href="food.html">Traditional Foods</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="nature-header">
+      <div class="container">
+        <h2 data-i18n="nature_title">Sacred Natural Heritage Explorer</h2>
+        <p data-i18n="nature_subtitle">Explore culturally significant natural sites, trees, rivers, and forests and their associated folklore</p>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="nature-explorer-container">
+      <div class="explorer-grid">
+        <!-- Sidebar Controls & List -->
+        <aside class="explorer-sidebar">
+          <div class="search-filter-box">
+            <!-- Search Input -->
+            <div class="search-wrapper">
+              <input
+                type="text"
+                id="nature-search-input"
+                data-i18n-placeholder="nature_search_placeholder"
+                placeholder="Search sacred trees, forests, ponds..."
+              />
+              <span class="search-icon">🔍</span>
+            </div>
+
+            <!-- Category Filter Chips -->
+            <div class="filter-chips" id="category-filter-chips">
+              <button class="chip active" data-category="all" data-i18n="nature_filter_all">All Categories</button>
+              <button class="chip" data-category="forest" data-i18n="nature_filter_forest">Sacred Forests</button>
+              <button class="chip" data-category="pond" data-i18n="nature_filter_pond">Sacred Ponds</button>
+            </div>
+          </div>
+
+          <!-- Sites List -->
+          <div class="sites-list-container" id="sites-list">
+            <!-- Dynamically populated cards -->
+            <div class="loading-spinner"></div>
+          </div>
+        </aside>
+
+        <!-- Map View Area -->
+        <section class="explorer-map-wrapper">
+          <div id="nature-map" class="map-view"></div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Site Detail Sliding Overlay / Modal -->
+    <div class="detail-overlay" id="detail-panel">
+      <div class="detail-panel-inner">
+        <button class="close-overlay-btn" id="close-detail-btn" data-i18n="btn_close" aria-label="Close panel">×</button>
+        
+        <div class="detail-hero">
+          <div id="detail-image" class="detail-hero-img"></div>
+          <div class="detail-hero-overlay">
+            <span class="category-badge" id="detail-category-badge">Category</span>
+            <h3 id="detail-name">Sacred Site Name</h3>
+            <p class="location-badge" id="detail-location-badge">📍 Location</p>
+          </div>
+        </div>
+
+        <div class="detail-content">
+          <!-- Description -->
+          <p id="detail-description" class="detail-description-text">Description goes here...</p>
+
+          <!-- Conservation Badge -->
+          <div class="status-card">
+            <h5 data-i18n="nature_conservation">Conservation Status</h5>
+            <p id="detail-conservation-status">Sacred Grove - Community Managed</p>
+          </div>
+
+          <!-- Tabbed Accordion View -->
+          <div class="tabs-container">
+            <!-- Tab Headers -->
+            <div class="tab-headers">
+              <button class="tab-btn active" data-tab="significance" data-i18n="nature_significance">Significance</button>
+              <button class="tab-btn" data-tab="folklore" data-i18n="nature_folklore">Folklore & Legends</button>
+              <button class="tab-btn" data-tab="rituals" data-i18n="nature_rituals">Rituals</button>
+              <button class="tab-btn" data-tab="seasonal" data-i18n="nature_seasonal">Seasonal & Eco</button>
+            </div>
+
+            <!-- Tab Panels -->
+            <div class="tab-contents">
+              <div class="tab-panel active" id="tab-significance">
+                <p id="detail-significance">Significance detail...</p>
+              </div>
+              <div class="tab-panel" id="tab-folklore">
+                <p id="detail-folklore">Folklore detail...</p>
+                
+                <!-- Folklore submissions -->
+                <div class="user-folklore-section">
+                  <h6 data-i18n="nature_folklore">Community Submissions</h6>
+                  <div class="folklore-list" id="detail-user-folklore">
+                    <!-- Dynamic user entries -->
+                  </div>
+                  
+                  <!-- Form -->
+                  <form class="folklore-form" id="folklore-submission-form">
+                    <input type="text" id="folklore-author" data-i18n-placeholder="folklore_author_placeholder" placeholder="Your Name (optional)" />
+                    <textarea id="folklore-content" data-i18n-placeholder="folklore_placeholder" placeholder="Write down a folklore, ritual, or personal memory..." required></textarea>
+                    <button type="submit" class="btn btn-primary" data-i18n="submit_folklore_btn">Submit Folklore</button>
+                  </form>
+                  <p id="submission-message" class="submission-msg"></p>
+                </div>
+              </div>
+              <div class="tab-panel" id="tab-rituals">
+                <p id="detail-rituals">Rituals detail...</p>
+              </div>
+              <div class="tab-panel" id="tab-seasonal">
+                <p id="detail-seasonal">Seasonal and ecological details...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nearby Connections -->
+          <div class="connections-section">
+            <h4 data-i18n="nature_nearby_links">Nearby Connections</h4>
+            <div class="connections-grid">
+              <div class="connection-group">
+                <h5>🏡 Villages</h5>
+                <div class="badge-list" id="connections-villages"></div>
+              </div>
+              <div class="connection-group">
+                <h5>🎨 Crafts</h5>
+                <div class="badge-list" id="connections-crafts"></div>
+              </div>
+              <div class="connection-group">
+                <h5>🎉 Festivals</h5>
+                <div class="badge-list" id="connections-festivals"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p data-i18n="footer_copy">
+          © 2024 Parampara. Preserving rural heritage, one story at a time.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Back To Top Button -->
+    <button id="backToTopBtn" aria-label="Back to top">↑</button>
+
+    <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/markdown-editor.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        new ParamparaMarkdownEditor('folklore-content', {
+          placeholder: 'Write down a folklore, ritual, or personal memory in Markdown...',
+          autoSave: true,
+          autoSaveKey: 'draft_nature'
+        });
+      });
+    </script>
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/navbar.js"></script>
+    <script src="scripts/nature.js"></script>
+    <script src="scripts/main.js"></script>
+  </body>
+</html>

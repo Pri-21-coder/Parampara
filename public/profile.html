@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="View your cultural preservation journey, earned badges, digital passport stamps, and exploration milestones on Parampara"
+    />
+    <title>Heritage Achievement Profile - Parampara</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <link rel="stylesheet" href="styles/profile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    <script src="/scripts/tenant-interceptor.js"></script>
+    <script src="/scripts/tenant-switcher.js" defer></script>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+          🌙
+        </button>
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">
+            Preserving Living Traditions
+          </p>
+        </div>
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li>
+            <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li>
+            <a href="artifacts.html"><i class="ti ti-archive"></i> Artifacts</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+          </li>
+          <li>
+            <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+          </li>
+          <li>
+            <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
+          </li>
+          <li>
+            <a href="food.html"><i class="ti ti-soup"></i> Traditional Foods</a>
+          </li>
+          <li>
+            <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Full Width Nav Menu -->
+    <div class="nav-fullmenu" id="navFullMenu">
+      <div class="nav-fullmenu-inner">
+        <p class="nav-fullmenu-label">Navigation</p>
+        <div class="nav-fullmenu-grid">
+          <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          <a href="artifacts.html"><i class="ti ti-archive"></i> Artifacts</a>
+          <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+          <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+          <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
+          <a href="food.html"><i class="ti ti-soup"></i> Traditional Foods</a>
+          <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Main Container -->
+    <main class="profile-container container">
+      <!-- Profile Header / User Identity Card -->
+      <section class="profile-card-panel glass-panel" aria-label="User Profile Details">
+        <div class="profile-identity">
+          <div class="avatar-container">
+            <span class="profile-avatar" id="avatarDisplay">🧑‍🚀</span>
+            <button class="edit-avatar-btn" id="btnEditAvatar" aria-label="Change Avatar">
+              <i class="ti ti-pencil"></i>
+            </button>
+          </div>
+          <div class="profile-details">
+            <div class="profile-name-row">
+              <h2 id="usernameDisplay">Explorer</h2>
+              <span class="user-badge-rank" id="rankDisplay">Novice Explorer</span>
+            </div>
+            <p class="profile-join-date">
+              <i class="ti ti-calendar"></i> Member since <span id="joinDateDisplay">Loading...</span>
+            </p>
+            <p class="profile-bio" id="bioDisplay">
+              Passionate preserver of rural traditions and folk arts.
+            </p>
+            <button class="btn btn-secondary btn-sm" id="btnEditBio">
+              <i class="ti ti-edit"></i> Edit Biography
+            </button>
+          </div>
+        </div>
+        <div class="profile-summary-stats">
+          <div class="summary-metric">
+            <span class="metric-num" id="levelDisplay">1</span>
+            <span class="metric-label">Explorer Level</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="summary-metric">
+            <span class="metric-num" id="scoreDisplay">0</span>
+            <span class="metric-label">Total Score (PTS)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress Dashboard & Activity Heatmap -->
+      <div class="grid-two-cols">
+        <!-- Progress Indicators -->
+        <section class="glass-panel" aria-label="Progress Statistics Dashboard">
+          <h3 class="panel-title"><i class="ti ti-chart-bar"></i> Progress Dashboard</h3>
+          <div class="progress-cards-container">
+            <!-- Level Completion Card -->
+            <div class="progress-subcard">
+              <div class="subcard-header">
+                <span>Level Progress</span>
+                <span id="levelProgressText">0 / 100 PTS</span>
+              </div>
+              <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill" id="levelProgressBar" style="width: 0%"></div>
+              </div>
+            </div>
+            <!-- Next Milestone Card -->
+            <div class="progress-subcard">
+              <div class="subcard-header">
+                <span>Next Milestone</span>
+                <span id="nextMilestoneName">Checking...</span>
+              </div>
+              <p class="milestone-desc" id="nextMilestoneDesc">Keep exploring to unlock your next goal.</p>
+            </div>
+            <!-- Cultural Coverage & Diversity Card -->
+            <div class="progress-subcard">
+              <div class="subcard-header">
+                <span>Cultural Diversity Score</span>
+                <span id="diversityScoreVal">0%</span>
+              </div>
+              <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill" id="diversityBar" style="width: 0%; background: #4caf50;"></div>
+              </div>
+              <p class="small-text-hint">Coverage of various cultural categories (Visual, Oral, Nature, Food, Paths).</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Digital Passport Stamp Card -->
+        <section class="glass-panel" aria-label="Digital Passport summary">
+          <h3 class="panel-title"><i class="ti ti-passport"></i> Digital Passport</h3>
+          <div class="passport-body">
+            <div class="passport-stamp-grid" id="passportStamps">
+              <!-- Dynamically populated stamps (emoji-based circular badges representing regions) -->
+              <div class="passport-stamp-empty">No stamps yet. Check-in or explore villages!</div>
+            </div>
+            <div class="passport-summary-content">
+              <h4>Journey Summary</h4>
+              <p class="passport-summary-text" id="passportSummaryText">
+                Your passport records your active preservation footsteps. Visit heritage sites to earn custom stamps!
+              </p>
+              <div class="passport-metrics">
+                <div class="metric-item">
+                  <strong id="passportVillagesCount">0</strong>
+                  <span>Villages visited</span>
+                </div>
+                <div class="metric-item">
+                  <strong id="passportRegionsCount">0</strong>
+                  <span>Regions explored</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Exploration Statistics Grid -->
+      <section class="glass-panel" aria-label="Detailed Exploration Statistics">
+        <h3 class="panel-title"><i class="ti ti-calculator"></i> Exploration Statistics</h3>
+        <div class="stats-cards-grid" id="statsGrid">
+          <!-- Dynamically populated stats cards -->
+          <div class="stat-card">
+            <div class="stat-icon">🏡</div>
+            <div class="stat-value" id="statVillages">0</div>
+            <div class="stat-name">Villages Explored</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎧</div>
+            <div class="stat-value" id="statStories">0</div>
+            <div class="stat-name">Stories Listened To</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎨</div>
+            <div class="stat-value" id="statCrafts">0</div>
+            <div class="stat-name">Crafts Discovered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎉</div>
+            <div class="stat-value" id="statFestivals">0</div>
+            <div class="stat-name">Festivals Learned</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🛣️</div>
+            <div class="stat-value" id="statPaths">0</div>
+            <div class="stat-name">Heritage Paths Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🌿</div>
+            <div class="stat-value" id="statNature">0</div>
+            <div class="stat-name">Sacred Groves Visited</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏺</div>
+            <div class="stat-value" id="statArtifacts">0</div>
+            <div class="stat-name">Artifacts Explored</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value" id="statQuests">0</div>
+            <div class="stat-name">Quests Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <div class="stat-value" id="statCheckins">0</div>
+            <div class="stat-name">GPS Check-ins</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🤝</div>
+            <div class="stat-value" id="statResponsible">0</div>
+            <div class="stat-name">Responsible Visits</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🗣️</div>
+            <div class="stat-value" id="statAIConversations">0</div>
+            <div class="stat-name">AI Curator Chats</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value" id="statTime">0m</div>
+            <div class="stat-name">Exploration Time</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Badge System Panel -->
+      <section class="glass-panel" id="badgesSection" aria-label="Earned and Locked Badges">
+        <h3 class="panel-title"><i class="ti ti-award"></i> Badge Cabinet</h3>
+        
+        <!-- Category Filters for Badges -->
+        <div class="filter-row" style="margin-bottom: 1.5rem; justify-content: flex-start; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="filter-btn active" data-badge-cat="">All Badges</button>
+          <button class="filter-btn" data-badge-cat="exploration">Exploration</button>
+          <button class="filter-btn" data-badge-cat="learning">Learning</button>
+          <button class="filter-btn" data-badge-cat="contribution">Contribution</button>
+          <button class="filter-btn" data-badge-cat="community">Community</button>
+          <button class="filter-btn" data-badge-cat="special">Special</button>
+        </div>
+
+        <div class="badges-showcase-grid" id="badgesGrid">
+          <!-- Dynamically populated badges -->
+        </div>
+
+        <!-- Badges Pagination -->
+        <div class="pagination-container" id="badgesPagination">
+          <!-- Pagination buttons loaded dynamically -->
+        </div>
+      </section>
+
+      <!-- Milestones Panel -->
+      <section class="glass-panel" aria-label="Exploration Milestones Checklist">
+        <h3 class="panel-title"><i class="ti ti-flag"></i> Exploration Milestones</h3>
+        <div class="milestones-list-grid" id="milestonesList">
+          <!-- Dynamically populated milestones -->
+        </div>
+      </section>
+
+      <!-- Activity Timeline Panel -->
+      <section class="glass-panel" aria-label="Activity timeline logs">
+        <h3 class="panel-title"><i class="ti ti-activity"></i> Activity Timeline</h3>
+        
+        <!-- Advanced Filtering Form -->
+        <div class="timeline-filters-grid">
+          <div class="filter-field">
+            <label for="filterRegion">Region</label>
+            <select id="filterRegion">
+              <option value="">All Regions</option>
+              <option value="West Bengal">West Bengal</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Chhattisgarh">Chhattisgarh</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="General">General</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="filterCategory">Category</label>
+            <select id="filterCategory">
+              <option value="">All Categories</option>
+              <option value="craft">Crafts</option>
+              <option value="tradition">Traditions</option>
+              <option value="festival">Festivals</option>
+              <option value="story">Stories</option>
+              <option value="nature">Sacred Groves</option>
+              <option value="quest">Quests</option>
+              <option value="badge">Badges</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="filterStartDate">From Date</label>
+            <input type="date" id="filterStartDate" />
+          </div>
+          <div class="filter-field">
+            <label for="filterEndDate">To Date</label>
+            <input type="date" id="filterEndDate" />
+          </div>
+          <div class="filter-field" style="display: flex; align-items: flex-end;">
+            <button class="btn btn-secondary" id="btnResetFilters" style="width: 100%;">
+              <i class="ti ti-rotate"></i> Reset Filters
+            </button>
+          </div>
+        </div>
+
+        <div class="timeline-wrapper" id="timelineWrapper">
+          <!-- Dynamically populated timeline nodes -->
+          <div class="timeline-empty">No activity records match your filter criteria.</div>
+        </div>
+
+        <!-- Timeline Pagination -->
+        <div class="pagination-container" id="timelinePagination">
+          <!-- Loaded dynamically -->
+        </div>
+      </section>
+
+      <!-- Shareable Profile Card Section -->
+      <section class="glass-panel share-card-section" aria-label="Generate Shareable Profile Card">
+        <h3 class="panel-title"><i class="ti ti-share"></i> Share Your Journey</h3>
+        <p class="section-description">
+          Create a beautiful, personalized Explorer Card showcasing your level, total score, and top badges to share with the community.
+        </p>
+        <div class="share-card-layout">
+          <div class="card-generator-panel">
+            <div class="field-item">
+              <label for="shareCardBackground">Card Theme Accent</label>
+              <select id="shareCardBackground">
+                <option value="terracotta">🍂 Terracotta Sunset</option>
+                <option value="marigold">🌼 Marigold Golden</option>
+                <option value="peacock">🦚 Peacock Blue-Green</option>
+                <option value="charcoal">🖤 Midnight Charcoal</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btnGenerateCard">
+              <i class="ti ti-device-gamepad"></i> Render Explorer Card
+            </button>
+            <button class="btn btn-secondary" id="btnDownloadCard" style="display: none;">
+              <i class="ti ti-download"></i> Save as PNG
+            </button>
+          </div>
+          <div class="card-canvas-preview">
+            <canvas id="shareCardCanvas" width="600" height="350"></canvas>
+            <p class="canvas-help-text">Live Canvas Preview - Press Render to update</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Dialog / Modals -->
+    <!-- Edit Bio Modal -->
+    <div id="editBioModal" class="modal-overlay">
+      <div class="modal-content glass-panel">
+        <button class="modal-close" id="closeBioModal" aria-label="Close edit biography dialog">&times;</button>
+        <h3 class="modal-title">Edit Biography</h3>
+        <form id="bioForm">
+          <div class="form-group">
+            <label for="bioInput">Tell us about your interest in preservation:</label>
+            <textarea id="bioInput" rows="5" maxlength="400" required placeholder="Enter bio content..."></textarea>
+            <span class="char-counter" id="bioCharCounter">0 / 400</span>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Avatar Modal -->
+    <div id="editAvatarModal" class="modal-overlay">
+      <div class="modal-content glass-panel">
+        <button class="modal-close" id="closeAvatarModal" aria-label="Close avatar selector dialog">&times;</button>
+        <h3 class="modal-title">Select Explorer Avatar</h3>
+        <div class="avatar-options-grid" id="avatarOptions">
+          <button class="avatar-option-item">🧑‍🚀</button>
+          <button class="avatar-option-item">🧙‍♂️</button>
+          <button class="avatar-option-item">🧝‍♀️</button>
+          <button class="avatar-option-item">🤠</button>
+          <button class="avatar-option-item">🧑‍🌾</button>
+          <button class="avatar-option-item">🎨</button>
+          <button class="avatar-option-item">🔍</button>
+          <button class="avatar-option-item">🦁</button>
+          <button class="avatar-option-item">🦅</button>
+          <button class="avatar-option-item">🌅</button>
+          <button class="avatar-option-item">🏕️</button>
+          <button class="avatar-option-item">🏰</button>
+        </div>
+        <div class="custom-avatar-row" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+          <label for="customAvatarInput" style="display: block; font-size: 0.85rem; color: #a8988a; margin-bottom: 0.5rem;">Or paste a custom Emoji / character:</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="customAvatarInput" maxlength="2" placeholder="e.g. 🎒" style="flex: 1; padding: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(212, 168, 83, 0.2); border-radius: 6px; color: #fff; text-align: center; font-size: 1.2rem;" />
+            <button class="btn btn-primary" id="btnSaveCustomAvatar">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-brand">
+          <h2 class="footer-logo">🏛️ Parampara</h2>
+          <p>
+            Preserving rural heritage, traditions, and stories for future generations.
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="scripts/markdown.js"></script>
+    <script src="scripts/translationsData.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/navbar.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/profile.js"></script>
+  </body>
+</html>

@@ -9,6 +9,9 @@ class VirtualTourUI {
     this.currentSession = null;
     this.currentStream = null;
     this.isInTour = false;
+    this.isGuide = false;
+    this.map = null;
+    this.ws = null;
     this.chatMessages = [];
     
     this.init();
@@ -29,6 +32,7 @@ class VirtualTourUI {
     this.loadGuides();
     this.loadStats();
     this.setupEventListeners();
+    this.setupWebSocket();
     console.log('✅ Virtual Tour UI initialized');
   }
 
@@ -37,10 +41,66 @@ class VirtualTourUI {
     if (!container) return;
 
     container.innerHTML = `
+      <style>
+        .tour-interface {
+          padding: 30px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .tour-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: 12px;
+          color: white;
+        }
+        .tour-header h2 { margin: 0; display: flex; align-items: center; gap: 10px; }
+        .tour-actions { display: flex; gap: 10px; align-items: center; }
+        .tours-grid-layout {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 25px;
+        }
+        .tour-card {
+          background: white;
+          border-radius: 15px;
+          overflow: hidden;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          display: flex;
+          flex-direction: column;
+        }
+        .tour-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .btn {
+          padding: 8px 15px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
+          font-weight: bold;
+          transition: background 0.3s;
+        }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-primary:hover { background: #45a049; }
+        .btn-info { background: #2196F3; color: white; }
+        .btn-info:hover { background: #1e88e5; }
+        .btn-secondary { background: #ff9800; color: white; }
+        .btn-secondary:hover { background: #f57c00; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn-danger:hover { background: #e53935; }
+      </style>
       <div class="tour-interface">
         <div class="tour-header">
           <h2>🌍 Virtual Heritage Tours</h2>
           <div class="tour-actions">
+            <input type="text" id="join-session-id" placeholder="Tour Session ID" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd; width: 150px;">
+            <button id="btn-join-tour" class="btn btn-primary">🤝 Join</button>
             <button id="btn-bookings" class="btn btn-info">📅 My Bookings</button>
             <button id="btn-guides" class="btn btn-secondary">👥 Guides</button>
             <button id="btn-analytics" class="btn btn-primary">📊 Analytics</button>
@@ -220,30 +280,53 @@ class VirtualTourUI {
     try {
       this.showToast('🎥 Starting tour...', 'info');
 
-      const response = await fetch(`${this.apiBase}/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tourId, userId: this.userId })
-      });
+      // Setup tour session locally for WebSocket
+      const sessionId = `tour-${Math.random().toString(36).substr(2, 9)}`;
+      this.currentTour = { id: tourId, name: 'Heritage Tour' };
+      this.currentSession = sessionId;
+      this.isInTour = true;
+      this.isGuide = true;
 
-      const data = await response.json();
-
-      if (data.success) {
-        this.currentTour = data.tour;
-        this.currentSession = data.sessionId;
-        this.currentStream = data.streamId;
-        this.isInTour = true;
-
-        this.showTourView(data);
-        this.showToast('✅ Tour started!', 'success');
-        
-        // Start chat polling
-        this.startChatPolling();
+      this.showTourView({ sessionId });
+      
+      // Notify WS server
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: 'tour:create',
+          roomId: sessionId
+        }));
       }
+
+      this.showToast(`✅ Tour started! Session ID: ${sessionId}`, 'success');
+      this.startChatPolling();
     } catch (error) {
       console.error('Error starting tour:', error);
       this.showToast('❌ Error starting tour', 'error');
     }
+  }
+
+  joinTour(sessionId) {
+    if (!sessionId) {
+      this.showToast('Please enter a Session ID', 'warning');
+      return;
+    }
+    
+    this.currentSession = sessionId;
+    this.isInTour = true;
+    this.isGuide = false;
+
+    this.showTourView({ sessionId });
+
+    // Notify WS server
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'tour:join',
+        roomId: sessionId,
+        username: `Participant-${this.userId.slice(0, 4)}`
+      }));
+    }
+    
+    this.showToast('Joined tour session successfully!', 'success');
   }
 
   showTourView(data) {
@@ -253,22 +336,84 @@ class VirtualTourUI {
     const player = document.querySelector('.player-placeholder');
     if (player) {
       player.innerHTML = `
-        <div style="text-align: center;">
-          <div style="font-size: 48px;">🎥</div>
-          <h3>${data.tour.name}</h3>
-          <p>🎤 Guide: ${data.guide.name}</p>
-          <p>👥 ${data.guide.totalTours} tours conducted</p>
-          <div style="display: flex; gap: 20px; justify-content: center; margin: 15px 0;">
-            <span>⭐ ${data.guide.rating}</span>
-            <span>💬 Live Chat</span>
-            <span>📹 Recording: ${data.tour.features?.includes('recording') ? '✅' : '❌'}</span>
-          </div>
-          <div style="font-size: 12px; color: #888;">
-            Session ID: ${data.sessionId}
+        <div style="position: relative; width: 100%; height: 500px; border-radius: 10px; overflow: hidden;">
+          <div id="tour-map" style="width: 100%; height: 100%;"></div>
+          <div id="tour-participants-overlay" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 8px; z-index: 1000; font-size: 12px; max-height: 200px; overflow-y: auto;">
+            <strong>👥 Session: ${data.sessionId}</strong><br/>
+            ${this.isGuide ? '<span style="color: #4CAF50;">👑 You are the Guide</span>' : '<span style="color: #2196F3;">👁️ Viewing as Participant</span>'}
           </div>
         </div>
       `;
+      this.initMap();
     }
+  }
+
+  initMap() {
+    if (this.map) {
+      this.map.remove();
+    }
+
+    this.map = new maplibregl.Map({
+      container: 'tour-map',
+      style: '/api/map-style', // Fetches dynamic style JSON
+      center: [78.9629, 20.5937],
+      zoom: 4,
+      interactive: this.isGuide // Only guide can interact freely
+    });
+
+    this.map.on('load', () => {
+      console.log('Map loaded for Virtual Tour');
+    });
+
+    if (this.isGuide) {
+      this.map.on('moveend', () => {
+        if (!this.isInTour || !this.ws) return;
+        const center = this.map.getCenter();
+        const zoom = this.map.getZoom();
+        
+        this.ws.send(JSON.stringify({
+          type: 'tour:sync_map',
+          roomId: this.currentSession,
+          state: { center: [center.lng, center.lat], zoom }
+        }));
+      });
+    }
+  }
+
+  setupWebSocket() {
+    const wsUrl = `ws://${window.location.hostname}:8080`;
+    if (window.ResilientWebSocket) {
+      this.ws = new ResilientWebSocket(wsUrl);
+    } else {
+      this.ws = new WebSocket(wsUrl);
+    }
+
+    this.ws.onopen = () => console.log('WebSocket connected for Virtual Tours');
+    
+    this.ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'tour:state_sync' || data.type === 'tour:sync_map') {
+          if (!this.isGuide && this.map) {
+            this.map.flyTo({
+              center: data.state.center,
+              zoom: data.state.zoom,
+              speed: 1.2,
+              essential: true
+            });
+          }
+        } else if (data.type === 'tour:participant_joined') {
+          this.showToast(`👋 ${data.username} joined the tour`, 'info');
+        } else if (data.type === 'tour:participant_left') {
+          this.showToast(`🚶 ${data.username} left the tour`, 'info');
+        } else if (data.type === 'tour:guide_left') {
+          this.showToast(`⚠️ The Tour Guide has left the session. Ending tour.`, 'warning');
+          this.leaveTour();
+        }
+      } catch (err) {
+        console.error('Error handling WebSocket message', err);
+      }
+    };
   }
 
   async bookTour(tourId) {
@@ -568,6 +713,11 @@ class VirtualTourUI {
       });
 
       this.isInTour = false;
+      this.isGuide = false;
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+      }
       document.getElementById('tour-view').style.display = 'none';
       document.getElementById('tours-grid').style.display = 'block';
       this.showToast('👋 Left tour', 'info');
@@ -577,6 +727,14 @@ class VirtualTourUI {
   }
 
   setupEventListeners() {
+    // Join Tour
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'btn-join-tour') {
+        const sessionId = document.getElementById('join-session-id').value.trim();
+        this.joinTour(sessionId);
+      }
+    });
+
     // Bookings
     document.addEventListener('click', (e) => {
       if (e.target.id === 'btn-bookings' || e.target.closest('#btn-bookings')) {

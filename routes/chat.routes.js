@@ -3,12 +3,12 @@ const router = express.Router();
 
 const { chatResponse } = require('../controllers/chat.controller');
 
-const SlidingWindowLimiter = require('../middleware/rateLimiter');
+const HeuristicRateLimiter = require('../middleware/rateLimiter');
 
-// Strict rate limit for AI Chat (5 reqs / 1 min)
-const chatLimiter = new SlidingWindowLimiter({
+// Strict rate limit for AI Chat (15 tokens / 1 min, cost is 3)
+const chatLimiter = new HeuristicRateLimiter({
   windowMs: 60000,
-  max: 5,
+  maxTokens: 15,
   message: 'Too many chat messages from this IP, please try again after a minute.'
 });
 

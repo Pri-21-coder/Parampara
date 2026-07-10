@@ -1,7 +1,7 @@
 // routes/event.routes.js
 const express = require('express');
 const router = express.Router();
-const EventService = require('../services/eventService');
+const EventService = require('../server/services/eventService');
 
 let eventService = null;
 

@@ -2,28 +2,28 @@ const store = require('../data/store');
 
 const getAuditLogs = (req, res) => {
   try {
-    let logs = store.auditLog.values();
+    let logs = Array.from(store.auditLog.values());
 
     const { type, resource, limit = 50, page = 1 } = req.query;
 
     if (type) {
-      logs = logs.filter(log => log.eventType === type.toUpperCase());
+      logs = logs.filter((log) => log.eventType === type.toUpperCase());
     }
 
     if (resource) {
-      logs = logs.filter(log => log.resource === resource);
+      logs = logs.filter((log) => log.resource === resource);
     }
 
     // Sort by timestamp descending (newest first)
     logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     // Pagination
-    const pageNum = parseInt(page) || 1;
-    const limitNum = parseInt(limit) || 50;
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 50;
     const totalItems = logs.length;
     const totalPages = Math.ceil(totalItems / limitNum);
     const startIndex = (pageNum - 1) * limitNum;
-    
+
     const paginatedLogs = logs.slice(startIndex, startIndex + limitNum);
 
     res.json({
@@ -32,8 +32,8 @@ const getAuditLogs = (req, res) => {
         currentPage: pageNum,
         limit: limitNum,
         totalItems,
-        totalPages
-      }
+        totalPages,
+      },
     });
   } catch (error) {
     console.error('Failed to fetch audit logs:', error);
@@ -42,5 +42,5 @@ const getAuditLogs = (req, res) => {
 };
 
 module.exports = {
-  getAuditLogs
+  getAuditLogs,
 };

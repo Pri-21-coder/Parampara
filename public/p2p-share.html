@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P File Share - Parampara</title>
+    
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/p2p-share.css" />
+    <link rel="stylesheet" href="styles/languageSelector.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.36.0/tabler-icons.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="scripts/resilient-ws.js"></script>
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+<body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">Preserving Living Traditions</p>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+          <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+          <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+          <li><a href="p2p-share.html" class="active"><i class="ti ti-share"></i> P2P Share</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="p2p-main">
+        <div class="p2p-header">
+            <h1 data-i18n="p2p_title">Heritage Peer-to-Peer Share</h1>
+            <p data-i18n="p2p_subtitle">Securely transfer large cultural media directly to nearby devices via WebRTC, saving server bandwidth.</p>
+        </div>
+
+        <div class="p2p-dashboard">
+            <!-- Left Column: Network & Peers -->
+            <div class="network-column">
+                <div class="card status-card">
+                    <h2><i class="ti ti-network"></i> Network Status</h2>
+                    <div class="status-indicator">
+                        <div class="dot active" id="network-dot"></div>
+                        <span id="network-status-text">Connected to Signaling Server</span>
+                    </div>
+                    <div class="my-node">
+                        <p>My Node ID: <strong id="my-node-id">Connecting...</strong></p>
+                    </div>
+                </div>
+
+                <div class="card peers-card" style="margin-top: 20px;">
+                    <h2><i class="ti ti-users"></i> Available Peers</h2>
+                    <ul id="peers-list" class="peers-list">
+                        <li class="empty-state" style="padding:15px; color:#7f8c8d;">No peers found on the network.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: File Transfer -->
+            <div class="card transfer-card">
+                <h2><i class="ti ti-file-upload"></i> Send Media</h2>
+                
+                <div class="file-drop-zone" id="file-drop-zone" onclick="document.getElementById('file-input').click()">
+                    <i class="ti ti-cloud-upload"></i>
+                    <h3 id="file-name-display">Click or drag a file to select</h3>
+                    <p style="color: #7f8c8d; font-size: 0.9rem; margin-top: 5px;">Supports high-res images, video, and audio</p>
+                    <input type="file" id="file-input" class="file-input" />
+                </div>
+
+                <p id="selected-peer-display" style="margin-bottom:15px; font-weight:600; color:#e67e22;">Select a peer from the left to send.</p>
+                <button id="send-file-btn" class="send-btn" disabled>Send File</button>
+
+                <!-- Active Transfers -->
+                <div class="transfer-progress-area" id="transfer-progress-area" style="display:none;">
+                    <h3>Active Transfers</h3>
+                    <div class="transfer-item" id="active-transfer-item">
+                        <div class="transfer-info">
+                            <span id="transfer-filename">video.mp4</span>
+                            <span id="transfer-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="transfer-progress-fill"></div>
+                        </div>
+                        <div class="transfer-speed" id="transfer-speed">0 KB/s</div>
+                    </div>
+                </div>
+
+                <!-- Received Files -->
+                <div class="received-files-area" id="received-files-area" style="display:none;">
+                    <h3>Received Files</h3>
+                    <div id="received-files-list"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/navbar.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
+    <script src="scripts/p2p-file-share.js"></script>
+</body>
+</html>

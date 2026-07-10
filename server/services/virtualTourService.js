@@ -1,6 +1,7 @@
 // services/virtualTourService.js
+const EventEmitter = require('events');
 const { v4: uuidv4 } = require('uuid');
-const store = require('../data/store');
+const store = require('../../data/store');
 
 class VirtualTourService {
   constructor() {

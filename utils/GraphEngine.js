@@ -66,8 +66,10 @@ class GraphEngine {
   }
   
   findShortestPath(startId, endId, options = {}) {
+    console.log('[GraphEngine] findShortestPath requested:', { startId, endId, options });
+    console.log('[GraphEngine] Available nodes in graph:', Object.keys(this.nodes));
     if (!this.nodes[startId] || !this.nodes[endId]) {
-      throw new Error('Invalid start or end location.');
+      throw new Error(`Invalid start or end location. startId: ${startId} (${!!this.nodes[startId]}), endId: ${endId} (${!!this.nodes[endId]})`);
     }
     
     const distances = {};

@@ -1,171 +1,23 @@
-// routes/moderation.routes.js
 const express = require('express');
 const router = express.Router();
-const ContentModerationService = require('../services/contentModerationService');
+const ctrl = require('../controllers/moderation.controller');
 
-let moderationService = null;
+// Register a trusted moderator peer
+router.post('/register-peer', ctrl.registerPeer);
 
-// Initialize moderation service
-const getService = () => {
-  if (!moderationService) {
-    moderationService = new ContentModerationService();
-  }
-  return moderationService;
-};
+// Submit content for moderation
+router.post('/submit', ctrl.submitForModeration);
 
-/**
- * POST /api/moderation/moderate
- * Moderate content
- */
-router.post('/moderate', async (req, res, next) => {
-  try {
-    const { content, contentType, userId } = req.body;
+// Cast a signed vote on a pending item
+router.post('/vote', ctrl.castVote);
 
-    if (!content) {
-      return res.status(400).json({
-        success: false,
-        error: 'Content is required'
-      });
-    }
+// Get moderation queue (optionally filtered by status)
+router.get('/queue', ctrl.getQueue);
 
-    const service = getService();
-    const result = await service.moderateContent(content, contentType || 'text', userId);
+// Get audit log
+router.get('/log', ctrl.getLog);
 
-    res.json({
-      success: true,
-      result,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/moderation/queue
- * Get review queue
- */
-router.get('/queue', (req, res, next) => {
-  try {
-    const { status, priority } = req.query;
-    const service = getService();
-    const queue = service.getReviewQueue({ status, priority });
-
-    res.json({
-      success: true,
-      queue,
-      count: queue.length,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * POST /api/moderation/review
- * Review content manually
- */
-router.post('/review', async (req, res, next) => {
-  try {
-    const { contentId, reviewerId, decision, notes } = req.body;
-
-    if (!contentId || !reviewerId || !decision) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: contentId, reviewerId, decision'
-      });
-    }
-
-    const service = getService();
-    const result = await service.reviewContent(contentId, reviewerId, decision, notes);
-
-    res.json({
-      success: true,
-      result,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/moderation/reputation/:userId
- * Get user reputation
- */
-router.get('/reputation/:userId', (req, res, next) => {
-  try {
-    const { userId } = req.params;
-    const service = getService();
-    const reputation = service.getUserReputation(userId);
-
-    res.json({
-      success: true,
-      userId,
-      reputation,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * POST /api/moderation/train
- * Train moderation model
- */
-router.post('/train', async (req, res, next) => {
-  try {
-    const service = getService();
-    const result = await service.trainModel();
-
-    res.json({
-      success: true,
-      ...result,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/moderation/stats
- * Get moderation statistics
- */
-router.get('/stats', (req, res, next) => {
-  try {
-    const service = getService();
-    const stats = service.getStatistics();
-
-    res.json({
-      success: true,
-      stats,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/moderation/status
- * Get model status
- */
-router.get('/status', (req, res, next) => {
-  try {
-    const service = getService();
-    const status = service.getModelStatus();
-
-    res.json({
-      success: true,
-      status,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+// Get list of trusted peers
+router.get('/peers', ctrl.getPeers);
 
 module.exports = router;

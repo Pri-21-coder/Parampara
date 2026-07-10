@@ -411,7 +411,8 @@ async function loadItems() {
   try {
     const response = await fetch('/api/items');
     if (!response.ok) throw new Error('API error');
-    allItems = await response.json();
+    const data = await response.json();
+    allItems = Array.isArray(data) ? data : (data.data || []);
   } catch (error) {
     console.error('Error loading items, using samples:', error);
     allItems = getSampleItems();

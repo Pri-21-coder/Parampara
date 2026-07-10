@@ -1,6 +1,14 @@
 const store = require('../data/store');
+const bcrypt = require('bcryptjs');
 
 function initializeSampleData() {
+  const salt = bcrypt.genSaltSync(10);
+  // store.users is an LRUCache, so we use set()
+  store.users.set('admin1', { id: 'admin1', username: 'admin', passwordHash: bcrypt.hashSync('admin123', salt), role: 'Administrator' });
+  store.users.set('curator1', { id: 'curator1', username: 'curator', passwordHash: bcrypt.hashSync('curator123', salt), role: 'Curator' });
+  store.users.set('contrib1', { id: 'contrib1', username: 'contributor', passwordHash: bcrypt.hashSync('contrib123', salt), role: 'Contributor' });
+  store.users.set('visitor1', { id: 'visitor1', username: 'visitor', passwordHash: bcrypt.hashSync('visitor123', salt), role: 'Visitor' });
+
   store.culturalItems.push({
     id: '1',
     title: 'Kantha Embroidery Patterns',
@@ -16,6 +24,7 @@ function initializeSampleData() {
     records: 15,
     lastUpdated: '2026-05-15',
     engagement: 85,
+    authorId: 'contrib1',
   });
 
   store.culturalItems.push({
@@ -33,6 +42,7 @@ function initializeSampleData() {
     records: 5,
     lastUpdated: '2024-01-10',
     engagement: 40,
+    authorId: 'curator1',
   });
 
   store.culturalItems.push({
@@ -84,6 +94,23 @@ function initializeSampleData() {
     records: 1,
     lastUpdated: '2024-11-20',
     engagement: 20,
+  });
+
+  store.culturalItems.push({
+    id: '6',
+    title: 'Sundarbans Folk Tales',
+    type: 'story',
+    location: 'Sundarbans Village',
+    coordinates: [21.9497, 88.8156],
+    description:
+      'Traditional stories about Bonbibi and honey collectors of the Sundarbans.',
+    tags: ['folklore', 'storytelling'],
+    year: 1950,
+    timestamp: new Date().toISOString(),
+    artisans: 5,
+    records: 4,
+    lastUpdated: '2026-06-20',
+    engagement: 75,
   });
 
   // ── Heritage Paths sample data ─────────────────────────────────────────────
@@ -138,7 +165,7 @@ function initializeSampleData() {
     description:
       'Journey through the seasonal festivals that shape rural life — from Chhath Puja to Bastar Lokotsav.',
     theme: 'Festivals',
-    items: ['1', '2', '3', '4', '5'],
+    items: ['1', '2', '3', '4', '5', '6'],
   });
 
   // Artisan sample data
@@ -561,6 +588,36 @@ function initializeSampleData() {
       notableFacts: [
         'Madhubani artists painted trees along highways in Bihar with religious motifs to successfully prevent illegal logging.',
         'The paint is organic and zero-waste, traditionally utilizing cow dung paste to treat the paper before painting.'
+      ],
+      chapters: [
+        {
+          title: 'The Origins in Mithila',
+          content: 'Originating in the Mithila region of Bihar, Madhubani Art was traditionally painted by women on mud walls to mark births, weddings, and festivals. The vivid colors brought life to the village homes.',
+          coordinates: [26.3537, 86.0719],
+          zoom: 12,
+          mediaUrl: 'https://images.unsplash.com/photo-1582560475093-ba66accbc424?w=800&q=80'
+        },
+        {
+          title: 'The Great Drought',
+          content: 'During a severe drought in the late 1960s, the region suffered heavily. The Indian government encouraged the transition of these traditional wall paintings to paper to create a new source of livelihood for the starving families.',
+          coordinates: [25.5941, 85.1376],
+          zoom: 8,
+          mediaUrl: 'https://images.unsplash.com/photo-1571217666994-4d1cc5ce4396?w=800&q=80'
+        },
+        {
+          title: 'Natural Traditions',
+          content: 'Paintings are crafted using natural dyes extracted from turmeric, soot, flowers, and leaves mixed with tree gum. Artists use twigs, matches, fingers, and nib-pens instead of modern brushes to draw fine lines.',
+          coordinates: [26.3537, 86.0719],
+          zoom: 14,
+          mediaUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=80'
+        },
+        {
+          title: 'Global Celebration',
+          content: 'Over the decades, this local tradition has evolved into a globally celebrated folk art form. Today, intricate Madhubani pieces are proudly represented in prominent museums worldwide.',
+          coordinates: [48.8566, 2.3522],
+          zoom: 4,
+          mediaUrl: 'https://images.unsplash.com/photo-1563291074-2bf8677ac0e5?w=800&q=80'
+        }
       ]
     },
     {
@@ -592,6 +649,29 @@ function initializeSampleData() {
       notableFacts: [
         'Traditionally, the thread used for embroidery was pulled out of the borders of the very same old saris being recycled.',
         'A large Kantha quilt can take up to six months of collective labor by multiple village women.'
+      ],
+      chapters: [
+        {
+          title: 'Domestic Recycling',
+          content: 'Kantha embroidery started as a domestic recycling technique where Bengal women hand-stitched layers of old cotton saris together to make quilts. It was an expression of rural resourcefulness.',
+          coordinates: [22.5726, 88.3639],
+          zoom: 11,
+          mediaUrl: 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=800&q=80'
+        },
+        {
+          title: 'The Running Stitch',
+          content: 'The primary technique is the running stitch, which creates a rippled, textured effect across the fabric. Stitches are drawn in circular patterns, starting from the center of the textile and radiating outwards.',
+          coordinates: [23.8103, 90.4125],
+          zoom: 10,
+          mediaUrl: 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?w=800&q=80'
+        },
+        {
+          title: 'Commercial Revival',
+          content: 'In the late 20th century, self-help groups and non-profits structured the craft to supply commercial markets. Today, Kantha is featured on high-fashion runways and exported globally as a premium sustainable textile.',
+          coordinates: [22.5726, 88.3639],
+          zoom: 6,
+          mediaUrl: 'https://images.unsplash.com/photo-1558769132-cb1fac9facf4?w=800&q=80'
+        }
       ]
     },
     {
@@ -688,6 +768,72 @@ function initializeSampleData() {
       ]
     }
   );
+
+  // Mock Artisans
+  const mockArtisans = [
+    {
+      id: 'artisan-1',
+      name: 'Ramesh Kumawat',
+      craft: 'Kantha Embroidery',
+      village: 'Kantha Village',
+      district: 'Birbhum',
+      region: 'West Bengal',
+      biography: 'Ramesh Kumawat is a master weaver with over 30 years of experience. He has dedicated his life to preserving the ancient art of Kantha embroidery, passing down the intricate techniques to younger generations in his village.',
+      experienceYears: 32,
+      recognitionLevel: 'Master Artisan',
+      profileImage: 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?auto=format&fit=crop&q=80&w=400',
+      showContact: true,
+      contactInfo: { email: 'ramesh.kantha@example.com', phone: '+91 98765 43210' },
+      relatedContent: ['Kantha Weaving Techniques', 'Bengal Textile Festival']
+    },
+    {
+      id: 'artisan-2',
+      name: 'Sita Devi',
+      craft: 'Dokra Metal Craft',
+      village: 'Dokra Village',
+      district: 'Bastar',
+      region: 'Chhattisgarh',
+      biography: 'Sita Devi is renowned for her intricate brass and bronze castings using the lost-wax method. Her sculptures beautifully capture tribal life and have been showcased in national exhibitions.',
+      experienceYears: 25,
+      recognitionLevel: 'National Awardee',
+      profileImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400',
+      showContact: true,
+      contactInfo: { email: 'sita.dokra@example.com' },
+      relatedContent: ['Lost Wax Casting Process', 'Bastar Art Exhibition']
+    },
+    {
+      id: 'artisan-3',
+      name: 'Anil Jha',
+      craft: 'Madhubani Painting',
+      village: 'Madhubani Village',
+      district: 'Madhubani',
+      region: 'Bihar',
+      biography: 'A modern pioneer of traditional Mithila art, Anil creates stunning natural dye paintings depicting mythological tales. He leads workshops across India to keep the tradition alive.',
+      experienceYears: 18,
+      recognitionLevel: 'Rising Talent',
+      profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+      showContact: false,
+      contactInfo: null,
+      relatedContent: ['Natural Dyes Workshop', 'Mithila Mythology']
+    }
+  ];
+
+  mockArtisans.forEach(a => store.artisans.push(a));
+
+  // Map artisans to culturalItems so they have portfolios
+  store.culturalItems.forEach((item, index) => {
+    if (index % 3 === 0) item.artisanId = 'artisan-1';
+    else if (index % 3 === 1) item.artisanId = 'artisan-2';
+    else item.artisanId = 'artisan-3';
+  });
+
+  // Populate QuadTrees
+  store.culturalItems.forEach(item => {
+    store.culturalItemsQuadTree.insert(item);
+  });
+  
+  // Note: if store.villagePosts had sample data with coordinates, we would insert them here:
+  // store.villagePosts.forEach(post => store.villagePostsQuadTree.insert(post));
 }
 
 module.exports = initializeSampleData;

@@ -1,0 +1,119 @@
+/* Foolproof Simple Scrollytelling Design */
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--theme-bg, #fafafa);
+  color: var(--theme-text-strong, #333);
+}
+
+#scrolly {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Left Pane: Text */
+.scrolly-text {
+  padding: 2rem;
+}
+
+.story-chapter {
+  min-height: 80vh; /* Space out the text blocks */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  opacity: 1; /* Always visible */
+}
+
+.story-chapter.active .chapter-content {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+  transform: scale(1.02);
+}
+
+.chapter-content {
+  background: var(--theme-surface, #ffffff);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border-left: 5px solid var(--theme-primary, #d97706);
+  color: var(--theme-text-strong, #333);
+}
+
+.chapter-content h2 {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--theme-text-strong, #333);
+}
+
+.chapter-content p {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--theme-text, #444);
+}
+
+/* Right Pane: Map & Media */
+.scrolly-visuals {
+  position: sticky;
+  top: 100px; /* Below navbar */
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  background: var(--theme-surface, #ffffff);
+}
+
+.scrolly-header {
+  background: var(--theme-bg, #333333);
+  color: var(--theme-text-strong, #ffffff);
+  padding: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.scrolly-map {
+  flex: 1;
+  width: 100%;
+}
+
+.scrolly-media {
+  flex: 1;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-color: #eee;
+  transition: background-image 0.5s ease-in-out;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+  #scrolly {
+    display: flex;
+    flex-direction: column-reverse; /* Map on top, text below */
+  }
+
+  .scrolly-visuals {
+    position: sticky;
+    top: 80px;
+    height: 50vh;
+    width: 100%;
+    z-index: 10;
+  }
+
+  .scrolly-text {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .story-chapter {
+    min-height: auto;
+    padding: 2rem 0;
+  }
+}

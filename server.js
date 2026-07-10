@@ -15,20 +15,34 @@ const progressRoutes = require('./routes/progress.routes');
 const postRoutes = require('./routes/post.routes');
 const chatRoutes = require('./routes/chat.routes');
 const checkinRoutes = require('./routes/checkin.routes');
+const profileRoutes = require('./routes/profile.routes');
+const gamificationRoutes = require('./routes/gamification.routes');
+const languageRoutes = require('./routes/language.routes');
+const recipeRoutes = require('./routes/recipe.routes');
+const natureRoutes = require('./routes/nature.routes');
+const initializeSampleLanguageData = require('./config/sampleLanguageData');
+const initializeSampleNatureData = require('./config/sampleNatureData');
+const initializeSampleArtifactData = require('./config/sampleArtifactData');
 const artisanRoutes = require('./routes/artisan.routes');
+const artifactRoutes = require('./routes/artifact.routes');
 const storyRoutes = require('./routes/story.routes');
 const auditRoutes = require('./routes/audit.routes');
 const csrfRoutes = require('./routes/csrf.routes');
 const cacheRoutes = require('./routes/cache.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const searchRoutes = require('./routes/search.routes');
+const notificationRoutes = require('./routes/notification.routes');
+const galleryRoutes = require('./routes/gallery.routes');
+const integrityRoutes = require('./routes/integrity.routes');
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 const { csrfProtection } = require('./middleware/csrf');
-
 const store = require('./data/store');
+const calendarRoutes = require('./routes/calendar.routes');
 
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
-const SlidingWindowLimiter = require('./middleware/rateLimiter');
+const HeuristicRateLimiter = require('./middleware/rateLimiter');
 
 const initializeSampleData = require('./config/sampleData');
 
@@ -41,7 +55,12 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", 'https://unpkg.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
+        scriptSrc: [
+          "'self'",
+          'https://unpkg.com',
+          'https://cdn.jsdelivr.net',
+          'https://cdnjs.cloudflare.com',
+        ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://unpkg.com'],
         imgSrc: [
           "'self'",
@@ -49,11 +68,19 @@ app.use(
           'blob:',
           'https://unpkg.com',
           'https://api.maptiler.com',
+          'https://*.tile.openstreetmap.org',
           'https://cdn.sanity.io',
           'https://encrypted-tbn0.gstatic.com',
           'https://cdn.shopify.com',
+          'https://images.unsplash.com',
+          'https://tile.openstreetmap.org',
         ],
-        connectSrc: ["'self'", 'https://api.maptiler.com', `ws://localhost:${WS_PORT}`, `wss://*.onrender.com`],
+        connectSrc: [
+          "'self'",
+          'https://api.maptiler.com',
+          `ws://localhost:${WS_PORT}`,
+          `wss://*.onrender.com`,
+        ],
         workerSrc: ["'self'", 'blob:'],
         childSrc: ["'self'", 'blob:'],
         objectSrc: ["'none'"],
@@ -64,24 +91,71 @@ app.use(
 );
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(
   express.urlencoded({
     extended: true,
+    limit: '10mb'
   })
 );
 
-// Serve static files
+// Serve static files (placed before rate limiter to prevent script throttling)
 app.use(express.static(path.join(__dirname, 'public')));
-// Serve collaborative scripts
-app.use('/scripts/collaborative', express.static(path.join(__dirname, 'public/scripts/collaborative')));
+app.use(
+  '/scripts/collaborative',
+  express.static(path.join(__dirname, 'public/scripts/collaborative'))
+);
+
+// Global Heuristic Rate Limiter
+// Base protection for all endpoints: 300 tokens per minute
+const globalLimiter = new HeuristicRateLimiter({
+  windowMs: 60000,
+  maxTokens: 300,
+  baseDelayMs: 2000, // Up to 2s delay for tarpitting
+  message: 'Too many requests, please slow down.',
+});
+app.use(globalLimiter.middleware());
 
 // Initialize Data
 initializeSampleData();
+initializeSampleLanguageData();
+const initializeSampleData = require('./config/sampleData');
+initializeSampleData();
+
+const initializeSampleRecipeData = require('./config/sampleRecipeData');
+initializeSampleRecipeData();
+initializeSampleNatureData();
+initializeSampleArtifactData();
+
+const initializeSampleCalendarData = require('./config/sampleCalendarData');
+initializeSampleCalendarData();
+
+// API Routes (existing)
+app.use('/api/items', itemRoutes);
+app.use('/api/paths', pathRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/checkin', checkinRoutes);
+app.use('/api/language', languageRoutes);
+app.use('/api/recipes', recipeRoutes);
+app.use('/api/nature', natureRoutes);
+
+// Start Background Integrity Scanner
+const integrityService = require('./services/integrityService');
+integrityService.scanAll();
+setInterval(
+  () => {
+    integrityService.scanAll();
+    console.log('🔍 Scheduled integrity scan completed');
+  },
+  60 * 60 * 1000
+); // Every hour
 
 // ==================== FRONTEND ROUTES ====================
 
 // Home Route
+app.use('/api/calendar', calendarRoutes);
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -106,9 +180,24 @@ app.get('/paths', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'paths.html'));
 });
 
+// P2P Share Route
+app.get('/p2p-share', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'p2p-share.html'));
+});
+
+// Theme Builder Route
+app.get('/theme-builder', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'theme-builder.html'));
+});
+
 // Quest Route
 app.get('/quest', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'quest.html'));
+});
+
+// Profile Route
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
 // Trails Route
@@ -121,11 +210,41 @@ app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'chat.html'));
 });
 
+// Archives Route
+app.get('/archives', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'archives.html'));
+});
+
+// Data Exchange Route
+app.get('/data-exchange', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'data-exchange.html'));
+});
+
+// Serve Trivia Game Page
+app.get('/trivia', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'trivia.html'));
+});
+
+// Audio Processing Route
+app.get('/audio', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'audio.html'));
+});
+
+// Moderation Dashboard Route
+app.get('/moderation', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'moderation.html'));
+});
+
+// Chunked Video Upload Route
+app.get('/upload', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'upload.html'));
+});
+
 // ==================== RECOMMENDATION ENGINE ROUTES ====================
 
 // Import recommendation routes
-const recommendationRoutes = require('./routes/recommendation.routes');
-app.use('/api/recommendations', recommendationRoutes);
+// const recommendationRoutes = require('./routes/recommendation.routes');
+// app.use('/api/recommendations', recommendationRoutes);
 
 // Recommendations Page Route
 app.get('/recommendations', (req, res) => {
@@ -135,6 +254,13 @@ app.get('/recommendations', (req, res) => {
 // ==================== API ROUTES ====================
 
 const translationsData = require('./data/translationsData');
+
+app.get('/api/language/config', (req, res) => {
+  res.json({
+    default: 'en',
+    supported: ['en', 'hi', 'mr'],
+  });
+});
 
 app.get('/api/language', (req, res) => {
   res.json({
@@ -154,34 +280,68 @@ app.use('/api/csrf-token', csrfRoutes);
 app.use(csrfProtection);
 
 // Global API Rate Limiter (100 reqs / 1 min)
-const globalLimiter = new SlidingWindowLimiter({
+const apiLimiter = new HeuristicRateLimiter({
   windowMs: 60000,
   max: 100,
-  message: 'Too many API requests from this IP, please try again after a minute.'
+  message:
+    'Too many API requests from this IP, please try again after a minute.',
 });
-app.use('/api', globalLimiter.middleware());
+app.use('/api', apiLimiter.middleware());
+
+const tenantMiddleware = require('./middleware/tenant.middleware');
+app.use('/api', tenantMiddleware);
 
 // API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/gamification', gamificationRoutes);
+
+const tenantRoutes = require('./routes/tenant.routes');
+app.use('/api/tenant', tenantRoutes);
 
 // Heritage Score API
 const heritageScoreRoutes = require('./routes/heritageScore.routes');
 app.use('/api/heritage-score', heritageScoreRoutes);
 
-app.use('/api/paths', pathRoutes);
-app.use('/api/progress', progressRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/checkin', checkinRoutes);
+const themeRoutes = require('./routes/theme.routes');
+app.use('/api/themes', themeRoutes);
+
 app.use('/api/story-generator', storyRoutes);
 app.use('/api/artisans', artisanRoutes);
+app.use('/api/artifacts', artifactRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/cache', cacheRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/integrity', integrityRoutes);
 
 const exportRoutes = require('./routes/export.routes');
 app.use('/api/export', exportRoutes);
+
+const archiveRoutes = require('./routes/archive.routes');
+app.use('/api/archives', archiveRoutes);
+
+const dataExchangeRoutes = require('./routes/dataExchange.routes');
+app.use('/api/data-exchange', dataExchangeRoutes);
+
+const audioRoutes = require('./routes/audio.routes');
+app.use('/api/audio', audioRoutes);
+
+const moderationRoutes = require('./routes/moderation.routes');
+app.use('/api/moderation', moderationRoutes);
+
+const uploadRoutes = require('./routes/upload.routes');
+// Bypass CSRF and body-parser for raw chunk uploads
+app.use('/api/upload/chunk', express.raw({ type: '*/*', limit: '10mb' }));
+app.use('/api/upload', uploadRoutes);
+
+// Start upload session cleanup (every 5 minutes)
+const { cleanupSessions } = require('./controllers/upload.controller');
+setInterval(cleanupSessions, 5 * 60 * 1000);
 
 // ==================== ADDITIONAL API ENDPOINTS ====================
 
@@ -272,9 +432,14 @@ app.get('/api/map-style', async (req, res) => {
     return res.json({
       version: 8,
       sources: {
-        'osm': {
+        osm: {
           type: 'raster',
-          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tiles: [
+            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+          ],
           tileSize: 256,
           attribution: '&copy; OpenStreetMap Contributors',
         },
@@ -299,7 +464,8 @@ app.get('/api/map-style', async (req, res) => {
     if (!response.ok) {
       return res.status(502).json({
         configured: false,
-        message: 'Unable to load map tiles. Please verify your MAPTILER_KEY is valid.',
+        message:
+          'Unable to load map tiles. Please verify your MAPTILER_KEY is valid.',
       });
     }
 
@@ -330,15 +496,17 @@ try {
 
 // Health check endpoint that includes WebSocket status
 app.get('/api/health', (req, res) => {
-  const wsStatus = wsServer ? {
-    status: 'running',
-    port: WS_PORT,
-    clients: wsServer.clients ? wsServer.clients.size : 0,
-    markers: wsServer.markers ? wsServer.markers.size : 0
-  } : {
-    status: 'stopped',
-    port: WS_PORT
-  };
+  const wsStatus = wsServer
+    ? {
+      status: 'running',
+      port: WS_PORT,
+      clients: wsServer.clients ? wsServer.clients.size : 0,
+      markers: wsServer.markers ? wsServer.markers.size : 0,
+    }
+    : {
+      status: 'stopped',
+      port: WS_PORT,
+    };
 
   res.json({
     status: 'OK',
@@ -346,7 +514,7 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime(),
     version: '1.0.0',
     websocket: wsStatus,
-    memory: process.memoryUsage()
+    memory: process.memoryUsage(),
   });
 });
 
@@ -355,7 +523,7 @@ app.get('/api/ws/stats', (req, res) => {
   if (!wsServer) {
     return res.status(503).json({
       error: 'WebSocket server not running',
-      status: 'unavailable'
+      status: 'unavailable',
     });
   }
 
@@ -364,7 +532,7 @@ app.get('/api/ws/stats', (req, res) => {
     clients: wsServer.clients ? wsServer.clients.size : 0,
     markers: wsServer.markers ? wsServer.markers.size : 0,
     rooms: wsServer.rooms ? wsServer.rooms.size : 0,
-    history: wsServer.operationHistory ? wsServer.operationHistory.length : 0
+    history: wsServer.operationHistory ? wsServer.operationHistory.length : 0,
   });
 });
 
@@ -373,29 +541,30 @@ app.get('/api/ws/stats', (req, res) => {
 // Recommendation engine status endpoint
 app.get('/api/recommendations/health', async (req, res) => {
   try {
-    const RecommendationEngine = require('./services/recommendationEngine');
+    const RecommendationEngine = require('./server/services/recommendationEngine');
     const engine = new RecommendationEngine();
     const stats = engine.getModelStats();
-    
+
     res.json({
       status: 'healthy',
       engine: 'recommendation',
       ...stats,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
-// Add blockchain routes
-const blockchainRoutes = require('./routes/blockchain.routes');
-app.use('/api/blockchain', blockchainRoutes);
+// Blockchain routes (temporarily disabled - service dependencies need fixing)
+// const blockchainRoutes = require('./routes/blockchain.routes');
+// app.use('/api/blockchain', blockchainRoutes);
 
 // Blockchain page
+
 app.get('/blockchain', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
 });
@@ -415,13 +584,24 @@ app.get('/analytics-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'analytics-dashboard.html'));
 });
 // Add virtual tour routes
+
+// app.get('/blockchain', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
+// });
+// Analytics Dashboard routes (disabled - service missing)
+// const analyticsDashboardRoutes = require('./routes/analyticsDashboard.routes');
+// app.use('/api/analytics', analyticsDashboardRoutes);
+// app.get('/analytics-dashboard', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'analytics-dashboard.html'));
+// });
+// Virtual Tour routes
+
 const virtualTourRoutes = require('./routes/virtualTour.routes');
 app.use('/api/tours', virtualTourRoutes);
-
-// Virtual Tour page
 app.get('/virtual-tour', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'virtual-tour.html'));
 });
+
 // Add mobile app routes
 const mobileAppRoutes = require('./routes/mobileApp.routes');
 app.use('/api/mobile', mobileAppRoutes);
@@ -437,10 +617,21 @@ app.get('/storytelling', (req, res) => {
 const languageLearningRoutes = require('./routes/languageLearning.routes');
 app.use('/api/language', languageLearningRoutes);
 // Add itinerary planner routes
+
+// Storytelling routes (disabled - service missing)
+// const storytellingRoutes = require('./routes/storytelling.routes');
+// app.use('/api/story', storytellingRoutes);
+// app.get('/storytelling', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'storytelling.html'));
+// });
+// Language Learning routes (disabled - service missing)
+// const languageLearningRoutes = require('./routes/languageLearning.routes');
+// app.use('/api/language', languageLearningRoutes);
+
+// Itinerary Planner routes
+
 const itineraryRoutes = require('./routes/itineraryPlanner.routes');
 app.use('/api/itinerary', itineraryRoutes);
-
-// Itinerary Planner page
 app.get('/itinerary-planner', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'itinerary-planner.html'));
 });
@@ -448,16 +639,23 @@ app.get('/itinerary-planner', (req, res) => {
 app.get('/language-learning', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'language-learning.html'));
 });
-// Add AR experience routes
-const arRoutes = require('./routes/arExperience.routes');
-app.use('/api/ar', arRoutes);
+// AR Experience routes (disabled - service missing)
+// const arRoutes = require('./routes/arExperience.routes');
+// app.use('/api/ar', arRoutes);
 
 // AR Experience page
 app.get('/ar-experience', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'ar-experience.html'));
 });
+
+// Rangoli Generator routes
+const rangoliRoutes = require('./routes/rangoli.routes');
+app.use('/api/rangoli', rangoliRoutes);
+app.get('/rangoli-generator', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'rangoli.html'));
+});
 // Add search engine routes
-const searchEngineRoutes = require('./routes/searchEngine.routes');
+const searchEngineRoutes = require('./routes/searchEngine');
 app.use('/api/search', searchEngineRoutes);
 
 // Search page
@@ -465,13 +663,12 @@ app.get('/search', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'search.html'));
 });
 // Add gamification routes
-const gamificationRoutes = require('./routes/gamification.routes');
-app.use('/api/gamification', gamificationRoutes);
 
 // Gamification page
 app.get('/gamification', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'gamification.html'));
 });
+
 // Add event routes
 const eventRoutes = require('./routes/event.routes');
 app.use('/api/events', eventRoutes);
@@ -487,14 +684,7 @@ app.use(notFound);
 
 // Error Middleware
 app.use(errorHandler);
-// Add moderation routes
-const moderationRoutes = require('./routes/moderation.routes');
-app.use('/api/moderation', moderationRoutes);
 
-// Moderation dashboard page
-app.get('/moderation', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'moderation.html'));
-});
 // ==================== START SERVER ====================
 
 // Create HTTP server
@@ -504,18 +694,23 @@ const server = http.createServer(app);
 server.listen(PORT, () => {
   console.log(`✨ Parampara server running on http://localhost:${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗺️  Collaborative Map: http://localhost:${PORT}/collaborative-map`);
+  console.log(
+    `🗺️  Collaborative Map: http://localhost:${PORT}/collaborative-map`
+  );
+  console.log(`🎮 Trivia Game: http://localhost:${PORT}/trivia`);
   console.log(`📚 Recommendations: http://localhost:${PORT}/recommendations`);
   console.log(`📊 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`🔌 WebSocket: ws://localhost:${WS_PORT}`);
-  console.log(`🤖 Recommendation Engine: http://localhost:${PORT}/api/recommendations/stats`);
+  console.log(
+    `🤖 Recommendation Engine: http://localhost:${PORT}/api/recommendations/stats`
+  );
 });
 
 // ==================== GRACEFUL SHUTDOWN ====================
 
 const shutdown = () => {
   console.log('🛑 Shutting down gracefully...');
-  
+
   // Close WebSocket server
   if (wsServer && wsServer.wss) {
     wsServer.wss.close(() => {

@@ -59,7 +59,7 @@ class CollaborativeMap {
 
   setupWebSocket() {
     try {
-      this.ws = new WebSocket(this.wsUrl);
+      this.ws = new ResilientWebSocket(this.wsUrl);
       
       this.ws.onopen = () => {
         console.log('WebSocket connected');

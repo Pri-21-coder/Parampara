@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Temples of India | Parampara</title>
+
+    <!-- Main Website Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/languageSelector.css">
+    <link rel="stylesheet" href="styles/theme.css">
+
+    <!-- Temples Page Styles -->
+    <link rel="stylesheet" href="styles/temples.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+
+<body>
+
+  <nav class="navbar">
+      <div class="nav-container">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+          🌙
+        </button>
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">
+            Preserving Living Traditions
+          </p>
+        </div>
+        <!-- Language selector injected here by language-switcher.js -->
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li>
+            <a href="index.html" class="active"
+              ><i class="ti ti-home"></i> Home</a
+            >
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li> <a href="temples.html" data-i18n="nav_temples"> Temples of India</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"
+              ><i class="ti ti-compass"></i> Discovery Quest</a
+            >
+          </li>
+          <li>
+            <a href="trails.html"
+              ><i class="ti ti-trail-sign"></i> Heritage Trails</a
+            >
+          </li>
+          <li>
+            <a href="chat.html"
+              ><i class="ti ti-message-circle"></i> Talk to Elder</a
+            >
+          </li>
+          <li>
+            <a href="revival.html"
+              ><i class="ti ti-hourglass"></i>
+              <span data-i18n="nav_revival">Lost Traditions</span></a
+            >
+          </li>
+          <li>
+            <a href="risk-dashboard.html"
+              ><i class="ti ti-alert-triangle"></i>
+              <span data-i18n="nav_risk">Risk </span></a
+            >
+          </li>
+          <li>
+            <a href="reputation.html"
+              ><i class="ti ti-medal"></i>
+              <span data-i18n="nav_reputation">Contributor Reputation</span></a
+            >
+          </li>
+          <li>
+            <a href="timeline.html"
+              ><i class="ti ti-history"></i>
+              <span data-i18n="nav_timeline">Historical Timeline</span></a
+            >
+          </li>
+          <li>
+            <a href="export.html"
+              ><i class="ti ti-download"></i>
+              <span data-i18n="nav_export">Data Export</span></a
+            >
+          </li>
+          <li>
+            <a href="story-generator.html"
+              ><i class="ti ti-books"></i>
+ 
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>             ><i class="ti ti-books"></i>
+              <span data-i18n="nav_story_generator">AI Story Generator</span></a
+            >
+          </li>
+          <li>
+            <a href="interactive-story.html"
+              ><i class="ti ti-book-2"></i>
+              <span data-i18n="nav_interactive_story">Interactive Stories</span></a
+            >
+          </li>
+          <li>
+            <a href="favorites.html"
+              ><i class="ti ti-heart"></i> My Favorites</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+<header class="temples-hero">
+    <h1>Temples of India</h1>
+    <p>
+        Discover the sacred temples that have shaped India's
+        spiritual and cultural heritage for centuries.
+    </p>
+</header>
+
+
+<section class="temple-grid">
+
+<div class="temple-card">
+
+<div class="image-placeholder">
+
+<img src="images/Kashi2.jpg" alt="Kashi Vishwanath Temple">
+
+</div><div class="card-content">
+
+
+
+<h2>Kashi Vishwanath Temple</h2>
+
+<p class="location">
+📍 Uttar Pradesh
+</p>
+
+<p>
+
+Dedicated to Lord Shiva, Kashi Vishwanath is one of the twelve
+Jyotirlingas and among the holiest pilgrimage sites in India.
+
+</p>
+
+<div class="tags">
+
+<span>Ancient</span>
+
+<span>Pilgrimage</span>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="temple-card">
+
+<div class="image-placeholder">
+
+<img src="images/tirupati.jpg" alt="Kashi Vishwanath Temple">
+
+
+</div><div class="card-content">
+
+
+
+<h2>Tirupati Balaji Temple</h2>
+
+<p class="location">
+📍 Andhra Pradesh
+</p>
+
+<p>
+
+One of the richest and most visited temples in the world,
+dedicated to Lord Venkateswara.
+
+</p>
+
+<div class="tags">
+
+<span>Vishnu</span>
+
+<span>Historic</span>
+
+</div>
+
+</div>
+
+</div>
+<!-- Mahakaleshwar Temple -->
+<div class="temple-card">
+
+    <div class="image-placeholder">
+    <img src="images/mahakaleshwar.jpg" alt="Kashi Vishwanath Temple">
+
+    </div>
+
+    <div class="card-content">
+
+        <h2>Mahakaleshwar Temple</h2>
+
+        <p class="location">
+            📍 Ujjain, Madhya Pradesh
+        </p>
+
+        <p class="description">
+            One of the twelve sacred Jyotirlingas dedicated to Lord Shiva, the Mahakaleshwar Temple is renowned for its unique Bhasma Aarti and centuries-old spiritual significance.
+        </p>
+
+        <div class="tags">
+            <span>Jyotirlinga</span>
+            <span>Ancient</span>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Golden Temple -->
+<div class="temple-card">
+
+    <div class="image-placeholder">
+        <img src="images/golden temple.jpg" alt="Kashi Vishwanath Temple">
+
+    </div>
+
+    <div class="card-content">
+
+        <h2>Golden Temple</h2>
+
+        <p class="location">
+            📍 Amritsar, Punjab
+        </p>
+
+        <p class="description">
+            Also known as Harmandir Sahib, the Golden Temple is the holiest shrine of Sikhism, admired for its golden architecture, peaceful surroundings, and the world's largest free community kitchen (Langar).
+        </p>
+
+        <div class="tags">
+            <span>Sikh Heritage</span>
+            <span>Historic</span>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Siddhivinayak Temple -->
+<div class="temple-card">
+
+    <div class="image-placeholder">
+    <img src="images/siddhivinayak.jpg" alt="Kashi Vishwanath Temple">
+
+    </div>
+
+    <div class="card-content">
+
+        <h2>Siddhivinayak Temple</h2>
+
+        <p class="location">
+            📍 Mumbai, Maharashtra
+        </p>
+
+        <p class="description">
+            Dedicated to Lord Ganesha, Siddhivinayak Temple is one of India's most visited temples and is especially revered for fulfilling the wishes of devotees from across the country.
+        </p>
+
+        <div class="tags">
+            <span>Ganesha</span>
+            <span>Pilgrimage</span>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Kedarnath Temple -->
+<div class="temple-card">
+
+    <div class="image-placeholder">
+    <img src="images/kedarnat.jpg" alt="Kashi Vishwanath Temple">
+
+    </div>
+
+    <div class="card-content">
+
+        <h2>Kedarnath Temple</h2>
+
+        <p class="location">
+            📍 Rudraprayag, Uttarakhand
+        </p>
+
+        <p class="description">
+            Nestled in the Himalayas, Kedarnath Temple is one of the holiest shrines dedicated to Lord Shiva and forms an important part of the Char Dham Yatra.
+        </p>
+
+        <div class="tags">
+            <span>Himalayas</span>
+            <span>Char Dham</span>
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- Markdown Support -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+<script src="scripts/markdown.js"></script>
+<script src="scripts/translationsData.js"></script>
+<script src="scripts/languageSwitcher.js"></script>
+<script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
+    <script src="scripts/main.js"></script>
+<script src="scripts/cacheLayer.js"></script>
+<script src="scripts/navbar.js"></script>
+<script src="scripts/theme.js"></script>
+<script src="scripts/sw-register.js"></script>
+<script src="scripts/telemetry.js"></script>
+<script src="scripts/idb-storage.js"></script>
+<script src="scripts/sync-manager.js"></script>
+<script src="scripts/offline-dashboard.js"></script>
+<script src="scripts/temples.js"></script>
+
+</body>
+
+
+</html>
+

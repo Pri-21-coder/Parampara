@@ -10,12 +10,14 @@
     <title>Grandmother's Knowledge Vault - Parampara</title>
     <link rel="stylesheet" href="styles/main.css" />
     <link rel="stylesheet" href="styles/knowledge-vault.css" />
+    <link rel="stylesheet" href="styles/autosave.css" />
     <link rel="stylesheet" href="styles/skeleton.css" />
+    <link rel="stylesheet" href="styles/markdown-editor.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css"
     />
-  </head>
+      <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
   <body>
     <nav class="navbar" aria-label="Main navigation">
       <div class="nav-container">
@@ -94,6 +96,8 @@
           </li>
                   <li>
             <a href="favorites.html"><i class="ti ti-heart"></i> My Favorites</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
           </li>
         </ul>
       </div>
@@ -428,11 +432,25 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="scripts/markdown.js"></script>
+    <script src="scripts/markdown-editor.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        new ParamparaMarkdownEditor('contrib-description', {
+          placeholder: 'Write your wisdom, story, or traditional knowledge in Markdown...',
+          autoSave: true,
+          autoSaveKey: 'draft_knowledge'
+        });
+      });
+    </script>
 
     <script src="scripts/utils.js"></script>
     <script src="scripts/skeletonEngine.js"></script>
+    <script src="scripts/progressive-video.js"></script>
+    <script src="scripts/autosave.js"></script>
     <script src="scripts/knowledge-vault.js"></script>
     <script src="scripts/navbar.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/sw-register.js"></script>
   <script src="scripts/audio-visualizer.js"></script>

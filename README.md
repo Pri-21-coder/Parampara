@@ -150,6 +150,70 @@ Ask questions about rural traditions, crafts, festivals, and stories. The AI cur
 | 🐛 **Bugs**      | Find and fix bugs in the code                |
 | 💡 **Ideas**     | Share awesome ideas for new features         |
 
+## 🌐 Gallery API Reference
+
+The visual gallery API retrieves cultural heritage items from the archive. It supports pagination, search, sorting, filtering, and request validation.
+
+### Endpoints
+
+#### `GET /api/gallery`
+
+Retrieves a paginated list of gallery items matching search and filter criteria.
+
+##### Query Parameters
+
+| Parameter | Type    | Required | Description                                                            | Validation                                                                  |
+| :-------- | :------ | :------- | :--------------------------------------------------------------------- | :-------------------------------------------------------------------------- |
+| `page`    | Integer | No       | The page index to fetch (default: `1`).                                | Must be `> 0`.                                                              |
+| `limit`   | Integer | No       | Number of items per page (default: `12`).                              | Must be `> 0` and `<= 100`.                                                 |
+| `search`  | String  | No       | Search term matching craft title, description, location, or tags.      | Must be a string.                                                           |
+| `craft`   | String  | No       | Filter items matching the craft name.                                  | Must be a string.                                                           |
+| `state`   | String  | No       | Filter items matching the state name (e.g. `Bihar`, `West Bengal`).    | Must be a string.                                                           |
+| `tag`     | String  | No       | Filter items matching a specific tag (e.g. `embroidery`, `metalwork`). | Must be a string.                                                           |
+| `sort`    | String  | No       | Order of returned items.                                               | One of: `latest` (newest first), `oldest`, `name` (A-Z), `name_desc` (Z-A). |
+
+##### Sample Request
+
+```http
+GET /api/gallery?search=kantha&state=West Bengal&sort=latest&page=1&limit=2
+```
+
+##### Sample Success Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "1",
+      "title": "Kantha Embroidery Patterns",
+      "type": "visual",
+      "location": "Kantha Village, Bengal",
+      "coordinates": [22.5726, 88.3639],
+      "description": "Traditional Kantha embroidery using running stitch on layered vintage saris.",
+      "tags": ["embroidery", "textile"],
+      "year": 1950,
+      "timestamp": "2026-07-05T11:23:20.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 2,
+    "totalItems": 1,
+    "totalPages": 1
+  }
+}
+```
+
+##### Sample Validation Error Response (400 Bad Request)
+
+```json
+{
+  "success": false,
+  "message": "Page must be greater than 0"
+}
+```
+
 ---
 
 ## 📋 Submitting Your Changes

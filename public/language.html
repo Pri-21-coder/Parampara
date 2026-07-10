@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heritage Language Preservation Hub</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/language.css" />
+    <meta
+      name="description"
+      content="Explore and preserve rural languages, dialects, and vocabularies across India."
+    />
+  </head>
+  <body>
+    <!-- Navigation (same as site-wide nav) -->
+    <nav class="navbar">
+<div class="nav-container">
+            <div class="logo">
+                <h1 data-i18n="brand_name">Parampara</h1>
+                <p class="tagline" data-i18n="brand_tagline">Preserving Living Traditions</p>
+            </div>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+                <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+                <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+                <li><a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a></li>
+                <li><a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a></li>
+                <li><a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a></li>
+                <li><a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a></li>
+                <li><a href="timeline.html">Timeline</a></li>
+                <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
+                <li><a href="calendar.html"><i class="ti ti-calendar"></i> <span data-i18n="nav_calendar">Seasonal Calendar</span></a></li>
+                <li><a href="challenges.html"><i class="ti ti-flag"></i> Challenges</a></li>
+                <li><a href="language.html" class="active"><i class="ti ti-language"></i> Languages</a></li>
+            </ul>
+        </div>
+        </div>
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span><span class="bar"></span
+          ><span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li>
+            <a href="index.html" class="active"
+              ><i class="ti ti-home"></i> Home</a
+            >
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"
+              ><i class="ti ti-compass"></i> Discovery Quest</a
+            >
+          </li>
+          <li>
+            <a href="trails.html"
+              ><i class="ti ti-trail-sign"></i> Heritage Trails</a
+            >
+          </li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li>
+            <a href="chat.html"
+              ><i class="ti ti-message-circle"></i> Talk to Elder</a
+            >
+          </li>
+          <li>
+            <a href="calendar.html"
+              ><i class="ti ti-calendar"></i>
+              <span data-i18n="nav_calendar">Seasonal Calendar</span></a
+            >
+          </li>
+          <li>
+            <a href="challenges.html"><i class="ti ti-flag"></i> Challenges</a>
+          </li>
+          <li>
+            <a href="language.html"><i class="ti ti-language"></i> Languages</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero language-hero">
+      <div class="hero-content">
+        <div class="hero-texts">
+          <div class="hero-badge">🗣️ Language Hub</div>
+          <h2 class="hero-title" data-i18n="language_hero_title">
+            Preserve Rural Languages
+          </h2>
+          <p class="hero-subtitle" data-i18n="language_hero_subtitle">
+            Discover, hear, and cherish words from villages across the country.
+          </p>
+          <div class="hero-buttons">
+            <a
+              href="#word-of-the-day"
+              class="btn btn-primary"
+              data-i18n="hero_btn_word"
+              >Word of the Day</a
+            >
+            <a
+              href="#search-section"
+              class="btn btn-secondary"
+              data-i18n="hero_btn_explore"
+              >Explore Vocabulary</a
+            >
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-img-wrapper">
+            <div
+              class="hero-img"
+              style="background-image: url('images/language_hero.jpg')"
+            ></div>
+            <div class="hero-img-overlay"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Word of the Day -->
+    <section id="word-of-the-day" class="section word-of-the-day">
+      <h2 class="section-title" data-i18n="word_of_the_day_title">
+        Word of the Day
+      </h2>
+      <div class="word-card" id="wordOfDayContainer"></div>
+    </section>
+
+    <!-- Search & Filters -->
+    <section id="search-section" class="section search-filters">
+      <h2 class="section-title" data-i18n="search_title">Find a Word</h2>
+      <div class="search-bar">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search by word, meaning, village…"
+          aria-label="Search vocabulary"
+        />
+      </div>
+      <div class="filters">
+        <select id="filterLanguage" aria-label="Filter by language">
+          <option value="">All Languages</option>
+        </select>
+        <select id="filterRegion" aria-label="Filter by region">
+          <option value="">All Regions</option>
+        </select>
+        <select id="filterVillage" aria-label="Filter by village">
+          <option value="">All Villages</option>
+        </select>
+        <select id="filterCategory" aria-label="Filter by category">
+          <option value="">All Categories</option>
+          <option value="Festivals">Festivals</option>
+          <option value="Farming">Farming</option>
+          <option value="Food">Food</option>
+          <option value="Crafts">Crafts</option>
+          <option value="Rituals">Rituals</option>
+          <option value="Nature">Nature</option>
+          <option value="Music">Music</option>
+          <option value="Daily Life">Daily Life</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Vocabulary Cards Grid -->
+    <section class="section cards-grid" id="cardsContainer">
+      <h2 class="section-title" data-i18n="vocab_title">Vocabulary</h2>
+      <div class="grid" id="vocabGrid"></div>
+    </section>
+
+    <!-- Dialect Comparison -->
+    <section class="section dialect-comparison" id="dialectComparisonSection">
+      <h2 class="section-title" data-i18n="dialect_compare_title">
+        Dialect Comparison
+      </h2>
+      <div class="comparison-controls">
+        <select id="compareDialectA" aria-label="Select first dialect"></select>
+        <select
+          id="compareDialectB"
+          aria-label="Select second dialect"
+        ></select>
+        <button id="compareBtn" class="btn btn-primary" data-i18n="compare_btn">
+          Compare
+        </button>
+      </div>
+      <div class="comparison-results" id="comparisonResults"></div>
+    </section>
+
+    <!-- Favorites Section -->
+    <section class="section favorites" id="favoritesSection">
+      <h2 class="section-title" data-i18n="favorites_title">My Favorites</h2>
+      <div class="grid" id="favoritesGrid"></div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <p data-i18n="footer_copy">
+          © 2024 Parampara. Preserving rural heritage, one story at a time.
+        </p>
+      </div>
+    </footer>
+
+    <script src="scripts/language.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/translationsData.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
+  </body>
+</html>

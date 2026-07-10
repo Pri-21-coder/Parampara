@@ -1,85 +1,143 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parampara - Secure Heritage Upload</title>
+  <title>Video Upload | Parampara</title>
   <link rel="stylesheet" href="styles/main.css">
-  <link rel="stylesheet" href="styles/theme.css">
-  <link rel="stylesheet" href="styles/watermark.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
+  <link rel="stylesheet" href="styles/upload.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
 <body>
-  <!-- Navigation -->
-  <nav class="glass-nav">
-    <div class="nav-brand">
-      <a href="/">🏺 Parampara</a>
+  <nav class="navbar navbar-home">
+    <div class="nav-container">
+      <div class="logo">
+        <h1>Parampara</h1>
+        <p class="tagline">Cultural Video Archive</p>
+      </div>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+        <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+        <li><a href="archives.html"><i class="ti ti-vault"></i> Archives</a></li>
+        <li><a href="upload.html" class="active"><i class="ti ti-upload"></i> Upload</a></li>
+      </ul>
     </div>
-    <ul class="nav-links">
-      <li><a href="gallery.html">Gallery</a></li>
-      <li><a href="paths.html">Heritage Paths</a></li>
-      <li><a href="upload.html" class="active">Secure Upload</a></li>
-    </ul>
   </nav>
 
-  <main class="container">
-    <header class="page-header">
-      <h1>Preserve & Protect</h1>
-      <p>Upload heritage photographs and automatically apply an attribution watermark before submitting to the archive.</p>
-    </header>
+  <main class="upload-main">
+    <!-- Hero -->
+    <section class="upload-hero">
+      <h1><i class="ti ti-video-plus"></i> Resumable Video Upload</h1>
+      <p>Upload large cultural videos reliably over any network. Interrupted? We'll pick up right where you left off.</p>
+    </section>
 
-    <div class="upload-container card glass-card">
-      
-      <!-- Drop Zone -->
-      <div id="drop-zone" class="drop-zone">
-        <svg xmlns="http://www.w3.org/.svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-        <p>Drag & Drop a Heritage Image or Click to Browse</p>
-        <input type="file" id="file-input" accept="image/jpeg, image/png, image/webp" hidden>
-      </div>
+    <div class="upload-container">
 
-      <!-- Processing Workspace -->
-      <div id="workspace" class="workspace" style="display: none;">
-        <div class="workspace-grid">
-          
-          <!-- Left: Preview -->
-          <div class="preview-panel">
-            <img id="preview-img" src="" alt="Watermark Preview" class="preview-img">
-          </div>
+      <!-- Left: Upload Panel -->
+      <section class="upload-panel">
 
-          <!-- Right: Controls -->
-          <div class="controls-panel">
-            <h3>Watermark Settings</h3>
-            
-            <div class="control-group">
-              <label for="watermark-text">Custom Text</label>
-              <input type="text" id="watermark-text" class="form-input" value="© Parampara Digital Archive">
-            </div>
-
-            <div class="control-group">
-              <label for="watermark-opacity">Opacity: <span id="opacity-val">40%</span></label>
-              <input type="range" id="watermark-opacity" min="0.1" max="1.0" step="0.1" value="0.4" class="slider">
-            </div>
-
-            <div class="control-group checkbox-group">
-              <input type="checkbox" id="watermark-tiled" checked>
-              <label for="watermark-tiled">Tiled Pattern (Recommended for protection)</label>
-            </div>
-
-            <div class="actions-group">
-              <button id="download-btn" class="btn secondary">Download Copy</button>
-              <button id="upload-btn" class="btn primary">Upload to Archive</button>
-            </div>
-            
-            <p class="meta-note">💡 Original EXIF data is preserved and a Copyright tag is injected securely into the binary.</p>
-          </div>
-          
+        <!-- Network Status -->
+        <div class="network-bar" id="network-bar">
+          <span class="net-dot online" id="net-dot"></span>
+          <span id="net-status-text">Online</span>
         </div>
-      </div>
 
+        <!-- Drop Zone -->
+        <div class="drop-zone" id="drop-zone">
+          <i class="ti ti-cloud-upload drop-icon"></i>
+          <p class="drop-title">Drag & drop your video here</p>
+          <p class="drop-hint">MP4, WebM, MOV, MKV — any size</p>
+          <label class="btn btn-primary browse-btn">
+            <i class="ti ti-folder-open"></i> Browse Files
+            <input type="file" id="file-input" accept="video/*" hidden />
+          </label>
+        </div>
+
+        <!-- File Info -->
+        <div class="file-info-card hidden" id="file-info-card">
+          <div class="fi-icon"><i class="ti ti-file-video"></i></div>
+          <div class="fi-details">
+            <strong id="fi-name">—</strong>
+            <span id="fi-size">—</span>
+            <span id="fi-type">—</span>
+          </div>
+          <button class="fi-clear" id="clear-btn" title="Clear"><i class="ti ti-x"></i></button>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section hidden" id="progress-section">
+          <div class="progress-header">
+            <span id="progress-label">Uploading...</span>
+            <span id="progress-pct">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-bar"></div>
+          </div>
+          <div class="chunk-info" id="chunk-info">Chunk 0 of 0</div>
+
+          <!-- Chunk Grid -->
+          <div class="chunk-grid" id="chunk-grid"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-btns">
+          <button class="btn btn-primary" id="start-btn" disabled>
+            <i class="ti ti-upload"></i> Start Upload
+          </button>
+          <button class="btn btn-pause hidden" id="pause-btn">
+            <i class="ti ti-player-pause"></i> Pause
+          </button>
+          <button class="btn btn-resume hidden" id="resume-btn">
+            <i class="ti ti-player-play"></i> Resume
+          </button>
+          <button class="btn btn-cancel hidden" id="cancel-btn">
+            <i class="ti ti-ban"></i> Cancel
+          </button>
+        </div>
+
+        <!-- Resume Banner (shown on page reload if session exists) -->
+        <div class="resume-banner hidden" id="resume-banner">
+          <i class="ti ti-refresh"></i>
+          <div>
+            <strong>Interrupted upload detected!</strong>
+            <span id="resume-info">Resume from chunk <b id="resume-chunk">?</b></span>
+          </div>
+          <button class="btn btn-primary" id="resume-session-btn">Resume</button>
+          <button class="btn btn-cancel" id="discard-session-btn">Discard</button>
+        </div>
+      </section>
+
+      <!-- Right: Upload History & Status -->
+      <aside class="upload-sidebar">
+        <div class="sidebar-card">
+          <h2><i class="ti ti-list"></i> Upload History</h2>
+          <ul id="history-list" class="history-list">
+            <li class="empty-hint">No uploads yet this session.</li>
+          </ul>
+        </div>
+
+        <div class="sidebar-card">
+          <h2><i class="ti ti-info-circle"></i> How It Works</h2>
+          <ol class="how-list">
+            <li>File is split into <strong>2MB chunks</strong></li>
+            <li>Chunks upload one-by-one</li>
+            <li>If interrupted, reload the page — it resumes automatically</li>
+            <li>All chunks received → file is assembled on the server</li>
+          </ol>
+        </div>
+      </aside>
     </div>
   </main>
 
-  <script src="scripts/watermark-engine.js"></script>
-  <script src="scripts/image-uploader-ui.js"></script>
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
+    </div>
+  </footer>
+
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/upload.js"></script>
+  <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
 </body>
 </html>

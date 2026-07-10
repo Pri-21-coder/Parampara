@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Preview Sandbox</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .global-header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        /* The global layout that the custom theme should NOT be able to affect */
+        .global-sidebar {
+            width: 200px;
+            background: #e0e0e0;
+            padding: 15px;
+            float: left;
+            border-radius: 8px;
+            margin-right: 20px;
+            min-height: 300px;
+        }
+        .main-content {
+            overflow: hidden;
+        }
+    </style>
+    <!-- Include the shadow DOM custom element -->
+    <script src="scripts/theme-sandbox.js"></script>
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+<body>
+
+    <div class="global-header">
+        <h2>Global Layout (Should not be affected by custom theme)</h2>
+    </div>
+
+    <div class="global-sidebar">
+        Global Sidebar Links
+    </div>
+
+    <div class="main-content">
+        <!-- The Shadow DOM Sandbox Web Component -->
+        <village-theme id="preview-sandbox">
+            <!-- This slot content will be styled by the Shadow DOM injected CSS -->
+            <div class="village-card">
+                <h1 class="village-title">Village Title</h1>
+                <p class="village-description">
+                    This is a sample village description. Communities can customize the colors, 
+                    fonts, and layout of this specific section using their custom CSS theme.
+                </p>
+                <button class="village-btn">Discover Heritage</button>
+            </div>
+        </village-theme>
+    </div>
+
+    <script>
+        // Listen for live CSS updates from the parent window
+        window.addEventListener('message', (event) => {
+            // Basic origin check (since it's sandboxed, origin might be 'null', so we just check data structure)
+            if (event.data && event.data.type === 'UPDATE_THEME') {
+                const sandboxEl = document.getElementById('preview-sandbox');
+                // Directly call the applyTheme method on our custom Web Component
+                if (sandboxEl && typeof sandboxEl.applyTheme === 'function') {
+                    sandboxEl.applyTheme(event.data.css);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

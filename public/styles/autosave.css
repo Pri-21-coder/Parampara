@@ -1,0 +1,95 @@
+.autosave-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-muted, #6c757d);
+  transition: opacity 0.3s ease;
+  margin-left: 1rem;
+}
+
+.autosave-indicator i {
+  font-size: 1rem;
+}
+
+.autosave-indicator.saving {
+  color: var(--primary-color, #007bff);
+}
+
+.autosave-indicator.saved {
+  color: var(--success-color, #28a745);
+}
+
+.autosave-indicator.error {
+  color: var(--danger-color, #dc3545);
+}
+
+/* Recovery Banner */
+.autosave-recovery-banner {
+  background-color: var(--warning-bg, #fff3cd);
+  border: 1px solid var(--warning-border, #ffeeba);
+  color: var(--warning-text, #856404);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  animation: slideDown 0.3s ease-out;
+}
+
+.autosave-recovery-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.autosave-recovery-icon {
+  font-size: 1.5rem;
+  color: var(--warning-icon, #f39c12);
+}
+
+.autosave-recovery-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.autosave-recovery-actions button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.autosave-btn-restore {
+  background-color: var(--primary-color, #007bff);
+  color: white;
+}
+
+.autosave-btn-restore:hover {
+  background-color: var(--primary-hover, #0056b3);
+}
+
+.autosave-btn-discard {
+  background-color: transparent;
+  border: 1px solid var(--border-color, #ccc);
+  color: var(--text-color, #333);
+}
+
+.autosave-btn-discard:hover {
+  background-color: var(--bg-hover, #f8f9fa);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
