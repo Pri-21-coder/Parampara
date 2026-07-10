@@ -23,16 +23,18 @@ class SearchUI {
     const input = document.querySelector(this.searchInput);
     if (!input) return;
 
+    this.selectedIndex = -1; // For keyboard navigation
+
     // Live search
     input.addEventListener('input', (e) => {
       const query = e.target.value;
       this.currentQuery = query;
       
       clearTimeout(this.debounceTimeout);
+      this.selectedIndex = -1;
       
-      if (query.length > 2) {
+      if (query.trim().length >= 2) {
         this.debounceTimeout = setTimeout(() => {
-          this.performSearch(query);
           this.getSuggestions(query);
         }, 300);
       } else {
@@ -41,13 +43,79 @@ class SearchUI {
       }
     });
 
-    // Enter key
+    // Keyboard navigation
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+      const suggestions = document.querySelectorAll('.suggestion-item');
+      
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
+        if (suggestions.length > 0) {
+          this.selectedIndex = Math.min(this.selectedIndex + 1, suggestions.length - 1);
+          this.updateSelection(suggestions);
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (suggestions.length > 0) {
+          this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+          this.updateSelection(suggestions);
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (this.selectedIndex >= 0 && suggestions.length > 0) {
+          const selectedText = suggestions[this.selectedIndex].getAttribute('data-value');
+          if (selectedText) {
+             input.value = selectedText;
+             this.currentQuery = selectedText;
+             this.clearSuggestions();
+          }
+        }
         this.performSearch(this.currentQuery);
+      } else if (e.key === 'Escape') {
+        this.clearSuggestions();
       }
     });
+
+    // Hide suggestions when input loses focus
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        this.clearSuggestions();
+      }, 200); // Slight delay to allow clicks to register
+    });
+    
+    // Reopen suggestions on focus if query is long enough
+    input.addEventListener('focus', (e) => {
+      const query = e.target.value;
+      if (query.trim().length >= 2) {
+        this.getSuggestions(query);
+      }
+    });
+  }
+
+  updateSelection(suggestions) {
+    suggestions.forEach((item, index) => {
+      if (index === this.selectedIndex) {
+        item.classList.add('active');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  highlightMatch(text, query) {
+    if (!text || !query) return text;
+    // Basic HTML escaping to prevent XSS before highlighting
+    const escapeHtml = (unsafe) => {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+    const safeText = escapeHtml(text);
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')})`, 'gi');
+    return safeText.replace(regex, '<strong>$1</strong>');
   }
 
   async performSearch(query) {
@@ -145,11 +213,17 @@ class SearchUI {
     if (!container) return;
 
     try {
-      const response = await fetch(`${this.apiBase}/suggestions?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/items?search=${encodeURIComponent(query)}&limit=6`);
       const data = await response.json();
+      
+      const items = data.data || [];
 
-      if (data.success && data.suggestions.length > 0) {
-        this.renderSuggestions(container, data.suggestions);
+      if (items.length > 0) {
+        const suggestions = items.map(item => ({
+          term: item.title || item.name,
+          type: item.type || 'artifact'
+        }));
+        this.renderSuggestions(container, suggestions);
       } else {
         this.clearSuggestions();
       }
@@ -162,15 +236,24 @@ class SearchUI {
     container.style.display = 'block';
     container.innerHTML = `
       <div class="suggestions-list">
-        ${suggestions.map(suggestion => `
-          <div class="suggestion-item" onclick="
-            document.querySelector('#search-input').value = '${suggestion}';
-            window.searchUI.performSearch('${suggestion}');
-            window.searchUI.clearSuggestions();
-          ">
-            🔍 ${suggestion}
-          </div>
-        `).join('')}
+        ${suggestions.map(suggestion => {
+          const highlightedText = this.highlightMatch(suggestion.term, this.currentQuery);
+          // Escape quotes for the data attribute to prevent HTML breakage
+          const safeDataValue = suggestion.term.replace(/"/g, '&quot;');
+          return `
+            <div class="suggestion-item" data-value="${safeDataValue}" onmousedown="
+              const input = document.querySelector('${this.searchInput}');
+              input.value = this.getAttribute('data-value');
+              window.searchUI.currentQuery = input.value;
+              window.searchUI.performSearch(input.value);
+              window.searchUI.clearSuggestions();
+            ">
+              <span class="suggestion-icon">🔍</span>
+              <span>${highlightedText}</span>
+              <span class="suggestion-meta">${suggestion.type}</span>
+            </div>
+          `;
+        }).join('')}
       </div>
     `;
   }

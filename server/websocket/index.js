@@ -16,6 +16,8 @@ class CollaborativeMapServer {
     
     // Trivia Game State
     this.triviaGames = new Map(); // roomId -> game state
+    // Virtual Tours State
+    this.tours = new Map(); // roomId -> { guideId, state: { center, zoom } }
     // Deduplication across reconnections
     this.processedMessageIds = new Set();
     this.processedMessageQueue = [];
@@ -171,6 +173,16 @@ class CollaborativeMapServer {
         break;
       case 'moderation:vote-broadcast':
         this.handleModerationVoteBroadcast(userId, message.data);
+        break;
+      // VIRTUAL TOURS
+      case 'tour:create':
+        this.handleTourCreate(userId, message.roomId);
+        break;
+      case 'tour:join':
+        this.handleTourJoin(userId, message.roomId, message.username);
+        break;
+      case 'tour:sync_map':
+        this.handleTourSyncMap(userId, message.roomId, message.state);
         break;
       default:
         client.ws.send(JSON.stringify({
@@ -595,6 +607,63 @@ class CollaborativeMapServer {
     }, this.clients.get(userId)?.ws);
   }
 
+  // ==================== VIRTUAL TOURS ====================
+
+  handleTourCreate(userId, roomId) {
+    const client = this.clients.get(userId);
+    if (!client) return;
+
+    this.handleJoinRoom(userId, roomId);
+
+    this.tours.set(roomId, {
+      guideId: userId,
+      state: { center: [78.9629, 20.5937], zoom: 4 }
+    });
+
+    client.ws.send(JSON.stringify({
+      type: 'tour:created',
+      roomId,
+      guideId: userId
+    }));
+  }
+
+  handleTourJoin(userId, roomId, username) {
+    const client = this.clients.get(userId);
+    if (!client) return;
+    if (username) client.username = username;
+
+    this.handleJoinRoom(userId, roomId);
+
+    const tour = this.tours.get(roomId);
+    if (tour) {
+      // Send current state to joiner
+      client.ws.send(JSON.stringify({
+        type: 'tour:state_sync',
+        state: tour.state,
+        guideId: tour.guideId
+      }));
+    }
+
+    // Notify others
+    this.broadcastToRoom(roomId, {
+      type: 'tour:participant_joined',
+      userId,
+      username: client.username
+    }, client.ws);
+  }
+
+  handleTourSyncMap(userId, roomId, state) {
+    const tour = this.tours.get(roomId);
+    // Only guide can sync map
+    if (tour && tour.guideId === userId) {
+      tour.state = state;
+      this.broadcastToRoom(roomId, {
+        type: 'tour:sync_map',
+        state
+      }, this.clients.get(userId)?.ws);
+    }
+  }
+
   // ==================== WEBSOCKET SYNC NETWORK ====================
 
   handleSyncJoin(userId) {
@@ -666,6 +735,20 @@ class CollaborativeMapServer {
         });
       } else if (client.roomId && this.triviaGames.has(client.roomId)) {
         this.broadcastTriviaState(client.roomId);
+      } else if (client.roomId && this.tours.has(client.roomId)) {
+        this.broadcastToRoom(client.roomId, {
+          type: 'tour:participant_left',
+          userId,
+          username: client.username
+        });
+        
+        const tour = this.tours.get(client.roomId);
+        if (tour && tour.guideId === userId) {
+          // Guide left, notify room
+          this.broadcastToRoom(client.roomId, {
+            type: 'tour:guide_left'
+          });
+        }
       }
     }
   }

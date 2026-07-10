@@ -739,36 +739,20 @@ function toggleHeatmap() {
 
   const t = getTranslation();
 
-  if (heatmapLayer) {
-    // Clear and remove existing heatmap layer elements
-    heatmapMarkers.forEach(m => m.remove());
-    heatmapMarkers = [];
-    heatmapLayer = false;
-    document.getElementById('toggle-heatmap').textContent = t.toggleHeatmap || 'Toggle Heatmap';
+  if (map.getLayer('cultural-heatmap')) {
+    const visibility = map.getLayoutProperty('cultural-heatmap', 'visibility');
+    
+    if (visibility === 'visible') {
+      map.setLayoutProperty('cultural-heatmap', 'visibility', 'none');
+      heatmapLayer = false;
+      document.getElementById('toggle-heatmap').textContent = t.toggleHeatmap || 'Toggle Heatmap';
+    } else {
+      map.setLayoutProperty('cultural-heatmap', 'visibility', 'visible');
+      heatmapLayer = true;
+      document.getElementById('toggle-heatmap').textContent = t.hideHeatmap || 'Hide Heatmap';
+    }
   } else {
-    // Build and append density overlay rings based on score profiles
-    heatmapLayer = true;
-    sampleVillages.forEach(village => {
-      const el = document.createElement('div');
-      const intensity = village.heritageScore ? (100 - village.heritageScore) / 100 : 0.5;
-      const size = Math.max(30, Math.min(100, intensity * 120));
-      
-      el.style.cssText = `
-        width:${size}px; height:${size}px;
-        border-radius:50%;
-        background:rgba(244,162,97,${0.35 * intensity});
-        border:1px solid rgba(244,162,97,0.6);
-        pointer-events:none;
-      `;
-
-      const hm = new maplibregl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([village.coordinates[1], village.coordinates[0]])
-        .addTo(map);
-
-      heatmapMarkers.push(hm);
-    });
-
-    document.getElementById('toggle-heatmap').textContent = t.hideHeatmap || 'Hide Heatmap';
+    console.warn("Heatmap layer is not initialized yet. Please wait for cultural items to load.");
   }
 }
 
@@ -930,24 +914,148 @@ async function loadCulturalItems() {
     const result = await response.json();
     const items = result.data || result; // handle paginated or flat array
 
-    items.forEach((item) => {
-      if (item.coordinates && item.coordinates.length === 2) {
-        const el = document.createElement('div');
-        el.className = 'cultural-marker';
+    const geojson = {
+      type: 'FeatureCollection',
+      features: items.filter(i => i.coordinates && i.coordinates.length === 2).map(item => {
+        // Prepare properties, stringifying arrays/objects since GeoJSON properties must be primitives
+        const props = { ...item };
+        if (props.tags) props.tags = JSON.stringify(props.tags);
+        if (props.images) props.images = JSON.stringify(props.images);
+        
+        return {
+          type: 'Feature',
+          properties: props,
+          geometry: {
+            type: 'Point',
+            coordinates: [item.coordinates[1], item.coordinates[0]]
+          }
+        };
+      })
+    };
 
-        const marker = new maplibregl.Marker({
-          element: el,
-        })
-          .setLngLat([item.coordinates[1], item.coordinates[0]])
-          .addTo(map);
+    const source = map.getSource('cultural-items');
+    if (source) {
+      source.setData(geojson);
+    } else {
+      map.addSource('cultural-items', {
+        type: 'geojson',
+        data: geojson,
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 50
+      });
 
-        culturalMarkers.push(marker);
+      // 1. Heatmap layer
+      map.addLayer({
+        id: 'cultural-heatmap',
+        type: 'heatmap',
+        source: 'cultural-items',
+        maxzoom: 15,
+        layout: {
+          visibility: 'none' // Default hidden, toggled by toggleHeatmap()
+        },
+        paint: {
+          'heatmap-weight': 1,
+          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 15, 3],
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(33,102,172,0)',
+            0.2, 'rgb(103,169,207)',
+            0.4, 'rgb(209,229,240)',
+            0.6, 'rgb(253,219,199)',
+            0.8, 'rgb(239,138,98)',
+            1, 'rgb(178,24,43)'
+          ],
+          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 15, 15, 50],
+          'heatmap-opacity': 0.8
+        }
+      });
 
-        el.addEventListener('click', () => {
-          showPopup(item);
+      // 2. Clustered points layer
+      map.addLayer({
+        id: 'cultural-clusters',
+        type: 'circle',
+        source: 'cultural-items',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': [
+            'step',
+            ['get', 'point_count'],
+            '#e76f51', 10,
+            '#f4a261', 50,
+            '#e9c46a'
+          ],
+          'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            20, 10,
+            25, 50,
+            30
+          ],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff'
+        }
+      });
+
+      // 3. Cluster count layer
+      map.addLayer({
+        id: 'cultural-cluster-count',
+        type: 'symbol',
+        source: 'cultural-items',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-font': ['Arial Unicode MS Bold'],
+          'text-size': 14
+        },
+        paint: {
+          'text-color': '#ffffff'
+        }
+      });
+
+      // 4. Unclustered points layer
+      map.addLayer({
+        id: 'cultural-unclustered-point',
+        type: 'circle',
+        source: 'cultural-items',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': '#2a9d8f',
+          'circle-radius': 8,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff'
+        }
+      });
+
+      // Handlers
+      map.on('click', 'cultural-clusters', (e) => {
+        const features = map.queryRenderedFeatures(e.point, { layers: ['cultural-clusters'] });
+        const clusterId = features[0].properties.cluster_id;
+        map.getSource('cultural-items').getClusterExpansionZoom(clusterId, (err, zoom) => {
+          if (err) return;
+          map.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom
+          });
         });
-      }
-    });
+      });
+
+      map.on('click', 'cultural-unclustered-point', (e) => {
+        const properties = e.features[0].properties;
+        const item = { ...properties };
+        if (typeof item.tags === 'string') {
+          try { item.tags = JSON.parse(item.tags); } catch(err){}
+        }
+        showPopup(item);
+      });
+
+      map.on('mouseenter', 'cultural-clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'cultural-clusters', () => { map.getCanvas().style.cursor = ''; });
+      map.on('mouseenter', 'cultural-unclustered-point', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'cultural-unclustered-point', () => { map.getCanvas().style.cursor = ''; });
+    }
   } catch (error) {
     console.error('Error loading cultural items:', error);
   }

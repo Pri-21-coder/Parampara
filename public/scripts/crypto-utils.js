@@ -119,7 +119,7 @@ const CryptoUtils = {
 
     const decoder = new TextDecoder();
     return decoder.decode(decryptedContent);
-  }
+  },
   // Normalize an object to ensure deterministic hashing
   normalizeObject: (obj) => {
     if (obj === null || typeof obj !== 'object') {

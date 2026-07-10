@@ -318,5 +318,18 @@
     }
     setupChatEventListeners();
     refreshChatView();
+
+    // Prefill and send question from query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const askQuestion = urlParams.get('ask');
+    if (askQuestion) {
+      const chatInput = document.getElementById('chat-input');
+      if (chatInput) {
+        chatInput.value = decodeURIComponent(askQuestion);
+        setTimeout(() => {
+          submitUserMessage();
+        }, 400);
+      }
+    }
   });
 })();

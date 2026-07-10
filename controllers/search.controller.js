@@ -35,7 +35,8 @@ const getIndexData = (req, res, next) => {
       culturalItems: Array.from(store.culturalItems.values()),
       heritagePaths: Array.from(store.heritagePaths.values()),
       villagePosts: Array.from(store.villagePosts.values()),
-      timelineEvents: Array.from(store.timelineEvents.values())
+      timelineEvents: Array.from(store.timelineEvents.values()),
+      artifacts: Array.from(store.artifacts.values())
     };
 
     res.json(data);

@@ -53,8 +53,30 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Disable caching: let all requests go straight to the network
-  return;
+  const url = new URL(event.request.url);
+
+  // Exclude non-GET requests from caching
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // API Requests
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(apiNetworkFirstWithIDB(event.request));
+    return;
+  }
+
+  // Media Assets (images, audio, video)
+  const mediaExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.mp3', '.wav', '.ogg', '.mp4', '.webm'];
+  const isMedia = mediaExtensions.some(ext => url.pathname.toLowerCase().endsWith(ext)) || url.pathname.startsWith('/assets/') || url.pathname.startsWith('/images/');
+  
+  if (isMedia) {
+    event.respondWith(mediaCacheFirstLRU(event.request, MEDIA_CACHE));
+    return;
+  }
+
+  // Core Static Assets (HTML, CSS, JS) and other navigations
+  event.respondWith(staleWhileRevalidate(event.request, CORE_CACHE));
 });
 
 // Advanced API Cache via IndexedDB

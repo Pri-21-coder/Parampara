@@ -44,23 +44,56 @@
   </nav>
 
   <main class="container" id="artisan-profile">
-    <section class="profile-header" id="profileHeader">
-      <!-- Filled by JS -->
+    <!-- Hero / Header Section -->
+    <section class="artisan-hero" id="profileHeader">
+      <div class="artisan-cover"></div>
+      <div class="artisan-header-content">
+        <div class="artisan-avatar-container skeleton"></div>
+        <div class="artisan-info skeleton-text-block"></div>
+      </div>
     </section>
-    <section class="biography" id="biography">
-      <!-- Filled by JS -->
-    </section>
-    <section class="portfolio" id="portfolio">
-      <h2 data-i18n="portfolio_title">Portfolio</h2>
-      <div class="grid" id="portfolioGrid"></div>
-    </section>
-    <section class="contact" id="contactInfo">
-      <!-- Filled by JS if showContact -->
-    </section>
-    <section class="related" id="relatedContent">
-      <h2 data-i18n="related_content_title">Related Content</h2>
-      <ul id="relatedList"></ul>
-    </section>
+
+    <!-- Content Layout: Left (Bio & Stats) / Right (Portfolio) -->
+    <div class="artisan-layout">
+      <!-- Left Sidebar: Bio & Stats -->
+      <aside class="artisan-sidebar">
+        <section class="artisan-stats" id="artisanStats">
+          <!-- Filled by JS -->
+        </section>
+
+        <section class="artisan-bio card-panel" id="biography">
+          <h2 data-i18n="biography_title">Biography & Journey</h2>
+          <div class="bio-content skeleton-text-block"></div>
+        </section>
+
+        <section class="artisan-contact card-panel" id="contactInfo" style="display:none;">
+          <!-- Filled by JS -->
+        </section>
+      </aside>
+
+      <!-- Right Main Area: Portfolio & Related -->
+      <div class="artisan-main">
+        <section class="artisan-portfolio card-panel" id="portfolio">
+          <div class="section-header">
+            <h2 data-i18n="portfolio_title">Cultural Contributions</h2>
+            <div class="portfolio-filters">
+              <button class="filter-btn active">All</button>
+            </div>
+          </div>
+          <div class="portfolio-grid" id="portfolioGrid">
+            <!-- Skeleton items -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+
+        <section class="artisan-related card-panel" id="relatedContent" style="display:none;">
+          <h2 data-i18n="related_artisans_title">Related Artisans</h2>
+          <div class="related-scroll" id="relatedList"></div>
+        </section>
+      </div>
+    </div>
   </main>
 
   <script src="scripts/artisan-profile.js"></script>

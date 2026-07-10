@@ -15,7 +15,16 @@ const progressRoutes = require('./routes/progress.routes');
 const postRoutes = require('./routes/post.routes');
 const chatRoutes = require('./routes/chat.routes');
 const checkinRoutes = require('./routes/checkin.routes');
+const profileRoutes = require('./routes/profile.routes');
+const gamificationRoutes = require('./routes/gamification.routes');
+const languageRoutes = require('./routes/language.routes');
+const recipeRoutes = require('./routes/recipe.routes');
+const natureRoutes = require('./routes/nature.routes');
+const initializeSampleLanguageData = require('./config/sampleLanguageData');
+const initializeSampleNatureData = require('./config/sampleNatureData');
+const initializeSampleArtifactData = require('./config/sampleArtifactData');
 const artisanRoutes = require('./routes/artisan.routes');
+const artifactRoutes = require('./routes/artifact.routes');
 const storyRoutes = require('./routes/story.routes');
 const auditRoutes = require('./routes/audit.routes');
 const csrfRoutes = require('./routes/csrf.routes');
@@ -28,7 +37,6 @@ const integrityRoutes = require('./routes/integrity.routes');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const { csrfProtection } = require('./middleware/csrf');
-
 const store = require('./data/store');
 
 const notFound = require('./middleware/notFound');
@@ -59,6 +67,7 @@ app.use(
           'blob:',
           'https://unpkg.com',
           'https://api.maptiler.com',
+          'https://*.tile.openstreetmap.org',
           'https://cdn.sanity.io',
           'https://encrypted-tbn0.gstatic.com',
           'https://cdn.shopify.com',
@@ -81,10 +90,11 @@ app.use(
 );
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(
   express.urlencoded({
     extended: true,
+    limit: '10mb'
   })
 );
 
@@ -107,6 +117,22 @@ app.use(globalLimiter.middleware());
 
 // Initialize Data
 initializeSampleData();
+initializeSampleLanguageData();
+const initializeSampleRecipeData = require('./config/sampleRecipeData');
+initializeSampleRecipeData();
+initializeSampleNatureData();
+initializeSampleArtifactData();
+
+// API Routes (existing)
+app.use('/api/items', itemRoutes);
+app.use('/api/paths', pathRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/checkin', checkinRoutes);
+app.use('/api/language', languageRoutes);
+app.use('/api/recipes', recipeRoutes);
+app.use('/api/nature', natureRoutes);
 
 // Start Background Integrity Scanner
 const integrityService = require('./services/integrityService');
@@ -159,6 +185,11 @@ app.get('/theme-builder', (req, res) => {
 // Quest Route
 app.get('/quest', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'quest.html'));
+});
+
+// Profile Route
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
 // Trails Route
@@ -216,6 +247,13 @@ app.get('/recommendations', (req, res) => {
 
 const translationsData = require('./data/translationsData');
 
+app.get('/api/language/config', (req, res) => {
+  res.json({
+    default: 'en',
+    supported: ['en', 'hi', 'mr'],
+  });
+});
+
 app.get('/api/language', (req, res) => {
   res.json({
     default: 'en',
@@ -250,6 +288,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/gamification', gamificationRoutes);
 
 const tenantRoutes = require('./routes/tenant.routes');
 app.use('/api/tenant', tenantRoutes);
@@ -263,6 +303,7 @@ app.use('/api/themes', themeRoutes);
 
 app.use('/api/story-generator', storyRoutes);
 app.use('/api/artisans', artisanRoutes);
+app.use('/api/artifacts', artifactRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/cache', cacheRoutes);
 app.use('/api/analytics', analyticsRoutes);
@@ -385,7 +426,12 @@ app.get('/api/map-style', async (req, res) => {
       sources: {
         osm: {
           type: 'raster',
-          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tiles: [
+            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+          ],
           tileSize: 256,
           attribution: '&copy; OpenStreetMap Contributors',
         },
@@ -564,12 +610,12 @@ app.get('/itinerary-planner', (req, res) => {
 // app.get('/analytics-dashboard', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public', 'analytics-dashboard.html'));
 // });
-// Virtual Tour routes (disabled - service missing)
-// const virtualTourRoutes = require('./routes/virtualTour.routes');
-// app.use('/api/tours', virtualTourRoutes);
-// app.get('/virtual-tour', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'public', 'virtual-tour.html'));
-// });
+// Virtual Tour routes
+const virtualTourRoutes = require('./routes/virtualTour.routes');
+app.use('/api/tours', virtualTourRoutes);
+app.get('/virtual-tour', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'virtual-tour.html'));
+});
 // Storytelling routes (disabled - service missing)
 // const storytellingRoutes = require('./routes/storytelling.routes');
 // app.use('/api/story', storytellingRoutes);

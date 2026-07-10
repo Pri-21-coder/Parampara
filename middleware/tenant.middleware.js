@@ -1,38 +1,128 @@
 const { tenantContext } = require('../server/utils/tenantContext');
 
-/**
- * Advanced Tenant Middleware
- * Resolves the tenant from headers, query parameters, or subdomains.
- * Wraps the request in `tenantContext` so downstream logic automatically accesses isolated data.
- */
-const tenantMiddleware = (req, res, next) => {
-    // 1. Try Header: X-Tenant-ID
-    let tenantId = req.headers['x-tenant-id'] || req.headers['X-Tenant-ID'];
+const config = {
+    defaultTenant: 'default',
+    validTenantPattern: /^[a-zA-Z0-9\-_]+$/,
+    excludeSubdomains: ['www', 'api', 'admin', 'app', 'dev', 'test']
+};
 
-    // 2. Try Query Parameter (useful for quick links or testing)
-    if (!tenantId && req.query.tenantId) {
-        tenantId = req.query.tenantId;
+const getTenantFromHeader = (req) => {
+    const tenantId = req.headers['x-tenant-id'] || req.headers['X-Tenant-ID'];
+    if (tenantId && typeof tenantId === 'string') {
+        return tenantId.trim();
     }
+    return null;
+};
 
-    // 3. Try Subdomain extraction (e.g., museum.parampara.org -> museum)
-    if (!tenantId && req.hostname) {
-        const parts = req.hostname.split('.');
-        if (parts.length >= 3 && parts[0] !== 'www') {
-            tenantId = parts[0];
+const getTenantFromQuery = (req) => {
+    if (req.query && req.query.tenantId) {
+        const tenantId = req.query.tenantId;
+        if (typeof tenantId === 'string') {
+            return tenantId.trim();
         }
     }
+    return null;
+};
 
-    // Fallback to default tenant
-    if (!tenantId) {
-        tenantId = 'default';
+const getTenantFromSubdomain = (req) => {
+    if (!req.hostname) {
+        return null;
     }
 
-    req.tenantId = tenantId; // Just for reference
+    const parts = req.hostname.split('.');
+    
+    if (parts.length < 3) {
+        return null;
+    }
 
-    // Run the rest of the request within this tenant's isolated context!
-    tenantContext.run({ tenantId }, () => {
-        next();
-    });
+    const subdomain = parts[0].toLowerCase();
+    
+    if (config.excludeSubdomains.includes(subdomain)) {
+        return null;
+    }
+
+    return subdomain;
+};
+
+const validateTenantId = (tenantId) => {
+    if (!tenantId || typeof tenantId !== 'string') {
+        return { valid: false, reason: 'Tenant ID must be a non-empty string' };
+    }
+
+    const trimmed = tenantId.trim();
+    
+    if (trimmed.length === 0) {
+        return { valid: false, reason: 'Tenant ID cannot be empty' };
+    }
+
+    if (trimmed.length > 100) {
+        return { valid: false, reason: 'Tenant ID exceeds maximum length of 100 characters' };
+    }
+
+    if (!config.validTenantPattern.test(trimmed)) {
+        return { 
+            valid: false, 
+            reason: 'Tenant ID contains invalid characters. Only alphanumeric, hyphens, and underscores are allowed.' 
+        };
+    }
+
+    return { valid: true, tenantId: trimmed };
+};
+
+const resolveTenantId = (req) => {
+    let tenantId = getTenantFromHeader(req);
+    
+    if (!tenantId) {
+        tenantId = getTenantFromQuery(req);
+    }
+    
+    if (!tenantId) {
+        tenantId = getTenantFromSubdomain(req);
+    }
+    
+    if (!tenantId) {
+        tenantId = config.defaultTenant;
+    }
+
+    const validation = validateTenantId(tenantId);
+    
+    if (!validation.valid) {
+        console.warn(`Invalid tenant ID detected: "${tenantId}" - ${validation.reason}`);
+        return config.defaultTenant;
+    }
+
+    return validation.tenantId;
+};
+
+const tenantMiddleware = (req, res, next) => {
+    try {
+        const tenantId = resolveTenantId(req);
+        
+        req.tenantId = tenantId;
+        req.tenantSource = {
+            header: !!getTenantFromHeader(req),
+            query: !!getTenantFromQuery(req),
+            subdomain: !!getTenantFromSubdomain(req),
+            fallback: tenantId === config.defaultTenant
+        };
+
+        tenantContext.run({ tenantId }, () => {
+            next();
+        });
+    } catch (error) {
+        console.error('Tenant middleware error:', error.message);
+        const fallbackTenant = config.defaultTenant;
+        req.tenantId = fallbackTenant;
+        tenantContext.run({ tenantId: fallbackTenant }, () => {
+            next();
+        });
+    }
 };
 
 module.exports = tenantMiddleware;
+module.exports.config = config;
+module.exports.resolveTenantId = resolveTenantId;
+module.exports.validateTenantId = validateTenantId;
+module.exports.getTenantFromHeader = getTenantFromHeader;
+module.exports.getTenantFromQuery = getTenantFromQuery;
+module.exports.getTenantFromSubdomain = getTenantFromSubdomain;

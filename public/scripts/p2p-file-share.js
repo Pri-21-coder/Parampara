@@ -346,11 +346,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const div = document.createElement('div');
                     div.className = 'received-file';
                     div.innerHTML = `
-                        <div>
+                        <div style="margin-bottom: 8px;">
                             <strong>${fileObj.name}</strong> <span style="color:#7f8c8d; font-size:0.8rem;">(${(fileObj.size / (1024*1024)).toFixed(2)} MB)</span>
                         </div>
-                        <a href="${url}" download="${fileObj.name}" class="download-btn"><i class="ti ti-download"></i> Save</a>
+                        <div class="received-actions" style="display:flex; gap:10px;">
+                            <a href="${url}" download="${fileObj.name}" class="download-btn btn-small"><i class="ti ti-download"></i> Save Local</a>
+                            <button class="archive-btn btn-small" style="background:#2980b9; color:white; border:none; border-radius:4px; padding:5px 10px; cursor:pointer;"><i class="ti ti-cloud-upload"></i> Sync to Archive</button>
+                        </div>
                     `;
+
+                    const archiveBtn = div.querySelector('.archive-btn');
+                    archiveBtn.addEventListener('click', () => {
+                        syncToBackend(blob, fileObj, archiveBtn);
+                    });
+
                     receivedList.prepend(div);
                     
                     receivingFiles.delete(peerId);
@@ -373,6 +382,82 @@ document.addEventListener('DOMContentLoaded', () => {
                 const speed = (fileObj.receivedBytes / 1024) / (elapsedMs / 1000); // KB/s
                 transferSpeed.textContent = `${speed.toFixed(0)} KB/s`;
             }
+        }
+    }
+
+    // Backend Synchronization Logic
+    async function syncToBackend(blob, fileObj, btnElement) {
+        btnElement.disabled = true;
+        btnElement.innerHTML = '<i class="ti ti-loader ti-spin"></i> Uploading...';
+        
+        try {
+            // 1. Initialize Session
+            const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB backend chunks
+            const totalChunks = Math.ceil(fileObj.size / CHUNK_SIZE);
+            
+            const initRes = await fetch('/api/upload/init', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileName: fileObj.name,
+                    fileSize: fileObj.size,
+                    mimeType: fileObj.type,
+                    totalChunks: totalChunks
+                })
+            });
+            
+            if (!initRes.ok) throw new Error('Failed to init upload');
+            const { sessionId } = await initRes.json();
+            
+            // 2. Upload Chunks
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, fileObj.size);
+                const chunk = blob.slice(start, end);
+                
+                const uploadRes = await fetch(`/api/upload/chunk/${sessionId}/${i}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/octet-stream' },
+                    body: chunk
+                });
+                
+                if (!uploadRes.ok) throw new Error(`Failed to upload chunk ${i}`);
+            }
+            
+            // 3. Complete Upload
+            const completeRes = await fetch(`/api/upload/complete/${sessionId}`, { method: 'POST' });
+            if (!completeRes.ok) throw new Error('Failed to complete upload');
+            const { fileUrl } = await completeRes.json();
+            
+            // 4. Create Cultural Item
+            let itemType = 'story';
+            if (fileObj.type.startsWith('image/')) itemType = 'visual';
+            if (fileObj.type.startsWith('video/')) itemType = 'visual';
+            if (fileObj.type.startsWith('audio/')) itemType = 'audio';
+            
+            const itemRes = await fetch('/api/items', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: fileObj.name.split('.')[0],
+                    type: itemType,
+                    location: 'P2P Transfer',
+                    description: 'Uploaded via Peer-to-Peer network.',
+                    imageUrl: itemType === 'visual' ? fileUrl : '',
+                    audioUrl: itemType === 'audio' ? fileUrl : '',
+                    tags: ['p2p', 'community']
+                })
+            });
+            
+            if (!itemRes.ok) throw new Error('Failed to create cultural item');
+            
+            btnElement.style.background = '#27ae60';
+            btnElement.innerHTML = '<i class="ti ti-check"></i> Archived!';
+        } catch (err) {
+            console.error('Sync Error:', err);
+            btnElement.disabled = false;
+            btnElement.style.background = '#e74c3c';
+            btnElement.innerHTML = '<i class="ti ti-alert-triangle"></i> Failed. Retry?';
         }
     }
 

@@ -15,10 +15,7 @@
     <link rel="stylesheet" href="styles/shareModal.css" />
     <link rel="stylesheet" href="styles/timeMachine.css" />
     <link rel="stylesheet" href="styles/skeleton.css" />
-    <link
-      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="styles/markdown-editor.css" />
       <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
   <body>
     <nav class="navbar">
@@ -54,6 +51,9 @@
             >
           </li>
           <li>
+            <a href="artifacts.html"><i class="ti ti-archive"></i> Artifacts</a>
+          </li>
+          <li>
             <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
           </li>
           <li>
@@ -65,6 +65,9 @@
             <a href="trails.html"
               ><i class="ti ti-trail-sign"></i> Heritage Trails</a
             >
+          </li>
+          <li>
+            <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
           </li>
           <li>
             <a href="chat.html"
@@ -126,6 +129,7 @@
           <a href="gallery.html" class="active"
             ><i class="ti ti-photo"></i> Gallery</a
           >
+          <a href="artifacts.html"><i class="ti ti-archive"></i> Artifacts</a>
           <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
           <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
           <a href="trails.html"
@@ -290,20 +294,7 @@
           </div>
           <div class="form-group">
             <label data-i18n="modal_label_desc">Description</label>
-            <div
-              id="quill-editor"
-              style="
-                height: 150px;
-                background: var(--theme-input-bg);
-                color: var(--theme-text);
-              "
-            ></div>
-            <input
-              type="hidden"
-              name="description"
-              id="hidden-description"
-              required
-            />
+            <textarea id="gallery-description" name="description" rows="4" required></textarea>
           </div>
           <div class="form-group">
             <label data-i18n="modal_label_image_url">Image URL</label>
@@ -452,8 +443,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-
+    <script src="scripts/markdown-editor.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        new ParamparaMarkdownEditor('gallery-description', {
+          placeholder: 'Write the artifact description in Markdown...',
+          autoSave: true,
+          autoSaveKey: 'draft_gallery'
+        });
+      });
+    </script>
     <script src="scripts/utils.js"></script>
     <script src="scripts/markdown.js"></script>
     <script src="scripts/favoritesManager.js"></script>
@@ -463,11 +462,7 @@
     <script src="scripts/timeMachine.js"></script>
     <script src="scripts/skeletonEngine.js"></script>
     <script src="scripts/gallery.js?v=4"></script>
-<script src="scripts/breadcrumbs.js"></script>
-<script src="scripts/timeMachine.js"></script>
-<script src="scripts/skeletonEngine.js"></script>
-<script src="scripts/vdom.js"></script>
-<script src="scripts/gallery.js?v=4"></script>
+    <script src="scripts/vdom.js"></script>
     <script src="scripts/cacheLayer.js"></script>
     <script src="scripts/languageSwitcher.js"></script>
     <script src="scripts/navbar.js"></script>

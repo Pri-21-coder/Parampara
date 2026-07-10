@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="styles/knowledge-vault.css" />
     <link rel="stylesheet" href="styles/autosave.css" />
     <link rel="stylesheet" href="styles/skeleton.css" />
+    <link rel="stylesheet" href="styles/markdown-editor.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css"
@@ -431,6 +432,16 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="scripts/markdown.js"></script>
+    <script src="scripts/markdown-editor.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        new ParamparaMarkdownEditor('contrib-description', {
+          placeholder: 'Write your wisdom, story, or traditional knowledge in Markdown...',
+          autoSave: true,
+          autoSaveKey: 'draft_knowledge'
+        });
+      });
+    </script>
 
     <script src="scripts/utils.js"></script>
     <script src="scripts/skeletonEngine.js"></script>

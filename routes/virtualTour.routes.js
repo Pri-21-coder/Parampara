@@ -1,7 +1,7 @@
 // routes/virtualTour.routes.js
 const express = require('express');
 const router = express.Router();
-const VirtualTourService = require('../services/virtualTourService');
+const VirtualTourService = require('../server/services/virtualTourService');
 
 let tourService = null;
 

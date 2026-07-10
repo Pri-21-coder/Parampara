@@ -52,6 +52,13 @@ function createTenantStore(tenantId) {
             searchEngine, 'artisan', ['name', 'craft', 'village', 'bio'],
             createAuditProxy('artisans', new LRUCache(500), auditLog)
         ),
+        recipes: [], // new collection for traditional recipes
+        artifacts: createSearchProxy(
+            searchEngine, 'artifact', ['name', 'category', 'state', 'village', 'community', 'historicalPeriod', 'materials', 'description', 'associatedFestivals', 'associatedCrafts'],
+            createAuditProxy('artifacts', new LRUCache(2000), auditLog)
+        ),
+        heritageLanguages: [], // new collection for language words
+        naturalHeritageSites: [], // collection for sacred natural heritage
         villageThemes: new LRUCache(100), 
         analytics: {
             pageViews: {},

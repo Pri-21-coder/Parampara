@@ -599,6 +599,10 @@ const PARAMPARA_TRANSLATIONS = {
     footer_newsletter_title: "Newsletter",
     footer_newsletter_text: "Subscribe to receive monthly updates, artisan stories, and cultural discoveries from rural India.",
     footer_contact_title: "Contact Us",
+    nature_title: 'Sacred Natural Heritage Explorer',
+    nature_subtitle: 'Discover culturally significant trees, groves, rivers, ponds, and landscapes.',
+    nav_nature: 'Sacred Heritage',
+    nature_nearby_links: 'Nearby Connections',
   },
 
   hi: {
@@ -987,6 +991,10 @@ const PARAMPARA_TRANSLATIONS = {
     footer_newsletter_title: "समाचार पत्रिका",
     footer_newsletter_text: "ग्रामीण भारत से मासिक अपडेट, कारीगरों की कहानियाँ और सांस्कृतिक खोज प्राप्त करने के लिए सदस्यता लें।",
     footer_contact_title: "संपर्क करें",
+    nature_title: 'पवित्र प्राकृतिक विरासत अन्वेषक',
+    nature_subtitle: 'सांस्कृतिक रूप से महत्वपूर्ण पेड़ों, जंगलों, नदियों, तालाबों और परिदृश्यों की खोज करें।',
+    nav_nature: 'पवित्र विरासत',
+    nature_nearby_links: 'निकटतम संबंध',
   },
 
   mr: {
@@ -1373,6 +1381,10 @@ const PARAMPARA_TRANSLATIONS = {
     footer_newsletter_title: "वृत्तपत्र",
     footer_newsletter_text: "ग्रामीण भारतातील मासिक अद्यतने, कारागीर कथा आणि सांस्कृतिक शोध प्राप्त करण्यासाठी सदस्यता घ्या.",
     footer_contact_title: "संपर्क साधा",
+    nature_title: 'पवित्र नैसर्गिक वारसा अन्वेषक',
+    nature_subtitle: 'सांस्कृतिकदृष्ट्या महत्त्वाचे वृक्ष, जंगले, नद्या, तलाव आणि निसर्गचित्रे शोधा.',
+    nav_nature: 'पवित्र वारसा',
+    nature_nearby_links: 'जवळचे कनेक्शन',
   },
 };
 

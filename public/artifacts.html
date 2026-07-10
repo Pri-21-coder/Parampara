@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Explore traditional cultural objects, weapons, apparel, musical instruments, and crafts from rural Indian communities in the Parampara digital museum."
+    />
+    <title>Cultural Artifact Explorer - Parampara</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/artifacts.css" />
+    <link rel="stylesheet" href="styles/languageSelector.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    <script src="/scripts/tenant-interceptor.js"></script>
+    <script src="/scripts/tenant-switcher.js" defer></script>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+          🌙
+        </button>
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">
+            Preserving Living Traditions
+          </p>
+        </div>
+        <!-- Language selector injected here by language-switcher.js -->
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li>
+            <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li>
+            <a href="artifacts.html" class="active"><i class="ti ti-archive"></i> Artifacts</a>
+          </li>
+          <li>
+            <a href="temples.html" data-i18n="nav_temples"> Temples of India</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"
+              ><i class="ti ti-compass"></i> Discovery Quest</a
+            >
+          </li>
+          <li>
+            <a href="trails.html"
+              ><i class="ti ti-trail-sign"></i> Heritage Trails</a
+            >
+          </li>
+          <li>
+            <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
+          </li>
+          <li>
+            <a href="food.html"><i class="ti ti-soup"></i> Traditional Foods</a>
+          </li>
+          <li>
+            <a href="chat.html"
+              ><i class="ti ti-message-circle"></i> Talk to Elder</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Full Width Nav Menu Overlay -->
+    <div class="nav-fullmenu" id="navFullMenu">
+      <div class="nav-fullmenu-inner">
+        <p class="nav-fullmenu-label">Navigation</p>
+        <div class="nav-fullmenu-grid">
+          <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
+          <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          <a href="artifacts.html" class="active"><i class="ti ti-archive"></i> Artifacts</a>
+          <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+          <a href="trails.html"
+            ><i class="ti ti-trail-sign"></i> Heritage Trails</a
+          >
+          <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
+          <a href="food.html"><i class="ti ti-soup"></i> Traditional Foods</a>
+          <a href="chat.html"
+            ><i class="ti ti-message-circle"></i> Talk to Elder</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="artifacts-container">
+      <header class="artifacts-header">
+        <div class="breadcrumbs" id="breadcrumbs">
+          <a href="index.html">Home</a> &gt; <span class="current">Artifact Explorer</span>
+        </div>
+        <h1>Interactive Cultural Artifact Explorer</h1>
+        <p>Step inside our digital archives and discover the traditional implements, clothing, ornaments, and ritual objects of rural communities.</p>
+      </header>
+
+      <!-- Search & Filters Panel -->
+      <section class="explorer-controls">
+        <div class="search-box">
+          <i class="ti ti-search search-icon"></i>
+          <input
+            type="text"
+            id="artifact-search"
+            placeholder="Search artifacts by name, material, community, or keyword..."
+            aria-label="Search cultural artifacts"
+          />
+          <button id="clear-search" class="clear-search-btn" style="display: none;">&times;</button>
+        </div>
+
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="category-filter">Category</label>
+            <select id="category-filter">
+              <option value="all">All Categories</option>
+              <option value="Metal Crafts">Metal Crafts</option>
+              <option value="Textiles">Textiles</option>
+              <option value="Handcrafted Implements">Handcrafted Implements</option>
+              <option value="Indigenous Objects">Indigenous Objects</option>
+              <option value="Ceremonial Objects">Ceremonial Objects</option>
+              <option value="Musical Instruments">Musical Instruments</option>
+              <option value="Religious Objects">Religious Objects</option>
+              <option value="Farming Tools">Farming Tools</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="state-filter">State</label>
+            <select id="state-filter">
+              <option value="all">All Regions</option>
+              <option value="Chhattisgarh">Chhattisgarh</option>
+              <option value="West Bengal">West Bengal</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Rajasthan">Rajasthan</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="preservation-filter">Preservation Status</label>
+            <select id="preservation-filter">
+              <option value="all">All Statuses</option>
+              <option value="Preserved">Preserved</option>
+              <option value="Under Threat">Under Threat</option>
+              <option value="Endangered">Endangered</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="sort-select">Sort By</label>
+            <select id="sort-select">
+              <option value="name">Alphabetical (A-Z)</option>
+              <option value="name_desc">Alphabetical (Z-A)</option>
+              <option value="newest">Newest Added</option>
+              <option value="oldest">Oldest Added</option>
+              <option value="recently_updated">Recently Updated</option>
+              <option value="most_viewed">Most Popular</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Artifacts Display Grid -->
+      <section class="grid-section">
+        <div id="loading-indicator" class="loading-container" style="display: none;">
+          <div class="spinner"></div>
+          <p>Curating archives...</p>
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+          <i class="ti ti-archive-off empty-icon"></i>
+          <h3>No Artifacts Found</h3>
+          <p>We couldn't find any objects matching your search or filters. Try adjusting your search keywords or choosing "All" in the filters.</p>
+          <button id="reset-filters-btn" class="btn btn-secondary">Reset All Filters</button>
+        </div>
+
+        <div id="artifacts-grid" class="artifacts-grid">
+          <!-- Dynamically populated card blocks -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="pagination-wrapper" style="display: none;">
+          <button id="prev-page-btn" class="pagination-btn" aria-label="Previous Page"><i class="ti ti-chevron-left"></i> Previous</button>
+          <span id="page-indicator" class="page-info">Page 1 of 1</span>
+          <button id="next-page-btn" class="pagination-btn" aria-label="Next Page">Next <i class="ti ti-chevron-right"></i></button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Artifact Detail Modal Popup (Accessible Lightbox) -->
+    <div id="artifact-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="display: none;">
+      <div class="modal-card">
+        <button id="close-modal-btn" class="modal-close-btn" aria-label="Close details dialog">&times;</button>
+        
+        <div class="modal-body-layout">
+          <!-- Left side: Interactive Image Gallery -->
+          <div class="modal-gallery-column">
+            <div class="main-display-container" id="main-image-viewport">
+              <img id="modal-main-image" src="" alt="Artifact View" class="zoomable-image" />
+              <div id="lens-magnifier" class="lens-magnifier"></div>
+              <button class="gallery-nav-btn prev" id="gallery-prev" aria-label="Previous image">&#10094;</button>
+              <button class="gallery-nav-btn next" id="gallery-next" aria-label="Next image">&#10095;</button>
+              <button class="fullscreen-toggle-btn" id="gallery-fullscreen" title="Open full screen"><i class="ti ti-maximize"></i></button>
+            </div>
+            <div class="gallery-thumbnails" id="gallery-thumbnails">
+              <!-- Dynamically populated thumbnails -->
+            </div>
+          </div>
+
+          <!-- Right side: Detail Specifications & Metadata -->
+          <div class="modal-details-column">
+            <div class="details-header">
+              <span id="modal-category" class="spec-tag category">Category</span>
+              <span id="modal-preservation" class="spec-tag status">Status</span>
+              <h2 id="modal-title">Artifact Title</h2>
+              <p class="origin-tagline">
+                <span class="community-highlight" id="modal-community">Community</span> · 
+                <span class="location-highlight"><i class="ti ti-map-pin"></i> <span id="modal-location">Village, State</span></span>
+              </p>
+            </div>
+
+            <!-- Tab Layout Menu -->
+            <div class="tab-menu" role="tablist">
+              <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-overview" id="tab-btn-overview">Overview</button>
+              <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-history" id="tab-btn-history">History</button>
+              <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-culture" id="tab-btn-culture">Culture</button>
+              <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-related" id="tab-btn-related">Relationships</button>
+            </div>
+
+            <!-- Tab Content Blocks -->
+            <div class="tab-content-container">
+              <!-- Tab 1: Overview -->
+              <div class="tab-pane active" id="tab-overview" role="tabpanel" aria-labelledby="tab-btn-overview">
+                <div class="spec-table">
+                  <div class="spec-row">
+                    <span class="spec-label">Dimensions</span>
+                    <span class="spec-value" id="modal-dimensions">N/A</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Weight</span>
+                    <span class="spec-value" id="modal-weight">N/A</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Materials</span>
+                    <span class="spec-value" id="modal-materials">N/A</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Condition</span>
+                    <span class="spec-value" id="modal-condition">N/A</span>
+                  </div>
+                </div>
+                <div class="detailed-desc">
+                  <h3>Description</h3>
+                  <p id="modal-description">Detailed description here...</p>
+                </div>
+                <div class="references-block">
+                  <h3>References</h3>
+                  <ul id="modal-references">
+                    <!-- Loaded dynamically -->
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Tab 2: History -->
+              <div class="tab-pane" id="tab-history" role="tabpanel" aria-labelledby="tab-btn-history" style="display: none;">
+                <div class="history-item">
+                  <h3>Historical Period</h3>
+                  <p id="modal-period">Historical period details...</p>
+                </div>
+                <div class="history-item">
+                  <h3>Geographical Origin</h3>
+                  <p id="modal-origin">Geographical origin context...</p>
+                </div>
+                <div class="history-item">
+                  <h3>Associated Craft Tradition</h3>
+                  <p id="modal-craft">Craft context...</p>
+                </div>
+                <div class="history-item" id="video-block" style="display: none;">
+                  <h3>Process Video</h3>
+                  <div class="video-wrapper">
+                    <iframe id="modal-video" src="" frameborder="0" allowfullscreen></iframe>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab 3: Culture -->
+              <div class="tab-pane" id="tab-culture" role="tabpanel" aria-labelledby="tab-btn-culture" style="display: none;">
+                <div class="culture-item">
+                  <h3>Cultural Significance</h3>
+                  <p id="modal-significance">Significance details...</p>
+                </div>
+                <div class="culture-item">
+                  <h3>Symbolic Meaning</h3>
+                  <p id="modal-symbolism">Symbolic motifs...</p>
+                </div>
+                <div class="culture-item">
+                  <h3>Traditional Usage</h3>
+                  <p id="modal-usage">Usage details...</p>
+                </div>
+                <div class="culture-item">
+                  <h3>Associated Festivals</h3>
+                  <p id="modal-festivals">Festivals list...</p>
+                </div>
+                <div class="culture-item">
+                  <h3>Associated Stories</h3>
+                  <p id="modal-stories">Stories list...</p>
+                </div>
+              </div>
+
+              <!-- Tab 4: Related Content Connections -->
+              <div class="tab-pane" id="tab-related" role="tabpanel" aria-labelledby="tab-btn-related" style="display: none;">
+                <div class="relations-block">
+                  <h3>Preservation & Museum Archives</h3>
+                  <p id="modal-notes">Museum notes...</p>
+                </div>
+                <div class="relationship-links">
+                  <h3>Connected Content</h3>
+                  <div class="links-list" id="modal-relation-links">
+                    <!-- Dynamic links to paths, map, etc. -->
+                  </div>
+                </div>
+                <div class="ai-curator-helper">
+                  <div class="helper-box">
+                    <div class="helper-icon">🤖</div>
+                    <div class="helper-content">
+                      <h4>Ask Elder Chat</h4>
+                      <p>Have questions about this artifact? Connect directly with our AI Curator elder.</p>
+                      <button id="ask-curator-btn" class="btn btn-primary">Ask Curator</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fullscreen Image Viewer Modal -->
+    <div id="fullscreen-viewer" class="fullscreen-viewer-overlay" style="display: none;">
+      <button class="close-fullscreen-btn" id="close-fullscreen-btn" aria-label="Close fullscreen view">&times;</button>
+      <img id="fullscreen-image" src="" alt="Fullscreen view" />
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTopBtn" class="back-to-top" aria-label="Back to top">↑</button>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-brand">
+          <h2 class="footer-logo">🏛️ Parampara</h2>
+          <p>Preserving rural heritage, traditions, and stories for future generations.</p>
+        </div>
+        <div class="footer-links">
+          <h3>More about Parampara</h3>
+          <ul>
+            <li><a href=""><img loading="lazy" src="./assets/logos/instagram-svgrepo-com.svg" alt="insta" /></a></li>
+            <li><a href=""><img loading="lazy" src="./assets/logos/facebook-svgrepo-com.svg" alt="fb" /></a></li>
+            <li><a href=""><img loading="lazy" src="./assets/logos/twitter-svgrepo-com.svg" alt="X" /></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="scripts/translationsData.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/navbar.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/artifacts.js"></script>
+  </body>
+</html>

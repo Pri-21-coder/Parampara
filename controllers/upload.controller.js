@@ -10,10 +10,12 @@ const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 // Max retries info returned to client
 const MAX_RETRIES = 3;
 
-// Allowed video MIME types
+// Allowed media MIME types (videos, images, audio)
 const ALLOWED_TYPES = [
   'video/mp4', 'video/webm', 'video/ogg', 'video/avi',
-  'video/quicktime', 'video/x-matroska', 'video/3gpp'
+  'video/quicktime', 'video/x-matroska', 'video/3gpp',
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm'
 ];
 
 // ============================================================
@@ -247,7 +249,8 @@ const completeUpload = (req, res, next) => {
       mimeType: session.mimeType,
       assembledSize: assembledBuffer.length,
       totalChunks: session.totalChunks,
-      completedAt: session.completedAt
+      completedAt: session.completedAt,
+      fileUrl: `/api/video/stream?sessionId=${sessionId}`
     });
   } catch (err) {
     next(err);

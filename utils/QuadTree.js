@@ -29,9 +29,11 @@ class QuadTree {
      * @param {BoundingBox} boundary The spatial boundary of this node
      * @param {number} capacity Max items per node before subdividing
      */
-    constructor(boundary, capacity = 10) {
+    constructor(boundary, capacity = 10, maxDepth = 10, depth = 0) {
         this.boundary = boundary;
         this.capacity = capacity;
+        this.maxDepth = maxDepth;
+        this.depth = depth;
         this.items = [];
         this.divided = false;
     }
@@ -45,10 +47,10 @@ class QuadTree {
         const sw = new BoundingBox(this.boundary.minLat, this.boundary.minLng, midLat, midLng);
         const se = new BoundingBox(this.boundary.minLat, midLng, midLat, this.boundary.maxLng);
 
-        this.northwest = new QuadTree(nw, this.capacity);
-        this.northeast = new QuadTree(ne, this.capacity);
-        this.southwest = new QuadTree(sw, this.capacity);
-        this.southeast = new QuadTree(se, this.capacity);
+        this.northwest = new QuadTree(nw, this.capacity, this.maxDepth, this.depth + 1);
+        this.northeast = new QuadTree(ne, this.capacity, this.maxDepth, this.depth + 1);
+        this.southwest = new QuadTree(sw, this.capacity, this.maxDepth, this.depth + 1);
+        this.southeast = new QuadTree(se, this.capacity, this.maxDepth, this.depth + 1);
 
         this.divided = true;
     }
@@ -67,13 +69,25 @@ class QuadTree {
             return false; // Point doesn't fit in this node
         }
 
-        if (this.items.length < this.capacity && !this.divided) {
-            this.items.push(item);
-            return true;
+        if (this.items.length < this.capacity || this.depth >= this.maxDepth) {
+            if (!this.divided) {
+                this.items.push(item);
+                return true;
+            }
         }
 
         if (!this.divided) {
             this.subdivide();
+            
+            // Move existing items into children
+            const existingItems = this.items;
+            this.items = [];
+            for (let existing of existingItems) {
+                this.northwest.insert(existing) ||
+                this.northeast.insert(existing) ||
+                this.southwest.insert(existing) ||
+                this.southeast.insert(existing);
+            }
         }
 
         if (this.northwest.insert(item)) return true;

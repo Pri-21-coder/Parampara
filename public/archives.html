@@ -6,6 +6,7 @@
   <title>Private Family Archives | Parampara</title>
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/archives.css">
+  <link rel="stylesheet" href="styles/markdown-editor.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
     <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
 <body>
@@ -171,6 +172,16 @@
   <script src="scripts/languageSwitcher.js"></script>
   <script src="scripts/main.js"></script>
   <script src="/scripts/crypto-utils.js"></script>
+  <script src="/scripts/markdown-editor.js"></script>
   <script src="/scripts/archives.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      new ParamparaMarkdownEditor('archive-content', {
+        placeholder: 'Write your secure encrypted content in Markdown...',
+        autoSave: true,
+        autoSaveKey: 'draft_archive'
+      });
+    });
+  </script>
 </body>
 </html>

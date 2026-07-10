@@ -769,6 +769,64 @@ function initializeSampleData() {
     }
   );
 
+  // Mock Artisans
+  const mockArtisans = [
+    {
+      id: 'artisan-1',
+      name: 'Ramesh Kumawat',
+      craft: 'Kantha Embroidery',
+      village: 'Kantha Village',
+      district: 'Birbhum',
+      region: 'West Bengal',
+      biography: 'Ramesh Kumawat is a master weaver with over 30 years of experience. He has dedicated his life to preserving the ancient art of Kantha embroidery, passing down the intricate techniques to younger generations in his village.',
+      experienceYears: 32,
+      recognitionLevel: 'Master Artisan',
+      profileImage: 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?auto=format&fit=crop&q=80&w=400',
+      showContact: true,
+      contactInfo: { email: 'ramesh.kantha@example.com', phone: '+91 98765 43210' },
+      relatedContent: ['Kantha Weaving Techniques', 'Bengal Textile Festival']
+    },
+    {
+      id: 'artisan-2',
+      name: 'Sita Devi',
+      craft: 'Dokra Metal Craft',
+      village: 'Dokra Village',
+      district: 'Bastar',
+      region: 'Chhattisgarh',
+      biography: 'Sita Devi is renowned for her intricate brass and bronze castings using the lost-wax method. Her sculptures beautifully capture tribal life and have been showcased in national exhibitions.',
+      experienceYears: 25,
+      recognitionLevel: 'National Awardee',
+      profileImage: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=400',
+      showContact: true,
+      contactInfo: { email: 'sita.dokra@example.com' },
+      relatedContent: ['Lost Wax Casting Process', 'Bastar Art Exhibition']
+    },
+    {
+      id: 'artisan-3',
+      name: 'Anil Jha',
+      craft: 'Madhubani Painting',
+      village: 'Madhubani Village',
+      district: 'Madhubani',
+      region: 'Bihar',
+      biography: 'A modern pioneer of traditional Mithila art, Anil creates stunning natural dye paintings depicting mythological tales. He leads workshops across India to keep the tradition alive.',
+      experienceYears: 18,
+      recognitionLevel: 'Rising Talent',
+      profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+      showContact: false,
+      contactInfo: null,
+      relatedContent: ['Natural Dyes Workshop', 'Mithila Mythology']
+    }
+  ];
+
+  mockArtisans.forEach(a => store.artisans.push(a));
+
+  // Map artisans to culturalItems so they have portfolios
+  store.culturalItems.forEach((item, index) => {
+    if (index % 3 === 0) item.artisanId = 'artisan-1';
+    else if (index % 3 === 1) item.artisanId = 'artisan-2';
+    else item.artisanId = 'artisan-3';
+  });
+
   // Populate QuadTrees
   store.culturalItems.forEach(item => {
     store.culturalItemsQuadTree.insert(item);

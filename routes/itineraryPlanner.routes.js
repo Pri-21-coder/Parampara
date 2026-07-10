@@ -41,6 +41,42 @@ router.post('/generate', async (req, res, next) => {
 });
 
 /**
+ * POST /api/itinerary/calculate-route
+ * Calculate total distance and travel time for a sequence of coordinates
+ */
+router.post('/calculate-route', (req, res, next) => {
+  try {
+    const { route } = req.body;
+    if (!route || !Array.isArray(route)) {
+      return res.status(400).json({ success: false, error: 'Invalid route array' });
+    }
+
+    const { calculateHaversineDistance } = require('../utils/haversine');
+    let totalDistance = 0;
+
+    for (let i = 0; i < route.length - 1; i++) {
+      const p1 = route[i];
+      const p2 = route[i + 1];
+      if (p1 && p2 && p1.lat && p1.lng && p2.lat && p2.lng) {
+        totalDistance += calculateHaversineDistance(p1.lat, p1.lng, p2.lat, p2.lng);
+      }
+    }
+
+    // Assuming average speed of 40 km/h for estimated travel time within a rural/heritage setting
+    const travelHours = totalDistance / 40; 
+    
+    res.json({
+      success: true,
+      totalDistanceKm: totalDistance,
+      estimatedTimeHours: travelHours,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * GET /api/itinerary/:itineraryId
  * Get itinerary by ID
  */
