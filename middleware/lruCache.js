@@ -58,6 +58,24 @@ class LRUCache {
     this.stats.evictions = 0;
   }
 
+  invalidateByPrefix(prefix) {
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(prefix)) {
+        this.cache.delete(key);
+        this.stats.evictions++;
+      }
+    }
+  }
+
+  invalidateByPattern(pattern) {
+    for (const key of this.cache.keys()) {
+      if (key.match(pattern)) {
+        this.cache.delete(key);
+        this.stats.evictions++;
+      }
+    }
+  }
+
   getStats() {
     return {
       size: this.cache.size,

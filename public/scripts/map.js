@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.mapActiveEra = 'All';
+  window.mapActiveTimelineItem = null;
 
   window.addEventListener('parampara:timemachine:change', (e) => {
     const selectedEra = window.mapTimeMachine.getCurrentEra();
@@ -62,6 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Initialize Historical Timeline
+  window.historicalTimeline = new HistoricalTimelineComponent({
+    containerId: 'historical-timeline-mount'
+  });
+
+  window.addEventListener('parampara:timeline:select', (e) => {
+    const { eventId, eventData } = e.detail;
+    if (eventId && eventData) {
+      window.mapActiveTimelineItem = eventData.item;
+    } else {
+      window.mapActiveTimelineItem = null;
+    }
+    loadCulturalItems();
+  });
+
   initializeMap();
   setupEventListeners();
   translatePage();
@@ -69,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const sampleVillages = [
   {
+    id: '6',
     name: {
       en: 'Sundarbans Village',
       hi: 'सुंदरबन गांव',
@@ -107,6 +124,7 @@ const sampleVillages = [
   },
 
   {
+    id: '1',
     name: {
       en: 'Kantha Village, Bengal',
       hi: 'कांथा गांव, बंगाल',
@@ -137,6 +155,7 @@ const sampleVillages = [
   },
 
   {
+    id: '3',
     name: {
       en: 'Madhubani Village, Bihar',
       hi: 'मधुबनी गांव, बिहार',
@@ -145,7 +164,7 @@ const sampleVillages = [
     coordinates: [26.3537, 86.0719],
     traditions: {
       en: ['Madhubani painting', 'Mithila art', 'Folk songs'],
-      hi: ['मधुबनी चित्रकला', 'मिथिला कला', 'लोकगीत'],
+      hi: ['मधुबनी चित्रकला', 'मिथिला कला', 'लोक गीत'],
       mr: ['मधुबनी चित्रकला', 'मिथिला कला', 'लोकगीते'],
     },
     festivals: {
@@ -155,8 +174,8 @@ const sampleVillages = [
     },
     crafts: {
       en: ['Madhubani paintings', 'Traditional pottery'],
-      hi: ['मधुबनी पेंटिंग', 'मिट्टी के बर्तन'],
-      mr: ['मधुबनी चित्रे', 'मातीची भांडी'],
+      hi: ['मधुबनी चित्रकारी', 'पारंपरिक मिट्टी के बर्तन'],
+      mr: ['मधुबनी चित्रे', 'पारंपरिक मातीची भांडी'],
     },
     description: {
       en: 'Home to the world-famous Madhubani paintings.',
@@ -197,8 +216,11 @@ const sampleVillages = [
   },
 ];
 
+window.sampleVillages = sampleVillages;
+
 function getTranslation() {
-  return translations[currentLanguage];
+  const activeTranslations = window.translations || {};
+  return activeTranslations[currentLanguage] || {};
 }
 
 function translatePage() {
@@ -208,23 +230,23 @@ function translatePage() {
   const subtitle = document.querySelector('.map-header p');
   const villageName = document.getElementById('village-name');
 
-  if (title) title.textContent = t.mapTitle;
-  if (subtitle) subtitle.textContent = t.mapDescription;
-  if (villageName) villageName.textContent = t.selectVillage;
-  document.getElementById('info-content').innerHTML =
-    `<p>${t.clickVillage}</p>`;
-
-  const heatmapBtn = document.getElementById('toggle-heatmap');
-
-  if (heatmapLayer) {
-    heatmapBtn.textContent = t.hideHeatmap;
-  } else {
-    heatmapBtn.textContent = t.toggleHeatmap;
+  if (title && t.mapTitle) title.textContent = t.mapTitle;
+  if (subtitle && t.mapDescription) subtitle.textContent = t.mapDescription;
+  if (villageName && t.selectVillage) villageName.textContent = t.selectVillage;
+  
+  const infoContent = document.getElementById('info-content');
+  if (infoContent && t.clickVillage) {
+    infoContent.innerHTML = `<p>${t.clickVillage}</p>`;
   }
 
-  // document.getElementById('toggle-sound').textContent = ambientSoundEnabled
-  //   ? t.soundOn
-  //   : t.soundOff;
+  const heatmapBtn = document.getElementById('toggle-heatmap');
+  if (heatmapBtn) {
+    if (heatmapLayer) {
+      heatmapBtn.textContent = t.hideHeatmap || 'Hide Heatmap';
+    } else {
+      heatmapBtn.textContent = t.toggleHeatmap || 'Toggle Heatmap';
+    }
+  }
 
   updateMapUnavailableNotice();
 }
@@ -284,9 +306,15 @@ async function initializeMap() {
       setMapLanguage(currentLanguage);
       addVillageMarkers();
       
-      // Update clusters on zoom and move
-      map.on('zoomend', () => addVillageMarkers());
-      map.on('moveend', () => addVillageMarkers());
+      // Update clusters and items on zoom and move
+      map.on('zoomend', () => {
+          addVillageMarkers();
+          loadCulturalItems();
+      });
+      map.on('moveend', () => {
+          addVillageMarkers();
+          loadCulturalItems();
+      });
       
       await loadCulturalItems();
       checkFlyover();
@@ -338,40 +366,91 @@ function setMapLanguage(lang) {
 
 function addVillageMarker(village) {
   const el = document.createElement('div');
+  el.className = 'marker-container';
 
-  el.className = 'marker';
+  const dot = document.createElement('div');
+  dot.className = 'marker-dot';
+  el.appendChild(dot);
 
-  el.style.width = '20px';
-  el.style.height = '20px';
-  el.style.borderRadius = '50%';
-  el.style.background = '#f4a261';
-  el.style.border = '2px solid white';
-  el.style.cursor = 'pointer';
-  el.style.pointerEvents = 'auto';
+  const name = village.name[currentLanguage] || village.name.en || village.name;
+  const description = village.description[currentLanguage] || village.description.en || '';
+  
+  // Get traditions, crafts, and festivals lists for popup details
+  const traditionsList = village.traditions && village.traditions[currentLanguage] 
+    ? village.traditions[currentLanguage] 
+    : (village.traditions && village.traditions.en ? village.traditions.en : []);
+    
+  const craftsList = village.crafts && village.crafts[currentLanguage] 
+    ? village.crafts[currentLanguage] 
+    : (village.crafts && village.crafts.en ? village.crafts.en : []);
+
+  const festivalsList = village.festivals && village.festivals[currentLanguage] 
+    ? village.festivals[currentLanguage] 
+    : (village.festivals && village.festivals.en ? village.festivals.en : []);
+
+  let detailsHtml = '';
+  if (traditionsList.length > 0) {
+    detailsHtml += `
+      <div class="popup-detail-section popup-detail-tradition">
+        <span class="detail-label">🎭 Traditions:</span>
+        <span class="detail-values">${traditionsList.slice(0, 2).join(', ')}</span>
+      </div>
+    `;
+  }
+  if (craftsList.length > 0) {
+    detailsHtml += `
+      <div class="popup-detail-section popup-detail-craft">
+        <span class="detail-label">🏺 Crafts:</span>
+        <span class="detail-values">${craftsList.slice(0, 2).join(', ')}</span>
+      </div>
+    `;
+  }
+  if (festivalsList.length > 0) {
+    detailsHtml += `
+      <div class="popup-detail-section popup-detail-festival">
+        <span class="detail-label">🎉 Festivals:</span>
+        <span class="detail-values">${festivalsList.slice(0, 2).join(', ')}</span>
+      </div>
+    `;
+  }
+
+  const popupContent = `
+    <div class="custom-map-popup">
+      <div class="popup-header">
+        <span class="popup-header-icon">🏛️</span>
+        <h3>${name}</h3>
+      </div>
+      <p class="popup-description">${description}</p>
+      <div class="popup-details-container">
+        ${detailsHtml}
+      </div>
+    </div>
+  `;
 
   const popup = new maplibregl.Popup({
     closeButton: true,
     closeOnClick: true,
     offset: 25,
-  }).setHTML(`
-      <h3>${village.name[currentLanguage]}</h3>
-      <div class="markdown-body">${renderMarkdown(village.description[currentLanguage])}</div>
-  `);
+  }).setHTML(popupContent);
+
+  // Hook into Maplibre's native popup lifecycle events to avoid click listener collision
+  popup.on('open', () => {
+    // Clear other active markers
+    document.querySelectorAll('.marker-container').forEach(item => item.classList.remove('active-marker'));
+    // Set this marker active
+    el.classList.add('active-marker');
+    // Open sidebar pane
+    showVillageInfo(village);
+  });
+
+  popup.on('close', () => {
+    el.classList.remove('active-marker');
+  });
 
   const marker = new maplibregl.Marker({ element: el })
     .setLngLat([village.coordinates[1], village.coordinates[0]])
     .setPopup(popup)
     .addTo(map);
-
-  marker.getElement().addEventListener('click', (e) => {
-    e.stopPropagation();
-
-    popup
-      .setLngLat([village.coordinates[1], village.coordinates[0]])
-      .addTo(map);
-
-    showVillageInfo(village);
-  });
 
   markers.push({
     id: village.id,
@@ -389,7 +468,8 @@ async function updateMarkerColors() {
   // If not showing health view, reset to default colors
   if (!showHealth) {
     markers.forEach((m) => {
-      m.element.style.background = '#f4a261';
+      const dot = m.element.querySelector('.marker-dot') || m.element;
+      dot.style.background = '#f4a261';
     });
     return;
   }
@@ -404,11 +484,12 @@ async function updateMarkerColors() {
 
   results.forEach((result, idx) => {
     const el = markers[idx].element;
+    const dot = el.querySelector('.marker-dot') || el;
     let color = '#ff4d4d'; // Endangered (red)
     if (result.category === 'Thriving') color = '#4caf50'; // green
     else if (result.category === 'Stable') color = '#2196f3'; // blue
     else if (result.category === 'Vulnerable') color = '#ff9800'; // orange
-    el.style.background = color;
+    dot.style.background = color;
     // Optionally set tooltip
     el.title = `${result.category} (${result.score}/100)`;
   });
@@ -487,50 +568,59 @@ function addClusterMarker(cluster) {
   });
 }
 
+/**
+ * Populates and reveals the sidebar panel containing cultural information 
+ * for a selected village. Renders Markdown descriptions, list of traditions, 
+ * local festivals, and artisan craft details.
+ * 
+ * @param {Object} village - The village data object to display.
+ */
 function showVillageInfo(village) {
   const t = getTranslation();
-
   const infoPanel = document.getElementById('village-info');
-
   const villageName = document.getElementById('village-name');
-
   const infoContent = document.getElementById('info-content');
 
-  villageName.textContent = village.name[currentLanguage];
+  if (!infoPanel || !villageName || !infoContent) return;
+
+  const currentName = village.name[currentLanguage] || village.name.en || '';
+  const currentDesc = village.description[currentLanguage] || village.description.en || '';
+  
+  const traditionsList = village.traditions[currentLanguage] || village.traditions.en || [];
+  const festivalsList = village.festivals[currentLanguage] || village.festivals.en || [];
+  const craftsList = village.crafts[currentLanguage] || village.crafts.en || [];
+
+  villageName.textContent = currentName;
 
   infoContent.innerHTML = `
-        <div class="markdown-body">
-            <strong>${t.description}:</strong>
-           
-            ${renderMarkdown(village.description[currentLanguage])}
-        </div>
+    <div class="markdown-body">
+      <strong>${t.description}:</strong>
+      ${renderMarkdown(currentDesc)}
+    </div>
 
-        <div class="village-details">
+    <div class="village-details">
+      <div class="detail-item">
+        <h4>🎭 ${t.traditions}</h4>
+        <p>${traditionsList.join(', ')}</p>
+      </div>
 
-            <div class="detail-item">
-                <h4>🎭 ${t.traditions}</h4>
-              ${village.traditions[currentLanguage].join(', ')}
-            </div>
+      <div class="detail-item">
+        <h4>🎉 ${t.festivals}</h4>
+        <p>${festivalsList.join(', ')}</p>
+      </div>
 
-            <div class="detail-item">
-                <h4>🎉 ${t.festivals}</h4>
-                ${village.festivals[currentLanguage].join(', ')}
-            </div>
+      <div class="detail-item">
+        <h4>🎨 ${t.crafts}</h4>
+        <p>${craftsList.join(', ')}</p>
+      </div>
+    </div>
 
-            <div class="detail-item">
-                <h4>🎨 ${t.crafts}</h4>
-                ${village.crafts[currentLanguage].join(', ')}
-            </div>
-
-        </div>
-
-        <div style="margin-top:1.5rem;">
-            <a href="trails.html"
-               class="btn btn-primary">
-               ${t.planVisit}
-            </a>
-        </div>
-    `;
+    <div style="margin-top:1.5rem;">
+      <a href="trails.html" class="btn btn-primary">
+        ${t.planVisit}
+      </a>
+    </div>
+  `;
 
   infoPanel.classList.add('active');
 }
@@ -540,6 +630,10 @@ function playAmbientSound(type) {
   console.log(`Playing ambient sound: ${type}`);
 }
 
+/**
+ * Registers core click handlers and window action listeners on map UI nodes.
+ * Anchors the sidebar panel close event, and binds heatmap/audio buttons.
+ */
 function setupEventListeners() {
   const closeBtn = document.getElementById('close-info');
   const heatmapBtn = document.getElementById('toggle-heatmap');
@@ -562,10 +656,17 @@ function setupEventListeners() {
     }
   });
 
-  // Toggle heatmap functionality... (existing code below)
+  heatmapBtn.addEventListener('click', toggleHeatmap);
+  soundBtn.addEventListener('click', toggleSound);
+
   setupSpatialSearch();
 }
 
+/**
+ * Configures the spatial proximity search controls.
+ * Uses browser geolocation to locate the user, filters villages using
+ * the Haversine distance formula, and updates the map view and markers dynamically.
+ */
 function setupSpatialSearch() {
   const findNearbyBtn = document.getElementById('btn-find-nearby');
   const radiusSelect = document.getElementById('radius-select');
@@ -583,17 +684,22 @@ function setupSpatialSearch() {
       const userLon = position.coords.longitude;
       const radiusKm = parseFloat(radiusSelect.value);
       
-      // Filter villages based on distance
+      // Filter villages based on Haversine distance calculations
       const nearbyVillages = sampleVillages.filter(village => {
         const [villageLat, villageLon] = village.coordinates;
-        const distance = window.SpatialUtils.calculateHaversineDistance(userLat, userLon, villageLat, villageLon);
+        const distance = window.SpatialUtils.calculateHaversineDistance(
+          userLat, 
+          userLon, 
+          villageLat, 
+          villageLon
+        );
         return distance <= radiusKm;
       });
       
-      // Update markers
+      // Update displayed village markers on the map canvas
       addVillageMarkers(nearbyVillages);
       
-      // Fly to user location
+      // Smoothly animate and fly camera to user coordinates
       if (map) {
         map.flyTo({
           center: [userLon, userLat],
@@ -602,81 +708,175 @@ function setupSpatialSearch() {
         });
       }
       
-      findNearbyBtn.innerHTML = '<i class="ti ti-check"></i> Found ' + nearbyVillages.length;
+      findNearbyBtn.innerHTML = `<i class="ti ti-check"></i> Found ${nearbyVillages.length}`;
       setTimeout(() => {
         findNearbyBtn.innerHTML = originalText;
         findNearbyBtn.disabled = false;
       }, 3000);
       
     } catch (error) {
-      console.error('Location error:', error);
-      alert('Could not determine your location. Please check browser permissions.');
+      console.error('Location determination error:', error);
+      alert('Could not determine your location. Please check browser geolocation permissions.');
       findNearbyBtn.innerHTML = '<i class="ti ti-map-pin"></i> Find Nearby';
       findNearbyBtn.disabled = false;
     }
   });
 
-  heatmapBtn.addEventListener('click', toggleHeatmap);
-  soundBtn.addEventListener('click', toggleSound);
-  // Ensure heritage health view updates when markers are re-added
+  // Ensure heritage health view score colors refresh when markers are rebuilt
   const heritageToggle = document.getElementById('toggle-heritage-health');
   if (heritageToggle) {
     heritageToggle.addEventListener('change', updateMarkerColors);
   }
 }
 
+/**
+ * Toggles the visibility of the cultural density heatmap overlay on the map.
+ * Dynamically renders gradient radial markers centered on village coordinates,
+ * scaling diameter and transparency in correlation to their heritage health vulnerability index.
+ */
 function toggleHeatmap() {
-  if (!map) {
-    return;
-  }
+  if (!map) return;
 
   const t = getTranslation();
 
-  if (heatmapLayer) {
-    heatmapMarkers.forEach((m) => m.remove());
-    heatmapMarkers = [];
-    heatmapLayer = null;
-    document.getElementById('toggle-heatmap').textContent = t.toggleHeatmap;
+  if (map.getLayer('cultural-heatmap')) {
+    const visibility = map.getLayoutProperty('cultural-heatmap', 'visibility');
+    
+    if (visibility === 'visible') {
+      map.setLayoutProperty('cultural-heatmap', 'visibility', 'none');
+      heatmapLayer = false;
+      document.getElementById('toggle-heatmap').textContent = t.toggleHeatmap || 'Toggle Heatmap';
+    } else {
+      map.setLayoutProperty('cultural-heatmap', 'visibility', 'visible');
+      heatmapLayer = true;
+      document.getElementById('toggle-heatmap').textContent = t.hideHeatmap || 'Hide Heatmap';
+    }
   } else {
-    heatmapLayer = true;
-
-    sampleVillages.forEach((village) => {
-      const intensity = Math.random() * 0.5 + 0.5;
-      const size = Math.round(60 * intensity);
-
-      const el = document.createElement('div');
-      el.style.cssText = `
-                width:${size}px; height:${size}px;
-                border-radius:50%;
-                background:rgba(244,162,97,${0.35 * intensity});
-                border:1px solid rgba(244,162,97,0.6);
-                pointer-events:none;
-            `;
-
-      const hm = new maplibregl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([village.coordinates[1], village.coordinates[0]])
-        .addTo(map);
-
-      heatmapMarkers.push(hm);
-    });
-
-    document.getElementById('toggle-heatmap').textContent = t.hideHeatmap;
+    console.warn("Heatmap layer is not initialized yet. Please wait for cultural items to load.");
   }
 }
 
-// function toggleSound() {
-//   ambientSoundEnabled = !ambientSoundEnabled;
-//   const t = getTranslation();
+/**
+ * ============================================================================
+ * Premium Map Audio Control Engine
+ * Handles user-gesture safe instantiation, looping, volume fades, and localization.
+ * ============================================================================
+ */
+class MapAudioEngine {
+  constructor() {
+    this.ambientTrack = null;
+    this.isAmbientPlaying = false;
+    this.targetVolume = 0.35;
+    this.fadeTimer = null;
+  }
 
-//   document.getElementById('toggle-sound').textContent = ambientSoundEnabled
-//     ? t.soundOn
-//     : t.soundOff;
+  /**
+   * Safe Audio instantiation inside user gesture thread.
+   * Resolves absolute route path for location-agnostic loads.
+   */
+  initAmbient() {
+    if (!this.ambientTrack) {
+      this.ambientTrack = new Audio('/assets/sounds/ambientSound.mp3');
+      this.ambientTrack.loop = true;
+      this.ambientTrack.volume = 0;
+    }
+  }
 
-//   if (!ambientSoundEnabled && currentSound) {
-//     currentSound.pause();
-//     currentSound = null;
-//   }
-// }
+  /**
+   * Play ambient track with a smooth fade-in transition.
+   */
+  playAmbient() {
+    this.initAmbient();
+    this.isAmbientPlaying = true;
+    this.updateButtonState(true);
+
+    this.ambientTrack.play().then(() => {
+      this.fadeVolume(this.ambientTrack, this.targetVolume, 1000);
+    }).catch(err => {
+      console.warn('⚠️ Audio play blocked or failed:', err);
+      this.isAmbientPlaying = false;
+      this.updateButtonState(false);
+    });
+  }
+
+  /**
+   * Pause ambient track with a smooth fade-out transition.
+   */
+  pauseAmbient() {
+    if (!this.ambientTrack) return;
+    this.isAmbientPlaying = false;
+    this.updateButtonState(false);
+
+    this.fadeVolume(this.ambientTrack, 0, 600, () => {
+      this.ambientTrack.pause();
+    });
+  }
+
+  /**
+   * Toggle action handler called by the toolbar control.
+   */
+  toggleAmbient() {
+    if (this.isAmbientPlaying) {
+      this.pauseAmbient();
+    } else {
+      this.playAmbient();
+    }
+  }
+
+  /**
+   * Utility to smoothly transition volume level over time.
+   */
+  fadeVolume(audio, targetVolume, duration, callback) {
+    if (this.fadeTimer) {
+      clearInterval(this.fadeTimer);
+    }
+
+    const startVolume = audio.volume;
+    const steps = 20;
+    const stepTime = duration / steps;
+    const volumeStep = (targetVolume - startVolume) / steps;
+    let currentStep = 0;
+
+    this.fadeTimer = setInterval(() => {
+      currentStep++;
+      const newVolume = startVolume + (volumeStep * currentStep);
+      audio.volume = Math.max(0, Math.min(1, newVolume));
+
+      if (currentStep >= steps) {
+        clearInterval(this.fadeTimer);
+        audio.volume = targetVolume;
+        if (callback) callback();
+      }
+    }, stepTime);
+  }
+
+  /**
+   * Synchronize the text of the toolbar toggle button with localizations.
+   */
+  updateButtonState(playing) {
+    const soundBtn = document.getElementById('toggle-sound');
+    if (!soundBtn) return;
+
+    const t = getTranslation();
+    if (playing) {
+      soundBtn.textContent = t.soundOn || 'Ambient Sounds: ON';
+      soundBtn.classList.add('playing');
+    } else {
+      soundBtn.textContent = t.soundOff || 'Ambient Sounds: OFF';
+      soundBtn.classList.remove('playing');
+    }
+  }
+}
+
+// Instantiate the singleton audio manager
+const audioEngine = new MapAudioEngine();
+
+/**
+ * Global interface handler for sound toggle events.
+ */
+function toggleSound() {
+  audioEngine.toggleAmbient();
+}
 
 async function loadCulturalItems() {
   if (!map) {
@@ -692,6 +892,18 @@ async function loadCulturalItems() {
     if (window.mapActiveEra && window.mapActiveEra !== 'All') {
       url += `&year=${window.mapActiveEra}`;
     }
+    
+    if (window.mapActiveTimelineItem) {
+      url += `&search=${encodeURIComponent(window.mapActiveTimelineItem)}`;
+    }
+
+    // Attach bounding box query parameters for optimized spatial search
+    const bounds = map.getBounds();
+    if (bounds) {
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      url += `&bounds=${sw.lng},${sw.lat},${ne.lng},${ne.lat}`;
+    }
 
     const response = await fetch(url);
 
@@ -702,24 +914,148 @@ async function loadCulturalItems() {
     const result = await response.json();
     const items = result.data || result; // handle paginated or flat array
 
-    items.forEach((item) => {
-      if (item.coordinates && item.coordinates.length === 2) {
-        const el = document.createElement('div');
-        el.className = 'cultural-marker';
+    const geojson = {
+      type: 'FeatureCollection',
+      features: items.filter(i => i.coordinates && i.coordinates.length === 2).map(item => {
+        // Prepare properties, stringifying arrays/objects since GeoJSON properties must be primitives
+        const props = { ...item };
+        if (props.tags) props.tags = JSON.stringify(props.tags);
+        if (props.images) props.images = JSON.stringify(props.images);
+        
+        return {
+          type: 'Feature',
+          properties: props,
+          geometry: {
+            type: 'Point',
+            coordinates: [item.coordinates[1], item.coordinates[0]]
+          }
+        };
+      })
+    };
 
-        const marker = new maplibregl.Marker({
-          element: el,
-        })
-          .setLngLat([item.coordinates[1], item.coordinates[0]])
-          .addTo(map);
+    const source = map.getSource('cultural-items');
+    if (source) {
+      source.setData(geojson);
+    } else {
+      map.addSource('cultural-items', {
+        type: 'geojson',
+        data: geojson,
+        cluster: true,
+        clusterMaxZoom: 14,
+        clusterRadius: 50
+      });
 
-        culturalMarkers.push(marker);
+      // 1. Heatmap layer
+      map.addLayer({
+        id: 'cultural-heatmap',
+        type: 'heatmap',
+        source: 'cultural-items',
+        maxzoom: 15,
+        layout: {
+          visibility: 'none' // Default hidden, toggled by toggleHeatmap()
+        },
+        paint: {
+          'heatmap-weight': 1,
+          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 15, 3],
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, 'rgba(33,102,172,0)',
+            0.2, 'rgb(103,169,207)',
+            0.4, 'rgb(209,229,240)',
+            0.6, 'rgb(253,219,199)',
+            0.8, 'rgb(239,138,98)',
+            1, 'rgb(178,24,43)'
+          ],
+          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 15, 15, 50],
+          'heatmap-opacity': 0.8
+        }
+      });
 
-        el.addEventListener('click', () => {
-          showPopup(item);
+      // 2. Clustered points layer
+      map.addLayer({
+        id: 'cultural-clusters',
+        type: 'circle',
+        source: 'cultural-items',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': [
+            'step',
+            ['get', 'point_count'],
+            '#e76f51', 10,
+            '#f4a261', 50,
+            '#e9c46a'
+          ],
+          'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            20, 10,
+            25, 50,
+            30
+          ],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff'
+        }
+      });
+
+      // 3. Cluster count layer
+      map.addLayer({
+        id: 'cultural-cluster-count',
+        type: 'symbol',
+        source: 'cultural-items',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-font': ['Arial Unicode MS Bold'],
+          'text-size': 14
+        },
+        paint: {
+          'text-color': '#ffffff'
+        }
+      });
+
+      // 4. Unclustered points layer
+      map.addLayer({
+        id: 'cultural-unclustered-point',
+        type: 'circle',
+        source: 'cultural-items',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': '#2a9d8f',
+          'circle-radius': 8,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff'
+        }
+      });
+
+      // Handlers
+      map.on('click', 'cultural-clusters', (e) => {
+        const features = map.queryRenderedFeatures(e.point, { layers: ['cultural-clusters'] });
+        const clusterId = features[0].properties.cluster_id;
+        map.getSource('cultural-items').getClusterExpansionZoom(clusterId, (err, zoom) => {
+          if (err) return;
+          map.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom
+          });
         });
-      }
-    });
+      });
+
+      map.on('click', 'cultural-unclustered-point', (e) => {
+        const properties = e.features[0].properties;
+        const item = { ...properties };
+        if (typeof item.tags === 'string') {
+          try { item.tags = JSON.parse(item.tags); } catch(err){}
+        }
+        showPopup(item);
+      });
+
+      map.on('mouseenter', 'cultural-clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'cultural-clusters', () => { map.getCanvas().style.cursor = ''; });
+      map.on('mouseenter', 'cultural-unclustered-point', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'cultural-unclustered-point', () => { map.getCanvas().style.cursor = ''; });
+    }
   } catch (error) {
     console.error('Error loading cultural items:', error);
   }
@@ -767,32 +1103,7 @@ window.addEventListener('parampara:langchange', (e) => {
   translatePage();
 });
 
-const ambientMusic = new Audio('assets/sounds/ambientSound.mp3');
 
-ambientMusic.loop = true;
-ambientMusic.volume = 0.3;
-
-function soundToggler() {
-  toggleSound = !toggleSound;
-  if (toggleSound) {
-    ambientMusic.pause();
-    toggle_btn.textContent = 'Ambient Sound : ON';
-  } else {
-    ambientMusic.play();
-    toggle_btn.textContent = 'Ambient Sound : OFF';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const toggle_btn = document.getElementById('toggle-sound');
-
-  if (toggle_btn) {
-    toggle_btn.addEventListener('click', () => {
-      toggle_btn.textContent = '';
-      soundToggler();
-    });
-  }
-});
 
 // ── Cinematic Flyover Logic ──────────────────────────────────────────────────
 async function checkFlyover() {

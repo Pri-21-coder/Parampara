@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="artisan_directory_title">Artisan Directory</title>
   <link rel="stylesheet" href="styles/artisans.css" />
-</head>
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
 <body>
   <!-- Navigation (included from other pages) -->
   <nav class="navbar">
@@ -30,9 +30,11 @@
         <li><a href="chat.html" data-i18n="nav_chat">Talk to Elder</a></li>
         <li><a href="revival.html" data-i18n="nav_revival">Lost Traditions</a></li>
         <li><a href="risk-dashboard.html" data-i18n="nav_risk_dashboard">Risk</a></li>
-        <li><a href="reputation.html" data-i18n="nav_reputation">Contributor Reputation</a></li>
+        <li><a href="reputation.html" data-i18n="nav_reputation">Contributor Reputation</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a></li>
         <li><a href="timeline.html" data-i18n="nav_timeline">Historical Timeline</a></li>
-        <li><a href="story-generator.html" data-i18n="nav_story_generator">AI Story Generator</a></li>
+        <li><a href="story-generator.html" data-i18n="nav_story_generator">AI Story Generator</a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a></li>
         <li><a href="artisans.html" data-i18n="nav_artisan_directory" class="active">Artisan Directory</a></li>
                 <li>
             <a href="favorites.html"><i class="ti ti-heart"></i> My Favorites</a>
@@ -72,6 +74,8 @@
   <script src="scripts/sw-register.js"></script>
 <script src="scripts/breadcrumbs.js"></script>
 <script src="scripts/telemetry.js"></script>
+  <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
 </body>
 </html>
 

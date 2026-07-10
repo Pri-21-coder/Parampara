@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Immersive Scrollytelling heritage stories synced with maps and media."
+    />
+    <title>Scrollytelling - Parampara</title>
+    
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/scrollytelling.css?v=5" />
+    <link rel="stylesheet" href="styles/languageSelector.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    />
+    
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
+      <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+          🌙
+        </button>
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+        </div>
+        
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+          <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+          <li><a href="interactive-story.html"><i class="ti ti-book-2"></i> Choose Your Story</a></li>
+          <li><a href="scrollytelling.html" class="active"><i class="ti ti-map-pin"></i> Scrollytelling</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding-top: 80px">
+        <div id="story-selector-overlay" style="text-align: center; padding: 2rem;">
+            <h2>Select a Heritage Story</h2>
+            <select id="story-selector" style="padding: 10px; font-size: 1.1rem; border-radius: 8px;">
+                <option value="">-- Choose a Story --</option>
+                <option value="Madhubani Art">Madhubani Art</option>
+                <option value="Kantha Embroidery">Kantha Embroidery</option>
+            </select>
+        </div>
+
+        <section id="scrolly" style="display: none;">
+            
+            <div class="scrolly-text" id="story-text-container">
+                <!-- Chapters injected here dynamically -->
+            </div>
+
+            <div class="scrolly-visuals">
+                <div class="scrolly-header">
+                    <h3 id="visual-header-title">Heritage Story</h3>
+                </div>
+                <!-- Map Layer -->
+                <div id="map" class="scrolly-map"></div>
+                <!-- Media Overlay Layer -->
+                <div id="media-layer" class="scrolly-media"></div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/navbar.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/scrollytelling.js?v=5"></script>
+    <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
+</body>
+</html>

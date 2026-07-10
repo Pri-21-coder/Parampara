@@ -1,5 +1,5 @@
 // services/searchEngineService.js
-const store = require('../data/store');
+const store = require('../../data/store');
 
 class SearchEngineService {
   constructor() {

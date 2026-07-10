@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Traditional Recipe & Food Heritage Archive – Parampara</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/food.css" />
+  </head>
+  <body>
+    <!-- Navigation (same as index) -->
+    <nav class="navbar">
+<div class="nav-container">
+            <div class="logo">
+                <h1 data-i18n="brand_name">Parampara</h1>
+                <p class="tagline" data-i18n="brand_tagline">Preserving Living Traditions</p>
+            </div>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+                <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+                <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+                <li><a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a></li>
+                <li><a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a></li>
+                <li><a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a></li>
+                <li><a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a></li>
+                <li><a href="timeline.html">Timeline</a></li>
+                <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
+                <li><a href="calendar.html"><i class="ti ti-calendar"></i> <span data-i18n="nav_calendar">Seasonal Calendar</span></a></li>
+                <li><a href="food.html" class="active">Traditional Foods</a></li>
+            </ul>
+        </div>
+        </div>
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span><span class="bar"></span
+          ><span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li>
+            <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"
+              ><i class="ti ti-compass"></i> Discovery Quest</a
+            >
+          </li>
+          <li>
+            <a href="trails.html"
+              ><i class="ti ti-trail-sign"></i> Heritage Trails</a
+            >
+          </li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li>
+            <a href="chat.html"
+              ><i class="ti ti-message-circle"></i> Talk to Elder</a
+            >
+          </li>
+          <li>
+            <a href="calendar.html"
+              ><i class="ti ti-calendar"></i>
+              <span data-i18n="nav_calendar">Seasonal Calendar</span></a
+            >
+          </li>
+          <li><a href="food.html" class="active">Traditional Foods</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero food-hero">
+      <div class="hero-content">
+        <div class="hero-texts">
+          <div class="hero-badge">🍲 Traditional Food Archive</div>
+          <h2 class="hero-title" data-i18n="food_hero_title">
+            Taste the Heritage
+          </h2>
+          <p class="hero-subtitle" data-i18n="food_hero_subtitle">
+            Explore centuries‑old recipes from villages across India.
+          </p>
+          <div class="hero-buttons">
+            <button
+              id="featuredBtn"
+              class="btn btn-primary"
+              data-i18n="view_featured"
+            >
+              Featured Recipe
+            </button>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-img-wrapper">
+            <div class="hero-img" id="heroFeaturedImg"></div>
+            <div class="hero-img-overlay"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search & Filters -->
+    <section class="search-filter-section">
+      <div class="container">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search recipes..."
+          aria-label="Search recipes"
+          class="search-input"
+        />
+        <div class="filters">
+          <select id="regionFilter" aria-label="Filter by region">
+            <option value="">All Regions</option>
+          </select>
+          <select id="villageFilter" aria-label="Filter by village">
+            <option value="">All Villages</option>
+          </select>
+          <select id="categoryFilter" aria-label="Filter by category">
+            <option value="">All Categories</option>
+          </select>
+          <select id="festivalFilter" aria-label="Filter by festival">
+            <option value="">All Festivals</option>
+          </select>
+          <select id="difficultyFilter" aria-label="Filter by difficulty">
+            <option value="">All Difficulties</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+          <select id="vegFilter" aria-label="Vegetarian filter">
+            <option value="">Both</option>
+            <option value="true">Vegetarian</option>
+            <option value="false">Non‑Vegetarian</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Recipe (carousel-like) -->
+    <section class="featured-recipe-section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="featured_section">
+          Featured Recipe
+        </h2>
+        <div
+          class="featured-card"
+          id="featuredCard"
+          role="button"
+          tabindex="0"
+          aria-label="Open featured recipe details"
+        ></div>
+      </div>
+    </section>
+
+    <!-- Recipe Cards Grid -->
+    <section class="recipes-section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="all_recipes">All Recipes</h2>
+        <div class="recipes-grid" id="recipesGrid"></div>
+      </div>
+    </section>
+
+    <!-- Festival Foods Section -->
+    <section class="festival-section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="festival_foods">Festival Foods</h2>
+        <div id="festivalContainer"></div>
+      </div>
+    </section>
+
+    <!-- Ingredient Explorer Section -->
+    <section class="ingredient-section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="ingredient_explorer">
+          Ingredient Explorer
+        </h2>
+        <div id="ingredientContainer"></div>
+      </div>
+    </section>
+
+    <!-- Favorites Section -->
+    <section class="favorites-section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="favorites">Your Favorites</h2>
+        <div class="recipes-grid" id="favoritesGrid"></div>
+      </div>
+    </section>
+
+    <!-- Regional Comparison Section -->
+    <section class="compare-section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="regional_compare">
+          Regional Comparison
+        </h2>
+        <div class="compare-controls">
+          <select id="regionASelect" aria-label="Region A"></select>
+          <select id="regionBSelect" aria-label="Region B"></select>
+          <button id="compareBtn" class="btn btn-secondary" data-i18n="compare">
+            Compare
+          </button>
+        </div>
+        <div id="compareResult" class="compare-result"></div>
+      </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="stats-section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="statistics">Statistics</h2>
+        <div class="stats-grid" id="statsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Recipe Detail Modal -->
+    <div
+      class="modal"
+      id="recipeModal"
+      aria-hidden="true"
+      role="dialog"
+      aria-labelledby="modalTitle"
+    >
+      <div class="modal-content" role="document">
+        <button class="modal-close" id="modalClose" aria-label="Close modal">
+          ✕
+        </button>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <!-- Footer (same as index) -->
+    <footer class="footer">
+      <div class="container">
+        <p data-i18n="footer_copy">
+          © 2024 Parampara. Preserving rural heritage, one story at a time.
+        </p>
+      </div>
+    </footer>
+
+    <button id="backToTopBtn" aria-label="Back to top">↑</button>
+
+    <script src="scripts/main.js"></script>
+    <script src="scripts/translationsData.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/food.js"></script>
+  </body>
+</html>

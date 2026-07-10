@@ -1,0 +1,58 @@
+[
+  {
+    "id": "b1",
+    "name": "Heritage Explorer",
+    "description": "Completed 5 challenges.",
+    "icon": "https://via.placeholder.com/64?text=HE",
+    "criteria": "Complete any 5 challenges"
+  },
+  {
+    "id": "b2",
+    "name": "Village Storyteller",
+    "description": "Completed an oral history challenge.",
+    "icon": "https://via.placeholder.com/64?text=VS",
+    "criteria": "Finish a challenge with category Oral History"
+  },
+  {
+    "id": "b3",
+    "name": "Community Volunteer",
+    "description": "Participated in a cleanliness drive.",
+    "icon": "https://via.placeholder.com/64?text=CV",
+    "criteria": "Finish a Cleanliness Drive challenge"
+  },
+  {
+    "id": "b4",
+    "name": "Artisan Supporter",
+    "description": "Supported artisans in 3 challenges.",
+    "icon": "https://via.placeholder.com/64?text=AS",
+    "criteria": "Complete 3 Artisan Support challenges"
+  },
+  {
+    "id": "b5",
+    "name": "Festival Guardian",
+    "description": "Volunteered at a festival.",
+    "icon": "https://via.placeholder.com/64?text=FG",
+    "criteria": "Complete a Festival Volunteering challenge"
+  },
+  {
+    "id": "b6",
+    "name": "Conservation Champion",
+    "description": "Completed a heritage restoration.",
+    "icon": "https://via.placeholder.com/64?text=CC",
+    "criteria": "Finish a Heritage Restoration challenge"
+  },
+  {
+    "id": "b7",
+    "name": "Cultural Ambassador",
+    "description": "Created a cultural awareness post.",
+    "icon": "https://via.placeholder.com/64?text=CA",
+    "criteria": "Complete a Cultural Awareness challenge"
+  },
+  {
+    "id": "b8",
+    "name": "Festival Guardian",
+    "description": "Promoted sustainable festival practices.",
+    "icon": "https://via.placeholder.com/64?text=SG",
+    "criteria": "Complete a Festival Volunteering challenge with sustainability"
+  }
+]

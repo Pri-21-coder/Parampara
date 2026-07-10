@@ -226,6 +226,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderKnowledgeCards(await getFilteredKnowledge());
   updateStatistics(allKnowledge);
   setupEventListeners();
+  
+  const contributionForm = document.getElementById('contribution-form');
+  if (contributionForm && window.FormAutoSave) {
+    new window.FormAutoSave(contributionForm, { id: 'knowledge-vault' });
+  }
 });
 
 function getAllKnowledge() {
@@ -498,6 +503,18 @@ function openModal(entryId) {
   const audioPlayer = bodyEl.querySelector('audio');
   if (audioPlayer && typeof window.setupAudioVisualizer === 'function') {
     window.setupAudioVisualizer(audioPlayer);
+  }
+
+  const videoPlayer = bodyEl.querySelector('video');
+  if (videoPlayer && window.ProgressiveVideoLoader) {
+    // Determine if it's an uploaded session ID or external URL
+    const srcUrl = entry.videoUrl;
+    const isSession = srcUrl && !srcUrl.startsWith('http');
+    // We clear the native src since ProgressiveVideoLoader will handle it
+    videoPlayer.removeAttribute('src'); 
+    videoPlayer.querySelector('source')?.remove();
+    
+    new window.ProgressiveVideoLoader(videoPlayer, srcUrl, isSession);
   }
 
   bodyEl.querySelectorAll('[data-related-id]').forEach((btn) => {

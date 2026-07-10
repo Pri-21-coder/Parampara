@@ -1,13 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moderation Dashboard - Parampara</title>
-  <link rel="stylesheet" href="/styles/main.css">
-</head>
+  <title>Moderation Dashboard | Parampara</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/moderation.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script src="scripts/resilient-ws.js"></script>
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
 <body>
-  <div id="moderation-dashboard"></div>
-  <script src="/scripts/moderation.js"></script>
+  <!-- Navigation -->
+  <nav class="navbar navbar-home">
+    <div class="nav-container">
+      <div class="logo">
+        <h1>Parampara</h1>
+        <p class="tagline">Community Moderation</p>
+      </div>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+        <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+        <li><a href="archives.html"><i class="ti ti-vault"></i> Archives</a></li>
+        <li><a href="moderation.html" class="active"><i class="ti ti-shield-check"></i> Moderation</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="mod-main">
+    <!-- Header -->
+    <section class="mod-hero">
+      <div class="mod-hero-content">
+        <h1><i class="ti ti-shield-check"></i> Decentralized Moderation</h1>
+        <p>Community-powered content review. Submissions require <strong id="threshold-display">2</strong> trusted approvals before publishing.</p>
+      </div>
+    </section>
+
+    <div class="mod-container">
+      <!-- Left: Peer Registration & Status -->
+      <aside class="mod-sidebar glass-card">
+        <h2><i class="ti ti-users"></i> Moderator Identity</h2>
+
+        <div id="peer-unregistered">
+          <p class="hint-text">Register your peer identity to participate in moderation.</p>
+          <div class="form-group">
+            <label for="peer-username">Your Name</label>
+            <input type="text" id="peer-username" placeholder="e.g. Aarav Kumar" />
+          </div>
+          <div class="form-group">
+            <label for="peer-secret">Secret Key (min 16 chars)</label>
+            <input type="password" id="peer-secret" placeholder="Your private HMAC secret" />
+          </div>
+          <button id="register-btn" class="btn btn-primary w-full">
+            <i class="ti ti-key"></i> Register & Join
+          </button>
+        </div>
+
+        <div id="peer-registered" class="hidden">
+          <div class="peer-badge">
+            <i class="ti ti-circle-check-filled"></i>
+            <div>
+              <strong id="my-peer-name">—</strong>
+              <small id="my-peer-id">—</small>
+            </div>
+          </div>
+          <div class="ws-status" id="ws-status">
+            <span class="status-dot disconnected"></span> Connecting...
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <h3><i class="ti ti-antenna"></i> Online Moderators</h3>
+        <ul id="peers-list" class="peers-list">
+          <li class="empty-hint">No peers connected yet.</li>
+        </ul>
+
+        <hr class="divider" />
+
+        <h3><i class="ti ti-plus"></i> Submit for Review</h3>
+        <div class="form-group">
+          <label for="sub-title">Title</label>
+          <input type="text" id="sub-title" placeholder="e.g. Warli Dance Tradition" />
+        </div>
+        <div class="form-group">
+          <label for="sub-content">Content</label>
+          <textarea id="sub-content" rows="3" placeholder="Describe the cultural item or post..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="sub-type">Type</label>
+          <select id="sub-type">
+            <option value="villagePost">Village Post</option>
+            <option value="culturalItem">Cultural Item</option>
+            <option value="oralHistory">Oral History</option>
+          </select>
+        </div>
+        <button id="submit-btn" class="btn btn-secondary w-full" disabled>
+          <i class="ti ti-send"></i> Submit for Review
+        </button>
+      </aside>
+
+      <!-- Right: Moderation Queue -->
+      <section class="mod-queue">
+        <div class="queue-header">
+          <h2><i class="ti ti-list-check"></i> Moderation Queue</h2>
+          <div class="queue-filters">
+            <button class="filter-btn active" data-status="pending">Pending</button>
+            <button class="filter-btn" data-status="approved">Approved</button>
+            <button class="filter-btn" data-status="rejected">Rejected</button>
+          </div>
+        </div>
+
+        <div id="queue-list" class="queue-list">
+          <div class="empty-state">
+            <i class="ti ti-inbox"></i>
+            <p>No items in the queue yet.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Live Activity Feed -->
+    <section class="mod-log-section">
+      <div class="mod-container">
+        <div class="glass-card mod-log-card">
+          <h3><i class="ti ti-activity"></i> Live Activity Feed</h3>
+          <ul id="activity-feed" class="activity-feed">
+            <li class="feed-item hint-text">Waiting for activity...</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
+    </div>
+  </footer>
+
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/moderation.js"></script>
+  <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
 </body>
 </html>

@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive Cultural Heritage Trivia — test your knowledge of India's rich traditions, art, and history. Parampara."
+    />
+    <title>Cultural Trivia - Parampara</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/trivia.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    <script src="scripts/resilient-ws.js"></script>
+    <script src="/scripts/tenant-interceptor.js"></script>
+    <script src="/scripts/tenant-switcher.js" defer></script>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+          🌙
+        </button>
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">
+            Preserving Living Traditions
+          </p>
+        </div>
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="map.html">Explore Map</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="paths.html">Heritage Paths</a></li>
+          <li><a href="trivia" class="active">Trivia Game</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container trivia-container">
+
+      <!-- ════════════════════════════════
+           MODE SELECTION SCREEN
+      ════════════════════════════════ -->
+      <div id="screen-mode" class="screen active">
+        <div class="card card-lobby mode-select-card">
+          <div class="mode-hero">
+            <span class="mode-hero-icon" aria-hidden="true">🏛️</span>
+            <h2 class="section-title">Cultural Trivia Challenge</h2>
+            <p class="section-subtitle">Test your knowledge of India's rich heritage, traditions and history</p>
+          </div>
+          <div class="mode-grid" role="group" aria-label="Choose game mode">
+            <button id="btn-solo" class="mode-btn" aria-label="Solo Challenge mode">
+              <span class="mode-icon" aria-hidden="true">🎯</span>
+              <span class="mode-label">Solo Challenge</span>
+              <span class="mode-desc">Race against the clock and beat your high score</span>
+            </button>
+            <button id="btn-multiplayer" class="mode-btn" aria-label="Multiplayer Room mode">
+              <span class="mode-icon" aria-hidden="true">👥</span>
+              <span class="mode-label">Multiplayer Room</span>
+              <span class="mode-desc">Compete with others in a real-time room</span>
+            </button>
+          </div>
+
+          <!-- Solo Config Panel -->
+          <div id="solo-config" class="solo-config hidden" aria-hidden="true">
+            <h3 class="config-title">Configure Your Quiz</h3>
+            <div class="config-grid">
+              <div class="config-group">
+                <label for="solo-difficulty" class="config-label">Difficulty</label>
+                <select id="solo-difficulty" class="trivia-select">
+                  <option value="easy">Easy (20s per question)</option>
+                  <option value="medium" selected>Medium (15s per question)</option>
+                  <option value="hard">Hard (10s per question)</option>
+                </select>
+              </div>
+              <div class="config-group">
+                <label for="solo-count" class="config-label">Questions</label>
+                <select id="solo-count" class="trivia-select">
+                  <option value="5">5 Questions</option>
+                  <option value="10" selected>10 Questions</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group solo-name-group">
+              <input
+                type="text"
+                id="solo-username"
+                class="trivia-input"
+                placeholder="Your name (optional)"
+                maxlength="20"
+                autocomplete="off"
+              />
+            </div>
+            <button id="btn-start-solo" class="btn btn-primary btn-start-solo">
+              🚀 Start Quiz
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           MULTIPLAYER LOBBY SCREEN
+      ════════════════════════════════ -->
+      <div id="screen-lobby" class="screen">
+        <div class="card card-lobby">
+          <button id="btn-back-to-mode" class="btn-back" aria-label="Back to mode selection">← Back</button>
+          <h2 class="section-title">Join a Cultural Trivia Room</h2>
+          <p class="section-subtitle">Test your knowledge of rural heritage, monuments, and traditions!</p>
+          <div class="form-group">
+            <input type="text" id="username" class="trivia-input" placeholder="Enter your name" maxlength="20">
+          </div>
+          <div class="form-group">
+            <input type="text" id="room-id" class="trivia-input" placeholder="Room Code (e.g. INDIA26)" maxlength="10">
+          </div>
+          <button id="btn-join" class="btn btn-primary">Join Game</button>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           MULTIPLAYER WAITING ROOM
+      ════════════════════════════════ -->
+      <div id="screen-waiting" class="screen">
+        <div class="card card-lobby">
+          <h2 class="section-title" id="waiting-room-title">Room: </h2>
+          <div class="player-list-container">
+            <h3>Players in Lobby:</h3>
+            <ul id="lobby-players" class="player-list"></ul>
+          </div>
+          <p class="waiting-text">Waiting for everyone to join...</p>
+          <button id="btn-start" class="btn btn-success">Start Game Now</button>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           GAMEPLAY SCREEN (Solo + Multi)
+      ════════════════════════════════ -->
+      <div id="screen-game" class="screen">
+        <div class="card card-gameplay">
+
+          <!-- Header row: counter | ring timer | score -->
+          <div class="game-header">
+            <span id="question-counter" class="badge" aria-live="polite">Question 1/10</span>
+
+            <div class="timer-ring-wrapper" aria-label="Time remaining" aria-live="polite">
+              <svg class="timer-ring" viewBox="0 0 52 52" width="56" height="56" aria-hidden="true">
+                <circle class="timer-ring-bg" cx="26" cy="26" r="22"/>
+                <circle id="timer-ring-circle" class="timer-ring-progress" cx="26" cy="26" r="22"/>
+              </svg>
+              <span id="timer-text" class="timer-text" aria-hidden="true">15</span>
+            </div>
+
+            <span id="score-display" class="badge outline" aria-live="polite">Score: 0</span>
+          </div>
+
+          <!-- Question progress track -->
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Quiz progress"
+            aria-valuenow="0"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+
+          <!-- Streak indicator (solo only) -->
+          <div id="streak-bar" class="streak-bar hidden" aria-live="polite"></div>
+
+          <h2 id="question-text" class="question-text" aria-live="polite">Loading question...</h2>
+
+          <div id="options-container" class="options-grid" role="group" aria-label="Answer options">
+            <!-- Buttons injected by JS -->
+          </div>
+
+          <!-- Inline answer feedback -->
+          <div id="answer-feedback" class="answer-feedback hidden" role="alert" aria-live="assertive"></div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           MULTIPLAYER INTERMISSION
+      ════════════════════════════════ -->
+      <div id="screen-intermission" class="screen">
+        <div class="card card-intermission">
+          <h2 id="round-result-text" class="section-title">Round Over!</h2>
+          <div id="correct-answer-display" class="correct-answer-box"></div>
+          <div class="leaderboard-container mini">
+            <h3>Current Standings</h3>
+            <ul id="intermission-leaderboard" class="leaderboard-list"></ul>
+          </div>
+          <p class="next-question-text">Next question starting soon...</p>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           MULTIPLAYER FINAL LEADERBOARD
+      ════════════════════════════════ -->
+      <div id="screen-ended" class="screen">
+        <div class="card card-final">
+          <h2 class="section-title">Game Over! 🎉</h2>
+          <div class="leaderboard-container final">
+            <h3>Final Leaderboard</h3>
+            <ul id="final-leaderboard" class="leaderboard-list"></ul>
+          </div>
+          <button id="btn-play-again" class="btn btn-primary">Play Again</button>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════
+           SOLO RESULTS SCREEN
+      ════════════════════════════════ -->
+      <div id="screen-results" class="screen">
+        <div class="card card-final results-card">
+
+          <!-- Grade trophy -->
+          <div id="results-trophy" class="results-trophy" aria-hidden="true"></div>
+          <h2 id="results-headline" class="section-title results-headline"></h2>
+          <p id="results-tagline" class="results-tagline"></p>
+
+          <!-- Animated score donut -->
+          <div class="results-score-circle" aria-label="Your score">
+            <svg viewBox="0 0 120 120" class="score-donut" aria-hidden="true">
+              <circle class="donut-bg" cx="60" cy="60" r="50"/>
+              <circle id="donut-progress" class="donut-arc" cx="60" cy="60" r="50"/>
+            </svg>
+            <div class="score-circle-inner">
+              <span id="results-score" class="results-score-num">0</span>
+              <span class="results-score-label">pts</span>
+            </div>
+          </div>
+
+          <!-- Stats grid -->
+          <div class="results-stats" role="list" aria-label="Quiz statistics">
+            <div class="stat-card" role="listitem">
+              <span class="stat-icon" aria-hidden="true">✅</span>
+              <span id="stat-correct" class="stat-value">0</span>
+              <span class="stat-label">Correct</span>
+            </div>
+            <div class="stat-card" role="listitem">
+              <span class="stat-icon" aria-hidden="true">❌</span>
+              <span id="stat-wrong" class="stat-value">0</span>
+              <span class="stat-label">Wrong</span>
+            </div>
+            <div class="stat-card" role="listitem">
+              <span class="stat-icon" aria-hidden="true">⏭️</span>
+              <span id="stat-skipped" class="stat-value">0</span>
+              <span class="stat-label">Skipped</span>
+            </div>
+            <div class="stat-card" role="listitem">
+              <span class="stat-icon" aria-hidden="true">🔥</span>
+              <span id="stat-streak" class="stat-value">0</span>
+              <span class="stat-label">Best Streak</span>
+            </div>
+            <div class="stat-card" role="listitem">
+              <span class="stat-icon" aria-hidden="true">⏱️</span>
+              <span id="stat-time" class="stat-value">0s</span>
+              <span class="stat-label">Avg. Speed</span>
+            </div>
+            <div class="stat-card" role="listitem">
+              <span class="stat-icon" aria-hidden="true">🎯</span>
+              <span id="stat-accuracy" class="stat-value">0%</span>
+              <span class="stat-label">Accuracy</span>
+            </div>
+          </div>
+
+          <!-- Answer review accordion -->
+          <div class="results-review">
+            <button
+              id="btn-review-toggle"
+              class="btn-review-toggle"
+              aria-expanded="false"
+              aria-controls="review-list"
+            >
+              📋 Review Answers <span class="toggle-chevron" aria-hidden="true">▼</span>
+            </button>
+            <ol id="review-list" class="review-list hidden" role="list" aria-label="Answer review"></ol>
+          </div>
+
+          <!-- New high score banner -->
+          <div id="highscore-banner" class="highscore-banner hidden" role="status" aria-live="polite">
+            🏆 New High Score!
+          </div>
+
+          <!-- Action buttons -->
+          <div class="results-actions">
+            <button id="btn-retry-solo" class="btn btn-primary">🔁 Play Again</button>
+            <button id="btn-change-config" class="btn btn-outline">⚙️ Change Settings</button>
+            <button id="btn-share-result" class="btn btn-outline btn-share" aria-label="Share your score">📤 Share Score</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.trivia-container -->
+
+    <script src="scripts/trivia.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
+  </body>
+</html>

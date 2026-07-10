@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Processing Engine | Parampara</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/audio.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-home">
+    <div class="nav-container">
+      <div class="logo">
+        <h1 data-i18n="brand_name">Parampara</h1>
+        <p class="tagline" data-i18n="brand_tagline">Audio Processing</p>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+        <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+        <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+        <li><a href="archives.html"><i class="ti ti-vault"></i> Archives</a></li>
+        <li><a href="audio.html" class="active"><i class="ti ti-music"></i> Audio Engine</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="audio-main">
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1>Audio Fingerprinting & Waveform Engine</h1>
+        <p>Upload a cultural recording or folk song. Parampara will extract fingerprints, detect tempo, and render interactive waveforms completely securely in your browser using Web Workers.</p>
+      </div>
+    </section>
+
+    <div class="container audio-container">
+      <!-- Uploader -->
+      <div class="upload-card glass-card">
+        <h2><i class="ti ti-upload"></i> Upload Audio File</h2>
+        <div class="file-drop-zone" id="drop-zone">
+          <i class="ti ti-file-music drop-icon"></i>
+          <p>Drag & Drop your audio file here or</p>
+          <input type="file" id="audio-input" accept="audio/mp3, audio/wav, audio/ogg" hidden />
+          <button class="btn btn-primary" onclick="document.getElementById('audio-input').click()">Browse Files</button>
+        </div>
+        <div id="loading-spinner" class="spinner-container hidden">
+          <div class="spinner"></div>
+          <p id="loading-text">Processing Audio... <span id="progress-percent">0%</span></p>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div id="results-panel" class="results-panel hidden">
+        <!-- Waveform Canvas -->
+        <div class="waveform-card glass-card">
+          <h2>Interactive Waveform</h2>
+          <div class="canvas-wrapper">
+            <canvas id="waveform-canvas"></canvas>
+          </div>
+          <div class="playback-controls">
+            <button id="play-btn" class="btn btn-secondary" disabled><i class="ti ti-player-play"></i> Play</button>
+            <span id="time-display">0:00 / 0:00</span>
+          </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="metadata-grid">
+          <div class="stat-card glass-card">
+            <i class="ti ti-clock stat-icon"></i>
+            <div class="stat-info">
+              <h3>Duration</h3>
+              <p id="meta-duration">-</p>
+            </div>
+          </div>
+          <div class="stat-card glass-card">
+            <i class="ti ti-activity stat-icon"></i>
+            <div class="stat-info">
+              <h3>Sample Rate</h3>
+              <p id="meta-samplerate">-</p>
+            </div>
+          </div>
+          <div class="stat-card glass-card">
+            <i class="ti ti-headphones stat-icon"></i>
+            <div class="stat-info">
+              <h3>Channels</h3>
+              <p id="meta-channels">-</p>
+            </div>
+          </div>
+          <div class="stat-card glass-card">
+            <i class="ti ti-metronome stat-icon"></i>
+            <div class="stat-info">
+              <h3>Estimated BPM</h3>
+              <p id="meta-bpm">-</p>
+            </div>
+          </div>
+          <div class="stat-card glass-card full-width">
+            <i class="ti ti-fingerprint stat-icon"></i>
+            <div class="stat-info">
+              <h3>Audio Fingerprint (Hash)</h3>
+              <p id="meta-fingerprint" class="mono-text">-</p>
+            </div>
+          </div>
+          <div class="stat-card glass-card full-width">
+            <i class="ti ti-server stat-icon"></i>
+            <div class="stat-info">
+              <h3>Backend Sync Status</h3>
+              <p id="meta-sync" class="sync-status">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/languageSwitcher.js"></script>
+  <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
+    <script src="scripts/main.js"></script>
+  <script src="scripts/audio.js"></script>
+  <script>
+    // Dynamically offset main to sit below the actual navbar height
+    (function() {
+      function adjustLayout() {
+        const nav = document.querySelector('nav.navbar');
+        const main = document.querySelector('.audio-main');
+        if (nav && main) {
+          const navH = nav.offsetHeight;
+          main.style.marginTop = navH + 'px';
+          main.style.minHeight = 'calc(100vh - ' + navH + 'px)';
+        }
+      }
+      document.addEventListener('DOMContentLoaded', adjustLayout);
+      window.addEventListener('resize', adjustLayout);
+    })();
+  </script>
+</body>
+</html>

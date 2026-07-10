@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parampara - Procedural Rangoli Generator</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/rangoli.css">
+  <script src="/scripts/tenant-interceptor.js"></script>
+  <script src="/scripts/tenant-switcher.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-logo">
+        <a href="/" style="text-decoration: none; color: inherit;"><h1>✨ Parampara Art Studio</h1></a>
+    </div>
+    <nav class="header-nav">
+        <a href="/">Home</a>
+        <a href="/virtual-tour">Virtual Tour</a>
+        <a href="/itinerary-planner">Planner</a>
+        <a href="/rangoli-generator" class="active">Rangoli Generator</a>
+    </nav>
+  </header>
+
+  <main class="rangoli-workspace">
+    <aside class="control-panel left-panel">
+      <h2>Controls</h2>
+      <div class="control-group">
+        <label for="symmetry">Symmetry (Axes: <span id="sym-val">8</span>)</label>
+        <input type="range" id="symmetry" min="4" max="24" step="2" value="8">
+      </div>
+      
+      <div class="control-group">
+        <label for="layers">Complexity (Layers: <span id="layer-val">4</span>)</label>
+        <input type="range" id="layers" min="1" max="8" step="1" value="4">
+      </div>
+
+      <div class="control-group">
+        <label>Primary Theme Color</label>
+        <input type="color" id="primary-color" value="#E91E63">
+      </div>
+      
+      <div class="control-group">
+        <label>Secondary Theme Color</label>
+        <input type="color" id="secondary-color" value="#FFC107">
+      </div>
+
+      <div class="control-group">
+        <label>Base Motif Shape</label>
+        <select id="motif-shape">
+          <option value="petal">Traditional Petal</option>
+          <option value="circle">Dots (Bindu)</option>
+          <option value="diamond">Diamonds</option>
+          <option value="triangle">Geometric</option>
+          <option value="mixed">Mixed Extravaganza</option>
+        </select>
+      </div>
+
+      <div class="action-buttons">
+        <button id="btn-generate" class="btn btn-primary">🎲 Randomize Pattern</button>
+        <button id="btn-save" class="btn btn-success">💾 Save Design</button>
+      </div>
+    </aside>
+
+    <section class="canvas-panel">
+      <div class="canvas-header">
+        <h3 id="design-title" contenteditable="true">My Beautiful Rangoli ✏️</h3>
+        <div class="export-tools">
+          <button id="btn-export-svg" class="btn btn-sm">⬇️ SVG</button>
+          <button id="btn-export-png" class="btn btn-sm">⬇️ PNG</button>
+        </div>
+      </div>
+      <div class="svg-container" id="svg-container">
+        <!-- SVG injected here via JS -->
+      </div>
+    </section>
+
+    <aside class="gallery-panel right-panel">
+      <h2>Community Gallery</h2>
+      <div id="gallery-grid" class="gallery-grid">
+        <!-- Loaded from API -->
+        <p class="loading-msg">Loading community designs...</p>
+      </div>
+    </aside>
+  </main>
+
+  <script src="/scripts/rangoliEngine.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "ch1",
+    "title": "Document Kantha Stitch Techniques",
+    "description": "Record detailed steps of traditional Kantha embroidery.",
+    "category": "Documentation",
+    "difficulty": "Easy",
+    "estimatedTime": "30 min",
+    "rewardPoints": 10,
+    "badge": "Kantha Keeper",
+    "status": "not-started",
+    "progress": 0
+  },
+  {
+    "id": "ch2",
+    "title": "Interview Local Artisans",
+    "description": "Conduct video interviews with local Kantha stitch artisans.",
+    "category": "Community",
+    "difficulty": "Medium",
+    "estimatedTime": "2 hrs",
+    "rewardPoints": 25,
+    "badge": "Storyteller",
+    "status": "not-started",
+    "progress": 0
+  },
+  {
+    "id": "ch3",
+    "title": "Create a Virtual Exhibit",
+    "description": "Design an online exhibition showcasing Kantha designs.",
+    "category": "Creative",
+    "difficulty": "Hard",
+    "estimatedTime": "4 hrs",
+    "rewardPoints": 50,
+    "badge": "Curator",
+    "status": "not-started",
+    "progress": 0
+  }
+]

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Visualizer Test</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #121212;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+<body>
+    <div class="container">
+        <h1>Audio Visualizer Edge Case Test</h1>
+        
+        <h2>Test 1: Normal Audio Source</h2>
+        <audio id="audio1" controls src="/assets/sounds/ambientSound.mp3"></audio>
+        
+        <h2>Test 2: Multiple Audio Sources</h2>
+        <audio id="audio2" controls src="/assets/sounds/ambientSound.mp3"></audio>
+        
+        <h2>Test 3: Missing Audio Source (Error Handling)</h2>
+        <audio id="audio3" controls src="/assets/sounds/doesNotExist.mp3"></audio>
+
+        <button id="initBtn">Init Visualizers</button>
+    </div>
+
+    <script src="/scripts/audio-visualizer.js"></script>
+    <script src="/visualizer-test-init.js"></script>
+  <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
+</body>
+</html>

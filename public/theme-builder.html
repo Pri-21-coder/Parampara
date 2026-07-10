@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Theme Builder - Parampara</title>
+    
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/theme-builder.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.36.0/tabler-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+<body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">Preserving Living Traditions</p>
+        </div>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+          <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+          <li><a href="theme-builder.html" class="active"><i class="ti ti-palette"></i> Theme Builder</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="theme-builder-container">
+        <!-- Editor Section -->
+        <div class="theme-editor-section">
+            <div class="theme-editor-header">
+                <h1>Village Theme Builder</h1>
+                <p>Safely customize your community's cultural page aesthetic.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="village-id">Target Village ID</label>
+                <input type="text" id="village-id" placeholder="e.g., majuli-island" value="demo-village">
+            </div>
+
+            <div class="form-group">
+                <label for="css-editor">Custom CSS</label>
+                <textarea id="css-editor" spellcheck="false" placeholder="/* Write your custom CSS here */
+.village-card {
+    background-color: #fff9e6;
+    border: 2px solid #e67e22;
+}
+
+.village-title {
+    color: #c0392b;
+    font-family: 'Playfair Display', serif;
+}
+
+.village-btn {
+    background: #d35400;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+}
+"></textarea>
+                <small style="color: #7f8c8d; display:block; margin-top:5px;">
+                    <i class="ti ti-shield-check" style="color:#2ecc71;"></i> 
+                    Native Sandboxing Active. Styles are encapsulated in a Shadow DOM.
+                </small>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="save-theme-btn"><i class="ti ti-device-floppy"></i> Publish Theme</button>
+                <button class="btn btn-secondary" id="load-theme-btn"><i class="ti ti-download"></i> Load Existing</button>
+            </div>
+        </div>
+
+        <!-- Preview Section with Iframe Sandbox -->
+        <div class="preview-section">
+            <h2><i class="ti ti-eye"></i> Live Sandbox Preview</h2>
+            <div class="iframe-container">
+                <!-- iframe with strict sandbox. allow-scripts is needed for postMessage rendering -->
+                <iframe 
+                    id="preview-iframe" 
+                    src="theme-preview.html" 
+                    sandbox="allow-scripts allow-same-origin">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-toast" id="status-toast">Theme saved successfully!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cssEditor = document.getElementById('css-editor');
+            const iframe = document.getElementById('preview-iframe');
+            const saveBtn = document.getElementById('save-theme-btn');
+            const loadBtn = document.getElementById('load-theme-btn');
+            const villageIdInput = document.getElementById('village-id');
+            const toast = document.getElementById('status-toast');
+
+            function showToast(message, isError = false) {
+                toast.textContent = message;
+                toast.className = 'status-toast' + (isError ? ' error' : '');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+
+            // Real-time Preview Engine
+            function updatePreview() {
+                const css = cssEditor.value;
+                // Securely send CSS to the sandboxed iframe
+                iframe.contentWindow.postMessage({ type: 'UPDATE_THEME', css: css }, '*');
+            }
+
+            cssEditor.addEventListener('keyup', updatePreview);
+            // Trigger initial render once iframe loads
+            iframe.addEventListener('load', updatePreview);
+
+            // API Integration
+            saveBtn.addEventListener('click', async () => {
+                const villageId = villageIdInput.value.trim();
+                const css = cssEditor.value;
+
+                if (!villageId) return showToast('Village ID is required', true);
+
+                try {
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = '<i class="ti ti-loader"></i> Saving...';
+
+                    const response = await fetch(`/api/themes/${encodeURIComponent(villageId)}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ css })
+                    });
+
+                    if (response.ok) {
+                        showToast('Theme safely published!');
+                    } else {
+                        const error = await response.json();
+                        showToast(error.error || 'Failed to save', true);
+                    }
+                } catch (err) {
+                    showToast('Network error', true);
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="ti ti-device-floppy"></i> Publish Theme';
+                }
+            });
+
+            loadBtn.addEventListener('click', async () => {
+                const villageId = villageIdInput.value.trim();
+                if (!villageId) return showToast('Village ID is required', true);
+
+                try {
+                    const response = await fetch(`/api/themes/${encodeURIComponent(villageId)}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        cssEditor.value = data.css || '';
+                        updatePreview();
+                        showToast('Theme loaded successfully');
+                    } else {
+                        showToast('No theme found for this village', true);
+                    }
+                } catch (err) {
+                    showToast('Network error', true);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

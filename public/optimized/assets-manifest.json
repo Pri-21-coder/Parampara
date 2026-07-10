@@ -1,0 +1,170 @@
+{
+  "hero-text-image.png": {
+    "thumb": {
+      "webp": "hero-text-image-thumb.webp",
+      "avif": "hero-text-image-thumb.avif"
+    },
+    "medium": {
+      "webp": "hero-text-image-medium.webp",
+      "avif": "hero-text-image-medium.avif"
+    },
+    "full": {
+      "webp": "hero-text-image.webp",
+      "avif": "hero-text-image.avif"
+    }
+  },
+  "golden temple.jpg": {
+    "thumb": {
+      "webp": "golden temple-thumb.webp",
+      "avif": "golden temple-thumb.avif"
+    },
+    "medium": {
+      "webp": "golden temple-medium.webp",
+      "avif": "golden temple-medium.avif"
+    },
+    "full": {
+      "webp": "golden temple.webp",
+      "avif": "golden temple.avif"
+    }
+  },
+  "Kashi.png": {
+    "thumb": {
+      "webp": "Kashi-thumb.webp",
+      "avif": "Kashi-thumb.avif"
+    },
+    "medium": {
+      "webp": "Kashi-medium.webp",
+      "avif": "Kashi-medium.avif"
+    },
+    "full": {
+      "webp": "Kashi.webp",
+      "avif": "Kashi.avif"
+    }
+  },
+  "image.png": {
+    "thumb": {
+      "webp": "image-thumb.webp",
+      "avif": "image-thumb.avif"
+    },
+    "medium": {
+      "webp": "image-medium.webp",
+      "avif": "image-medium.avif"
+    },
+    "full": {
+      "webp": "image.webp",
+      "avif": "image.avif"
+    }
+  },
+  "heroimg.png": {
+    "thumb": {
+      "webp": "heroimg-thumb.webp",
+      "avif": "heroimg-thumb.avif"
+    },
+    "medium": {
+      "webp": "heroimg-medium.webp",
+      "avif": "heroimg-medium.avif"
+    },
+    "full": {
+      "webp": "heroimg.webp",
+      "avif": "heroimg.avif"
+    }
+  },
+  "kashi2.jpg": {
+    "thumb": {
+      "webp": "kashi2-thumb.webp",
+      "avif": "kashi2-thumb.avif"
+    },
+    "medium": {
+      "webp": "kashi2-medium.webp",
+      "avif": "kashi2-medium.avif"
+    },
+    "full": {
+      "webp": "kashi2.webp",
+      "avif": "kashi2.avif"
+    }
+  },
+  "kedarnat.jpg": {
+    "thumb": {
+      "webp": "kedarnat-thumb.webp",
+      "avif": "kedarnat-thumb.avif"
+    },
+    "medium": {
+      "webp": "kedarnat-medium.webp",
+      "avif": "kedarnat-medium.avif"
+    },
+    "full": {
+      "webp": "kedarnat.webp",
+      "avif": "kedarnat.avif"
+    }
+  },
+  "lotus.jpg": {
+    "thumb": {
+      "webp": "lotus-thumb.webp",
+      "avif": "lotus-thumb.avif"
+    },
+    "medium": {
+      "webp": "lotus-medium.webp",
+      "avif": "lotus-medium.avif"
+    },
+    "full": {
+      "webp": "lotus.webp",
+      "avif": "lotus.avif"
+    }
+  },
+  "mahakaleshwar.jpg": {
+    "thumb": {
+      "webp": "mahakaleshwar-thumb.webp",
+      "avif": "mahakaleshwar-thumb.avif"
+    },
+    "medium": {
+      "webp": "mahakaleshwar-medium.webp",
+      "avif": "mahakaleshwar-medium.avif"
+    },
+    "full": {
+      "webp": "mahakaleshwar.webp",
+      "avif": "mahakaleshwar.avif"
+    }
+  },
+  "siddhivinayak.jpg": {
+    "thumb": {
+      "webp": "siddhivinayak-thumb.webp",
+      "avif": "siddhivinayak-thumb.avif"
+    },
+    "medium": {
+      "webp": "siddhivinayak-medium.webp",
+      "avif": "siddhivinayak-medium.avif"
+    },
+    "full": {
+      "webp": "siddhivinayak.webp",
+      "avif": "siddhivinayak.avif"
+    }
+  },
+  "Untitled design.png": {
+    "thumb": {
+      "webp": "Untitled design-thumb.webp",
+      "avif": "Untitled design-thumb.avif"
+    },
+    "medium": {
+      "webp": "Untitled design-medium.webp",
+      "avif": "Untitled design-medium.avif"
+    },
+    "full": {
+      "webp": "Untitled design.webp",
+      "avif": "Untitled design.avif"
+    }
+  },
+  "tirupati.jpg": {
+    "thumb": {
+      "webp": "tirupati-thumb.webp",
+      "avif": "tirupati-thumb.avif"
+    },
+    "medium": {
+      "webp": "tirupati-medium.webp",
+      "avif": "tirupati-medium.avif"
+    },
+    "full": {
+      "webp": "tirupati.webp",
+      "avif": "tirupati.avif"
+    }
+  }
+}

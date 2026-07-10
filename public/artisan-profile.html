@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="artisan_profile_title">Artisan Profile</title>
   <link rel="stylesheet" href="styles/artisan-profile.css" />
-</head>
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
 <body>
   <!-- Navigation (same as other pages) -->
   <nav class="navbar">
@@ -23,15 +23,18 @@
         <li><a href="index.html" data-i18n="nav_home">Home</a></li>
         <li><a href="map.html" data-i18n="nav_explore_map">Explore Map</a></li>
         <li><a href="gallery.html" data-i18n="nav_gallery">Gallery</a></li>
+        <li><a href="temples.html" data-i18n="nav_temples">Temples of India</a></li>
         <li><a href="paths.html" data-i18n="nav_heritage_paths">Heritage Paths</a></li>
         <li><a href="quest.html" data-i18n="nav_discovery_quest">Discovery Quest</a></li>
         <li><a href="trails.html" data-i18n="nav_heritage_trails">Heritage Trails</a></li>
         <li><a href="chat.html" data-i18n="nav_chat">Talk to Elder</a></li>
         <li><a href="revival.html" data-i18n="nav_revival">Lost Traditions</a></li>
         <li><a href="risk-dashboard.html" data-i18n="nav_risk_dashboard">Risk</a></li>
-        <li><a href="reputation.html" data-i18n="nav_reputation">Contributor Reputation</a></li>
+        <li><a href="reputation.html" data-i18n="nav_reputation">Contributor Reputation</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a></li>
         <li><a href="timeline.html" data-i18n="nav_timeline">Historical Timeline</a></li>
-        <li><a href="story-generator.html" data-i18n="nav_story_generator">AI Story Generator</a></li>
+        <li><a href="story-generator.html" data-i18n="nav_story_generator">AI Story Generator</a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a></li>
         <li><a href="artisans.html" data-i18n="nav_artisan_directory">Artisan Directory</a></li>
                 <li>
             <a href="favorites.html"><i class="ti ti-heart"></i> My Favorites</a>
@@ -41,23 +44,56 @@
   </nav>
 
   <main class="container" id="artisan-profile">
-    <section class="profile-header" id="profileHeader">
-      <!-- Filled by JS -->
+    <!-- Hero / Header Section -->
+    <section class="artisan-hero" id="profileHeader">
+      <div class="artisan-cover"></div>
+      <div class="artisan-header-content">
+        <div class="artisan-avatar-container skeleton"></div>
+        <div class="artisan-info skeleton-text-block"></div>
+      </div>
     </section>
-    <section class="biography" id="biography">
-      <!-- Filled by JS -->
-    </section>
-    <section class="portfolio" id="portfolio">
-      <h2 data-i18n="portfolio_title">Portfolio</h2>
-      <div class="grid" id="portfolioGrid"></div>
-    </section>
-    <section class="contact" id="contactInfo">
-      <!-- Filled by JS if showContact -->
-    </section>
-    <section class="related" id="relatedContent">
-      <h2 data-i18n="related_content_title">Related Content</h2>
-      <ul id="relatedList"></ul>
-    </section>
+
+    <!-- Content Layout: Left (Bio & Stats) / Right (Portfolio) -->
+    <div class="artisan-layout">
+      <!-- Left Sidebar: Bio & Stats -->
+      <aside class="artisan-sidebar">
+        <section class="artisan-stats" id="artisanStats">
+          <!-- Filled by JS -->
+        </section>
+
+        <section class="artisan-bio card-panel" id="biography">
+          <h2 data-i18n="biography_title">Biography & Journey</h2>
+          <div class="bio-content skeleton-text-block"></div>
+        </section>
+
+        <section class="artisan-contact card-panel" id="contactInfo" style="display:none;">
+          <!-- Filled by JS -->
+        </section>
+      </aside>
+
+      <!-- Right Main Area: Portfolio & Related -->
+      <div class="artisan-main">
+        <section class="artisan-portfolio card-panel" id="portfolio">
+          <div class="section-header">
+            <h2 data-i18n="portfolio_title">Cultural Contributions</h2>
+            <div class="portfolio-filters">
+              <button class="filter-btn active">All</button>
+            </div>
+          </div>
+          <div class="portfolio-grid" id="portfolioGrid">
+            <!-- Skeleton items -->
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </section>
+
+        <section class="artisan-related card-panel" id="relatedContent" style="display:none;">
+          <h2 data-i18n="related_artisans_title">Related Artisans</h2>
+          <div class="related-scroll" id="relatedList"></div>
+        </section>
+      </div>
+    </div>
   </main>
 
   <script src="scripts/artisan-profile.js"></script>
@@ -66,6 +102,8 @@
   <script src="scripts/sw-register.js"></script>
 <script src="scripts/breadcrumbs.js"></script>
 <script src="scripts/telemetry.js"></script>
+  <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
 </body>
 </html>
 

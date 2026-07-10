@@ -1,6 +1,6 @@
 importScripts('/scripts/idb-storage.js');
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v6';
 const CORE_CACHE = `parampara-core-${CACHE_VERSION}`;
 const API_CACHE = `parampara-api-${CACHE_VERSION}`;
 const MEDIA_CACHE = `parampara-media-${CACHE_VERSION}`;
@@ -39,15 +39,12 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const currentCaches = [CORE_CACHE, API_CACHE, MEDIA_CACHE];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (!currentCaches.includes(cacheName) && cacheName.startsWith('parampara-')) {
-            console.log('[ServiceWorker] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
+          console.log('[ServiceWorker] Purging cache:', cacheName);
+          return caches.delete(cacheName);
         })
       );
     })
@@ -56,26 +53,29 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  
   const url = new URL(event.request.url);
 
-  // Strategy 1: IndexedDB API Caching for JSON responses
+  // Exclude non-GET requests from caching
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // API Requests
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(apiNetworkFirstWithIDB(event.request));
     return;
   }
 
-  // Strategy 2: Cache First with LRU Eviction for Media
-  if (event.request.destination === 'image' || 
-      event.request.destination === 'audio' || 
-      url.hostname.includes('maptiler') ||
-      url.pathname.endsWith('.mp3')) {
+  // Media Assets (images, audio, video)
+  const mediaExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.mp3', '.wav', '.ogg', '.mp4', '.webm'];
+  const isMedia = mediaExtensions.some(ext => url.pathname.toLowerCase().endsWith(ext)) || url.pathname.startsWith('/assets/') || url.pathname.startsWith('/images/');
+  
+  if (isMedia) {
     event.respondWith(mediaCacheFirstLRU(event.request, MEDIA_CACHE));
     return;
   }
 
-  // Strategy 3: Stale While Revalidate for Core Assets & Pages
+  // Core Static Assets (HTML, CSS, JS) and other navigations
   event.respondWith(staleWhileRevalidate(event.request, CORE_CACHE));
 });
 
@@ -230,5 +230,31 @@ async function processSyncQueue() {
       console.error('[ServiceWorker] Sync failed for task', item.id, err);
       throw err; // Let SyncManager know it failed so it retries
     }
+  }
+}
+
+// Network First Caching Helper
+async function networkFirst(request, cacheName) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok && networkResponse.status === 200) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.log('[ServiceWorker] Network request failed, checking cache:', request.url);
+    const cache = await caches.open(cacheName);
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    // Fall back to offline page if it's a page navigation
+    if (request.mode === 'navigate') {
+      const coreCache = await caches.open(CORE_CACHE);
+      const offlineResponse = await coreCache.match('/offline.html');
+      if (offlineResponse) return offlineResponse;
+    }
+    throw error;
   }
 }

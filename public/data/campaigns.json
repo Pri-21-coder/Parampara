@@ -1,0 +1,50 @@
+[
+  {
+    "id": "camp1",
+    "title": "Clean Temple Campaign",
+    "description": "Community volunteers clean and restore historic temples across the region.",
+    "location": "Various villages",
+    "duration": "2 weeks",
+    "participants": 120
+  },
+  {
+    "id": "camp2",
+    "title": "Traditional Craft Documentation Week",
+    "description": "Document and archive traditional crafts with videos and interviews.",
+    "location": "Khurja, Uttar Pradesh",
+    "duration": "1 week",
+    "participants": 45
+  },
+  {
+    "id": "camp3",
+    "title": "Village Story Collection Drive",
+    "description": "Collect oral histories from elders in remote villages.",
+    "location": "Maharashtra & Gujarat",
+    "duration": "3 weeks",
+    "participants": 80
+  },
+  {
+    "id": "camp4",
+    "title": "Festival Sustainability Campaign",
+    "description": "Promote eco‑friendly practices during local festivals.",
+    "location": "Rajasthan",
+    "duration": "1 month",
+    "participants": 150
+  },
+  {
+    "id": "camp5",
+    "title": "Heritage Trail Promotion",
+    "description": "Create new heritage trail maps and signage.",
+    "location": "Assam",
+    "duration": "2 weeks",
+    "participants": 60
+  },
+  {
+    "id": "camp6",
+    "title": "Digital Archive Expansion",
+    "description": "Digitize manuscripts and artifacts for online access.",
+    "location": "National",
+    "duration": "4 weeks",
+    "participants": 200
+  }
+]

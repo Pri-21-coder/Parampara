@@ -1,13 +1,26 @@
 const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
+const triviaQuestions = require('../../config/triviaData');
 
 class CollaborativeMapServer {
   constructor(port = 8080) {
     this.wss = new WebSocket.Server({ port });
+    this.wss.on('error', (err) => {
+      console.error(`❌ WebSocket Server Error on port ${port}:`, err.message);
+    });
     this.clients = new Map(); // userId -> { ws, username, cursor }
     this.markers = new Map(); // markerId -> marker data
     this.rooms = new Map(); // roomId -> Set of userIds
     this.operationHistory = [];
+    this.moderationVotes = new Map(); // itemId -> Set of peerIds who voted (for real-time tracking)
+    
+    // Trivia Game State
+    this.triviaGames = new Map(); // roomId -> game state
+    // Virtual Tours State
+    this.tours = new Map(); // roomId -> { guideId, state: { center, zoom } }
+    // Deduplication across reconnections
+    this.processedMessageIds = new Set();
+    this.processedMessageQueue = [];
     
     this.setupWebSocket();
     console.log(`WebSocket server running on port ${port}`);
@@ -42,6 +55,28 @@ class CollaborativeMapServer {
       ws.on('message', (data) => {
         try {
           const message = JSON.parse(data);
+          
+          // Respond to application-level ping for health check
+          if (message.type === 'ping') {
+              ws.send(JSON.stringify({ type: 'pong' }));
+              return;
+          }
+
+          // Global deduplication check (cross-connection)
+          if (message.msgId) {
+              if (this.processedMessageIds.has(message.msgId)) {
+                  return; // Ignore duplicate message
+              }
+              this.processedMessageIds.add(message.msgId);
+              this.processedMessageQueue.push(message.msgId);
+              
+              // Keep memory bounds strict (only track last 5000 messages globally)
+              if (this.processedMessageQueue.length > 5000) {
+                  const oldestId = this.processedMessageQueue.shift();
+                  this.processedMessageIds.delete(oldestId);
+              }
+          }
+
           this.handleMessage(userId, message);
         } catch (error) {
           console.error('Error parsing message:', error);
@@ -109,6 +144,45 @@ class CollaborativeMapServer {
         break;
       case 'request:history':
         this.handleHistoryRequest(userId, message.limit);
+        break;
+      // TRIVIA EVENTS
+      case 'trivia:join':
+        this.handleTriviaJoin(userId, message.roomId, message.username);
+        break;
+      case 'trivia:start':
+        this.handleTriviaStart(message.roomId);
+        break;
+      case 'trivia:answer':
+        this.handleTriviaAnswer(userId, message.roomId, message.answerIndex, message.timeTaken);
+        break;
+      // WEBRTC SYNC SIGNALING
+      case 'sync:join':
+        this.handleSyncJoin(userId);
+        break;
+      case 'webrtc:offer':
+      case 'webrtc:answer':
+      case 'webrtc:candidate':
+        this.handleWebRTCSignaling(userId, message);
+        break;
+      // MODERATION CONSENSUS
+      case 'moderation:join':
+        this.handleModerationJoin(userId, message.username);
+        break;
+      case 'moderation:request':
+        this.handleModerationRequest(userId, message.data);
+        break;
+      case 'moderation:vote-broadcast':
+        this.handleModerationVoteBroadcast(userId, message.data);
+        break;
+      // VIRTUAL TOURS
+      case 'tour:create':
+        this.handleTourCreate(userId, message.roomId);
+        break;
+      case 'tour:join':
+        this.handleTourJoin(userId, message.roomId, message.username);
+        break;
+      case 'tour:sync_map':
+        this.handleTourSyncMap(userId, message.roomId, message.state);
         break;
       default:
         client.ws.send(JSON.stringify({
@@ -281,6 +355,158 @@ class CollaborativeMapServer {
     }
   }
 
+  // ==================== TRIVIA GAME LOGIC ====================
+
+  handleTriviaJoin(userId, roomId, username) {
+    const client = this.clients.get(userId);
+    if (!client) return;
+
+    client.username = username || client.username;
+    this.handleJoinRoom(userId, roomId);
+
+    if (!this.triviaGames.has(roomId)) {
+      this.triviaGames.set(roomId, {
+        state: 'waiting', // waiting, playing, ended
+        currentQuestionIndex: -1,
+        scores: {}, // userId -> score
+        answers: {}, // userId -> answered this round?
+        questions: this.shuffleArray([...triviaQuestions]).slice(0, 5) // 5 random questions
+      });
+    }
+
+    const game = this.triviaGames.get(roomId);
+    if (!game.scores[userId]) {
+      game.scores[userId] = 0;
+    }
+
+    // Broadcast updated lobby
+    this.broadcastTriviaState(roomId);
+  }
+
+  handleTriviaStart(roomId) {
+    const game = this.triviaGames.get(roomId);
+    if (!game || game.state === 'playing') return;
+
+    game.state = 'playing';
+    game.currentQuestionIndex = -1;
+    game.scores = {}; // Reset scores for all players in room
+    this.rooms.get(roomId).forEach(uid => game.scores[uid] = 0);
+
+    this.nextTriviaQuestion(roomId);
+  }
+
+  nextTriviaQuestion(roomId) {
+    const game = this.triviaGames.get(roomId);
+    if (!game) return;
+
+    game.currentQuestionIndex++;
+    game.answers = {}; // Reset answers for the new round
+
+    if (game.currentQuestionIndex >= game.questions.length) {
+      game.state = 'ended';
+      this.broadcastTriviaState(roomId);
+      return;
+    }
+
+    const currentQ = game.questions[game.currentQuestionIndex];
+    
+    // Broadcast question (without the correct answer)
+    this.broadcastToRoom(roomId, {
+      type: 'trivia:question',
+      question: {
+        id: currentQ.id,
+        question: currentQ.question,
+        options: currentQ.options,
+        time: currentQ.time
+      },
+      questionNumber: game.currentQuestionIndex + 1,
+      totalQuestions: game.questions.length
+    });
+
+    // Set a timer to automatically move to the next question
+    if (game.timer) clearTimeout(game.timer);
+    
+    game.timer = setTimeout(() => {
+      // Time is up! Broadcast correct answer and leaderboard
+      this.broadcastToRoom(roomId, {
+        type: 'trivia:round_end',
+        correctAnswer: currentQ.correct,
+        scores: this.getLeaderboard(roomId)
+      });
+
+      // Wait 5 seconds before the next question
+      setTimeout(() => this.nextTriviaQuestion(roomId), 5000);
+    }, currentQ.time * 1000);
+  }
+
+  handleTriviaAnswer(userId, roomId, answerIndex, timeTaken) {
+    const game = this.triviaGames.get(roomId);
+    if (!game || game.state !== 'playing' || game.answers[userId]) return;
+
+    const currentQ = game.questions[game.currentQuestionIndex];
+    if (currentQ.correct === answerIndex) {
+      // Base points + speed bonus
+      const maxTime = currentQ.time * 1000;
+      const timeRemaining = Math.max(0, maxTime - timeTaken);
+      const points = 10 + Math.floor((timeRemaining / maxTime) * 10);
+      game.scores[userId] = (game.scores[userId] || 0) + points;
+    }
+
+    game.answers[userId] = true;
+
+    // Check if everyone answered
+    const roomUsers = Array.from(this.rooms.get(roomId) || []);
+    const allAnswered = roomUsers.every(uid => game.answers[uid]);
+
+    if (allAnswered && game.timer) {
+      clearTimeout(game.timer); // Skip the rest of the wait time
+      
+      this.broadcastToRoom(roomId, {
+        type: 'trivia:round_end',
+        correctAnswer: currentQ.correct,
+        scores: this.getLeaderboard(roomId)
+      });
+
+      setTimeout(() => this.nextTriviaQuestion(roomId), 5000);
+    }
+  }
+
+  getLeaderboard(roomId) {
+    const game = this.triviaGames.get(roomId);
+    if (!game) return [];
+    
+    return Object.entries(game.scores)
+      .map(([userId, score]) => {
+        const client = this.clients.get(userId);
+        return {
+          userId,
+          username: client ? client.username : 'Unknown',
+          score
+        };
+      })
+      .sort((a, b) => b.score - a.score);
+  }
+
+  broadcastTriviaState(roomId) {
+    const game = this.triviaGames.get(roomId);
+    if (!game) return;
+
+    this.broadcastToRoom(roomId, {
+      type: 'trivia:state',
+      state: game.state,
+      leaderboard: this.getLeaderboard(roomId)
+    });
+  }
+
+  shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  // ==========================================================
+
   sendConflictResolution(userId, marker) {
     const client = this.clients.get(userId);
     if (client) {
@@ -324,6 +550,172 @@ class CollaborativeMapServer {
     }
   }
 
+  // ==================== MODERATION CONSENSUS ====================
+
+  handleModerationJoin(userId, username) {
+    const client = this.clients.get(userId);
+    if (!client) return;
+
+    if (username) client.username = username;
+
+    const roomId = 'moderation-room';
+    if (!this.rooms.has(roomId)) this.rooms.set(roomId, new Set());
+    this.rooms.get(roomId).add(userId);
+    client.roomId = roomId;
+
+    // Inform the joining peer of existing moderators
+    const peers = Array.from(this.rooms.get(roomId))
+      .filter(id => id !== userId)
+      .map(id => {
+        const c = this.clients.get(id);
+        return { userId: id, username: c ? c.username : 'Unknown' };
+      });
+
+    client.ws.send(JSON.stringify({
+      type: 'moderation:joined',
+      userId,
+      peers,
+      timestamp: new Date().toISOString()
+    }));
+
+    // Broadcast new moderator to others
+    this.broadcastToRoom(roomId, {
+      type: 'moderation:peer-joined',
+      userId,
+      username: client.username,
+      timestamp: new Date().toISOString()
+    }, client.ws);
+  }
+
+  handleModerationRequest(userId, data) {
+    // Broadcast a new submission to all moderators so they can review it
+    this.broadcastToRoom('moderation-room', {
+      type: 'moderation:new-item',
+      data,
+      fromUserId: userId,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  handleModerationVoteBroadcast(userId, data) {
+    // Relay a vote result to all connected moderators for live UI update
+    this.broadcastToRoom('moderation-room', {
+      type: 'moderation:vote-update',
+      data,
+      fromUserId: userId,
+      timestamp: new Date().toISOString()
+    }, this.clients.get(userId)?.ws);
+  }
+
+  // ==================== VIRTUAL TOURS ====================
+
+  handleTourCreate(userId, roomId) {
+    const client = this.clients.get(userId);
+    if (!client) return;
+
+    this.handleJoinRoom(userId, roomId);
+
+    this.tours.set(roomId, {
+      guideId: userId,
+      state: { center: [78.9629, 20.5937], zoom: 4 }
+    });
+
+    client.ws.send(JSON.stringify({
+      type: 'tour:created',
+      roomId,
+      guideId: userId
+    }));
+  }
+
+  handleTourJoin(userId, roomId, username) {
+    const client = this.clients.get(userId);
+    if (!client) return;
+    if (username) client.username = username;
+
+    this.handleJoinRoom(userId, roomId);
+
+    const tour = this.tours.get(roomId);
+    if (tour) {
+      // Send current state to joiner
+      client.ws.send(JSON.stringify({
+        type: 'tour:state_sync',
+        state: tour.state,
+        guideId: tour.guideId
+      }));
+    }
+
+    // Notify others
+    this.broadcastToRoom(roomId, {
+      type: 'tour:participant_joined',
+      userId,
+      username: client.username
+    }, client.ws);
+  }
+
+  handleTourSyncMap(userId, roomId, state) {
+    const tour = this.tours.get(roomId);
+    // Only guide can sync map
+    if (tour && tour.guideId === userId) {
+      tour.state = state;
+      this.broadcastToRoom(roomId, {
+        type: 'tour:sync_map',
+        state
+      }, this.clients.get(userId)?.ws);
+    }
+  }
+
+  // ==================== WEBSOCKET SYNC NETWORK ====================
+
+  handleSyncJoin(userId) {
+    const client = this.clients.get(userId);
+    if (!client) return;
+
+    // Put client in sync room
+    const roomId = 'sync-network';
+    client.roomId = roomId;
+
+    if (!this.rooms.has(roomId)) {
+      this.rooms.set(roomId, new Set());
+    }
+    this.rooms.get(roomId).add(userId);
+
+    // Get all peers in sync network
+    const peers = Array.from(this.rooms.get(roomId))
+      .filter(id => id !== userId) // exclude self
+      .map(id => {
+        const c = this.clients.get(id);
+        return { userId: id, username: c ? c.username : 'Unknown' };
+      });
+
+    // Send the current peer list to the joining node
+    client.ws.send(JSON.stringify({
+      type: 'sync:peers',
+      peers
+    }));
+
+    // Broadcast to other peers that this node joined
+    this.broadcastToRoom(roomId, {
+      type: 'sync:peer-joined',
+      userId,
+      username: client.username
+    }, client.ws);
+  }
+
+  handleWebRTCSignaling(sourceUserId, message) {
+    const { targetId } = message;
+    if (!targetId) return;
+
+    const targetClient = this.clients.get(targetId);
+    if (targetClient && targetClient.ws.readyState === WebSocket.OPEN) {
+      // Relay the signaling message to the target client exactly as is, 
+      // but inject the sourceUserId so the target knows who sent it
+      targetClient.ws.send(JSON.stringify({
+        ...message,
+        sourceId: sourceUserId
+      }));
+    }
+  }
+
   handleDisconnection(userId) {
     const client = this.clients.get(userId);
     if (client) {
@@ -335,11 +727,29 @@ class CollaborativeMapServer {
       this.clients.delete(userId);
 
       // Broadcast user left
-      this.broadcastToRoom('map-session', {
-        type: 'user:left',
-        userId,
-        timestamp: new Date().toISOString()
-      });
+      if (client.roomId === 'map-session') {
+        this.broadcastToRoom('map-session', {
+          type: 'user:left',
+          userId,
+          timestamp: new Date().toISOString()
+        });
+      } else if (client.roomId && this.triviaGames.has(client.roomId)) {
+        this.broadcastTriviaState(client.roomId);
+      } else if (client.roomId && this.tours.has(client.roomId)) {
+        this.broadcastToRoom(client.roomId, {
+          type: 'tour:participant_left',
+          userId,
+          username: client.username
+        });
+        
+        const tour = this.tours.get(client.roomId);
+        if (tour && tour.guideId === userId) {
+          // Guide left, notify room
+          this.broadcastToRoom(client.roomId, {
+            type: 'tour:guide_left'
+          });
+        }
+      }
     }
   }
 
@@ -353,13 +763,13 @@ class CollaborativeMapServer {
   }
 }
 
-// Start server
-const wsServer = new CollaborativeMapServer(process.env.WS_PORT || 8080);
+// Start server if run directly
+if (require.main === module) {
+  const wsServer = new CollaborativeMapServer(process.env.WS_PORT || 8080);
+  setInterval(() => {
+    const stats = wsServer.getStats();
+    console.log('WebSocket Server Stats:', stats);
+  }, 30000);
+}
 
-// Add health check endpoint
-setInterval(() => {
-  const stats = wsServer.getStats();
-  console.log('WebSocket Server Stats:', stats);
-}, 30000);
-
-module.exports = wsServer;
+module.exports = CollaborativeMapServer;
