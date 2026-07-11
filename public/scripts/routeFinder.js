@@ -6,12 +6,12 @@ let routeLayerId = 'optimized-route-layer';
 let routeSourceId = 'optimized-route-source';
 
 function setupRouteFinder() {
-  const startSelect = document.getElementById('route-start');
-  const endSelect = document.getElementById('route-end');
+  const startInput = document.getElementById('route-start-input');
+  const endInput = document.getElementById('route-end-input');
   const themeSelect = document.getElementById('route-theme');
   const btnFindRoute = document.getElementById('btn-find-route');
   
-  if (!startSelect || !endSelect || !themeSelect || !btnFindRoute) return;
+  if (!startInput || !endInput || !themeSelect || !btnFindRoute) return;
 
   // Populate themes
   fetch('/api/paths/themes')
@@ -26,15 +26,11 @@ function setupRouteFinder() {
     })
     .catch(console.error);
 
-  // Populate locations
-  let retries = 0;
+  // Populate locations datalist
   const populateLocations = () => {
     // wait until sampleVillages is loaded
     if (!window.sampleVillages || window.sampleVillages.length === 0) {
-      if (retries < 10) {
-        retries++;
-        setTimeout(populateLocations, 500);
-      }
+      setTimeout(populateLocations, 500);
       return;
     }
     
@@ -45,31 +41,59 @@ function setupRouteFinder() {
       return nameA.localeCompare(nameB);
     });
 
-    sortedVillages.forEach(village => {
-      const name = village.name.en || village.name;
-      const optionStart = document.createElement('option');
-      optionStart.value = village.id;
-      optionStart.textContent = name;
-      startSelect.appendChild(optionStart);
-      
-      const optionEnd = document.createElement('option');
-      optionEnd.value = village.id;
-      optionEnd.textContent = name;
-      endSelect.appendChild(optionEnd);
-    });
+    const datalist = document.getElementById('villages-datalist');
+    if (datalist) {
+      datalist.innerHTML = '';
+      sortedVillages.forEach(village => {
+        const name = village.name.en || village.name;
+        const option = document.createElement('option');
+        option.value = name;
+        datalist.appendChild(option);
+      });
+    }
   };
   
   populateLocations();
 
   btnFindRoute.addEventListener('click', async () => {
-    const startId = startSelect.value;
-    const endId = endSelect.value;
+    const startName = startInput.value.trim();
+    const endName = endInput.value.trim();
     const theme = themeSelect.value;
     
-    if (!startId || !endId) {
-      alert('Please select both a start and end location.');
+    if (!startName || !endName) {
+      alert('Please enter both a start and end location.');
       return;
     }
+
+    if (!window.sampleVillages || window.sampleVillages.length === 0) {
+      alert('Village data is still loading. Please try again in a moment.');
+      return;
+    }
+
+    // Resolve start location name to ID
+    const startVillage = window.sampleVillages.find(v => {
+      const name = v.name.en || v.name;
+      return name.toLowerCase() === startName.toLowerCase();
+    });
+
+    // Resolve end location name to ID
+    const endVillage = window.sampleVillages.find(v => {
+      const name = v.name.en || v.name;
+      return name.toLowerCase() === endName.toLowerCase();
+    });
+
+    if (!startVillage) {
+      alert(`Start location "${startName}" not found. Please select a village from the dropdown suggestions.`);
+      return;
+    }
+
+    if (!endVillage) {
+      alert(`End location "${endName}" not found. Please select a village from the dropdown suggestions.`);
+      return;
+    }
+
+    const startId = startVillage.id;
+    const endId = endVillage.id;
     
     btnFindRoute.disabled = true;
     btnFindRoute.textContent = 'Routing...';

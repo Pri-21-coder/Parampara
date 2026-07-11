@@ -1,7 +1,7 @@
 // routes/recommendation.routes.js
 const express = require('express');
 const router = express.Router();
-const RecommendationEngine = require('../services/recommendationEngine');
+const RecommendationEngine = require('../server/services/recommendationEngine');
 
 let recommendationEngine = null;
 

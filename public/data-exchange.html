@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Exchange Module - Parampara</title>
+  <meta name="description" content="Import and Export granular cultural heritage data.">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/data-exchange.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Standard Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+        Parampara
+      </a>
+      <nav class="main-nav">
+        <a href="/map">Explorer</a>
+        <a href="/archives">Archives</a>
+        <a href="/data-exchange" class="active">Data Exchange</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="exchange-container">
+    <section class="hero-section">
+      <h1>Granular Data Exchange</h1>
+      <p>Export subsets of cultural data for research or import bulk data securely.</p>
+    </section>
+
+    <div class="modules-wrapper">
+      <!-- Export Module -->
+      <section class="module-card" id="export-module">
+        <h2>Data Export</h2>
+        <form id="export-form" class="module-form">
+          <div class="form-group">
+            <label for="export-format">Export Format</label>
+            <select id="export-format" name="format">
+              <option value="json">JSON (Structured)</option>
+              <option value="csv">CSV (Spreadsheet)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="export-type">Record Type</label>
+            <select id="export-type" name="type">
+              <option value="">All Types</option>
+              <option value="story">Stories</option>
+              <option value="visual">Visual Content</option>
+              <option value="audio">Audio Records</option>
+              <option value="monument">Monuments</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="export-category">Category / Tag</label>
+            <input type="text" id="export-category" name="category" placeholder="e.g. music, festival, craft">
+          </div>
+          <div class="form-group">
+            <label for="export-location">Location</label>
+            <input type="text" id="export-location" name="location" placeholder="e.g. Pune, Rajasthan">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="export-start-date">Start Date</label>
+              <input type="date" id="export-start-date" name="startDate">
+            </div>
+            <div class="form-group">
+              <label for="export-end-date">End Date</label>
+              <input type="date" id="export-end-date" name="endDate">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" id="btn-export">Export Data</button>
+        </form>
+      </section>
+
+      <!-- Import Module -->
+      <section class="module-card" id="import-module">
+        <h2>Bulk Import (Admins)</h2>
+        <div class="import-instructions">
+          <p>Upload a CSV file to bulk-import cultural records. Required columns: <code>title</code>, <code>type</code>, <code>location</code>.</p>
+          <a href="#" id="download-template">Download CSV Template</a>
+        </div>
+        <form id="import-form" class="module-form">
+          <div class="form-group file-upload-group">
+            <label for="import-file" class="file-drop-area" id="file-drop-area">
+              <span class="drop-text">Drag & Drop CSV file here or Click to Browse</span>
+              <input type="file" id="import-file" name="file" accept=".csv" required>
+            </label>
+            <div id="file-name-display" class="file-name-display"></div>
+          </div>
+          <button type="submit" class="btn-secondary" id="btn-import">Validate & Import</button>
+        </form>
+        
+        <div id="import-results" class="import-results hidden">
+          <h3>Import Summary</h3>
+          <div class="summary-stats">
+            <div class="stat success">
+              <span class="stat-value" id="stat-success">0</span>
+              <span class="stat-label">Successful</span>
+            </div>
+            <div class="stat failed">
+              <span class="stat-value" id="stat-failed">0</span>
+              <span class="stat-label">Failed</span>
+            </div>
+          </div>
+          <div id="import-errors-container" class="errors-container hidden">
+            <h4>Validation Errors</h4>
+            <ul id="import-errors-list"></ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="/scripts/data-exchange.js"></script>
+</body>
+</html>

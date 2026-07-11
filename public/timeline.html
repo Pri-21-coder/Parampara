@@ -1,288 +1,143 @@
 <!doctype html>
 <html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heritage Timeline – Parampara</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/timeline.css" />
+  <script src="/scripts/tenant-interceptor.js"></script>`n
+  <script src="/scripts/tenant-switcher.js" defer></script>`n
+</head>
+
+<body>
+  <!-- Navigation (shared) -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <h1 data-i18n="brand_name">Parampara</h1>
+        <p class="tagline" data-i18n="brand_tagline">Preserving Living Traditions</p>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+        <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+        <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+        <li><a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a></li>
+        <li><a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a></li>
+        <li><a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a></li>
+        <li><a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a></li>
+        <li><a href="timeline.html">Timeline</a></li>
+        <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
+      </ul>
+    </div>
+  </nav>
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Travel through time to explore the history, evolution, and digital preservation of rural cultural heritage."
-    />
-    <title>Historical Timeline - Parampara</title>
+    <title>Heritage Timeline – Parampara</title>
     <link rel="stylesheet" href="styles/main.css" />
     <link rel="stylesheet" href="styles/timeline.css" />
-    <link rel="stylesheet" href="styles/languageSelector.css" />
-    <link rel="stylesheet" href="styles/theme.css" />
-    <link rel="stylesheet" href="styles/skeleton.css" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css"
-    />
   </head>
+
   <body>
-    <!-- Navigation -->
+    <!-- Navigation (shared) -->
     <nav class="navbar">
       <div class="nav-container">
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
-          🌙
-        </button>
         <div class="logo">
           <h1 data-i18n="brand_name">Parampara</h1>
           <p class="tagline" data-i18n="brand_tagline">
             Preserving Living Traditions
           </p>
         </div>
-        <button
-          class="hamburger"
-          id="hamburgerBtn"
-          aria-label="Toggle navigation"
-        >
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </button>
         <ul class="nav-menu" id="navMenu">
-          <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
-          <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
-          <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
-          <li><a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a></li>
-          <li><a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a></li>
-          <li><a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a></li>
-          <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
-          <li><a href="revival.html"><i class="ti ti-hourglass"></i> <span data-i18n="nav_revival">Lost Traditions</span></a></li>
-          <li><a href="risk-dashboard.html"><i class="ti ti-alert-triangle"></i> <span data-i18n="nav_risk">Risk </span></a></li>
-          <li><a href="reputation.html"><i class="ti ti-medal"></i> <span data-i18n="nav_reputation">Contributor Reputation</span></a></li>
-          <li><a href="timeline.html" class="active"><i class="ti ti-history"></i> <span data-i18n="nav_timeline">Historical Timeline</span></a></li>
-          <li><a href="story-generator.html"><i class="ti ti-books"></i> <span data-i18n="nav_story_generator">AI Story Generator</span></a></li>
-          <li><a href="favorites.html"><i class="ti ti-heart"></i> My Favorites</a></li>
+          <li>
+            <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+          </li>
+          <li>
+            <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+          </li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li>
+            <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+          </li>
+          <li>
+            <a href="calendar.html"><i class="ti ti-calendar"></i>
+              <span data-i18n="nav_calendar">Seasonal Calendar</span></a>
+          </li>
         </ul>
       </div>
     </nav>
 
-  
-    <!-- Full Width Nav Menu -->
-    <div class="nav-fullmenu" id="navFullMenu">
-      <div class="nav-fullmenu-inner">
-        <p class="nav-fullmenu-label">Navigation</p>
-        <div class="nav-fullmenu-grid">
-          <a href="index.html"><i class="ti ti-home"></i> Home</a>
-          <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
-          <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
-          <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
-          <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
-          <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
-          <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
-          <a href="risk-dashboard.html"><i class="ti ti-alert-triangle"></i> Risk</a>
-          <a href="reputation.html"><i class="ti ti-medal"></i> Contributor Reputation</a>
-          <a href="timeline.html" class="active"><i class="ti ti-history"></i> Historical Timeline</a>
-          <a href="story-generator.html"><i class="ti ti-books"></i> AI Story Generator</a>
-        </div>
-      </div>
-    </div>
-    <div class="nav-overlay" id="navOverlay"></div>
-
-    <!-- Main Container -->
-    <main class="timeline-container">
-      <header class="timeline-header">
-        <h2 data-i18n="timeline_title">Historical Timeline</h2>
-        <p data-i18n="timeline_subtitle">
-          Explore the rich history and evolution of rural cultural heritage.
-        </p>
-      </header>
-
-      <!-- Timeline Controls -->
-      <section class="timeline-controls-card">
-        <div class="travel-controls-header">
-          <div class="active-year-display">
-            <span data-i18n="select_era" class="era-label">Select Era</span>
-            <span id="current-year-val" class="year-highlight">2025</span>
-          </div>
-          <button id="time-travel-toggle-btn" class="btn btn-primary btn-time-travel">
-            <i class="ti ti-plane-departure"></i>
-            <span data-i18n="time_travel_toggle">Enter Time Travel Mode</span>
+    <main class="timeline-page">
+      <section class="timeline-controls">
+        <input type="text" id="timeline-search" placeholder="Search milestones..." aria-label="Search timeline" />
+        <select id="category-filter" aria-label="Filter by category">
+          <option value="all">All Categories</option>
+          <option value="Craft">Craft</option>
+          <option value="Festival">Festival</option>
+          <option value="Village">Village</option>
+          <option value="Revival">Revival</option>
+          <option value="Modern Innovation">Modern Innovation</option>
+        </select>
+        <div class="zoom-controls" role="group" aria-label="Zoom controls">
+          <button data-zoom="normal" class="active" aria-pressed="true">
+            Normal
           </button>
-        </div>
-
-        <div class="slider-wrapper">
-          <input
-            type="range"
-            id="time-slider"
-            min="0"
-            max="3"
-            value="3"
-            step="1"
-            aria-label="Timeline Era Selector"
-            aria-valuetext="Year 2025"
-          />
-          <div class="slider-ticks">
-            <span class="tick-label" data-year="1950">1950</span>
-            <span class="tick-label" data-year="1980">1980</span>
-            <span class="tick-label" data-year="2000">2000</span>
-            <span class="tick-label active" data-year="2025">2025</span>
-          </div>
-        </div>
-
-        <div id="time-travel-alert" class="time-travel-status-bar hidden">
-          <i class="ti ti-history animated-pulse"></i>
-          <div>
-            <strong data-i18n="time_travel_mode">Time Travel Mode Active</strong>
-            <p data-i18n="time_travel_active_desc">You are now experiencing the cultural environment of the selected era.</p>
-          </div>
+          <button data-zoom="compact" aria-pressed="false">Compact</button>
+          <button data-zoom="detailed" aria-pressed="false">Detailed</button>
         </div>
       </section>
 
-      <!-- Filter Panel -->
-      <section class="filters-card">
-        <div class="filter-inputs">
-          <div class="input-wrapper">
-            <i class="ti ti-search search-icon"></i>
-            <input
-              type="text"
-              id="timeline-search"
-              data-i18n-placeholder="search_heritage"
-              placeholder="Search Cultural Heritage..."
-            />
-          </div>
-          <select id="category-filter" class="filter-select">
-            <option value="all" data-i18n="filter_all">All Categories</option>
-            <option value="craft" data-i18n="filter_crafts">Crafts</option>
-            <option value="festival" data-i18n="filter_festivals">Festivals</option>
-            <option value="village" data-i18n="filter_villages">Villages</option>
-            <option value="tradition" data-i18n="filter_traditions">Traditions</option>
-          </select>
-        </div>
+      <section class="timeline-progress" aria-hidden="true">
+        <div class="progress-bar"></div>
       </section>
 
-      <!-- Comparative Display -->
-      <section class="comparison-section">
-        <div class="section-subtitle-wrapper">
-          <i class="ti ti-arrows-left-right"></i>
-          <h3 data-i18n="cultural_evolution">Cultural Evolution</h3>
-        </div>
-        <div class="comparison-grid" id="comparison-container">
-          <!-- Dynamically filled -->
-        </div>
-      </section>
-
-      <!-- Timeline Events -->
-      <section class="events-timeline-section">
-        <div class="section-subtitle-wrapper">
-          <i class="ti ti-git-commit"></i>
-          <h3 data-i18n="timeline_title">Timeline</h3>
-        </div>
-        <div class="timeline-line-wrapper" id="events-container">
-          <!-- Events loaded dynamically -->
-        </div>
-      </section>
-
-      <!-- Statistics -->
-      <section class="stats-card timeline-stats-bar">
-        <h3 data-i18n="timeline_stats" class="stats-header">Timeline Statistics</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value" id="stat-total-events">0</span>
-            <span class="stat-label" data-i18n="total_historical_events">Total Historical Events</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="stat-earliest-event">1950</span>
-            <span class="stat-label" data-i18n="earliest_recorded_event">Earliest Recorded Event</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="stat-latest-event">2025</span>
-            <span class="stat-label" data-i18n="latest_recorded_event">Latest Recorded Event</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="stat-assets-tracked">0</span>
-            <span class="stat-label" data-i18n="cultural_assets_tracked">Cultural Assets Tracked</span>
-          </div>
-        </div>
+      <section class="timeline-container" role="list" aria-label="Heritage timeline">
+        <!-- Cards will be injected here -->
       </section>
     </main>
 
     <footer class="footer">
-      <div class="footer-container">
-        <!-- Brand Section -->
-        <div class="footer-brand">
-          <h2 class="footer-logo">🏛️ Parampara</h2>
-          <p>
-            Preserving rural heritage, traditions, and stories for future
-            generations.
-          </p>
-        </div>
-
-        <!-- Social media links -->
-        <div class="footer-links">
-          <h3>More about Parampara</h3>
-          <ul>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/instagram-svgrepo-com.svg"
-                  alt="insta-logo"
-              /></a>
-            </li>
-
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/facebook-svgrepo-com.svg"
-                  alt="facebook-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/twitter-svgrepo-com.svg"
-                  alt="X-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/reddit-fill-svgrepo-com.svg"
-                  alt="reddit-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/github-142-svgrepo-com.svg"
-                  alt="git-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/youtube-svgrepo-com.svg"
-                  alt="yt-logo"
-              /></a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
+      <div class="container">
+        <p data-i18n="footer_copy">
+          © 2024 Parampara. Preserving rural heritage, one story at a time.
+        </p>
       </div>
     </footer>
 
     <button id="backToTopBtn" aria-label="Back to top">↑</button>
 
-    <script src="scripts/cacheLayer.js"></script>
-    <script src="scripts/languageSwitcher.js"></script>
-    <script src="scripts/navbar.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
     <script src="scripts/main.js"></script>
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/skeletonEngine.js"></script>
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
     <script src="scripts/timeline.js"></script>
-    <script src="scripts/theme.js"></script>
-    <script src="scripts/sw-register.js"></script>
-    <script src="scripts/breadcrumbs.js"></script>
-    <script src="scripts/telemetry.js"></script>
   </body>
+  <script src="scripts/main.js"></script>
+  <script src="scripts/translations.js"></script>
+  <script src="scripts/languageSwitcher.js"></script>
+  <script src="scripts/timeline.js"></script>
+</body>
+
 </html>

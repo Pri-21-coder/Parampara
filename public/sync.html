@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Sync - Parampara</title>
+    
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/sync.css" />
+    <link rel="stylesheet" href="styles/languageSelector.css" />
+    <link rel="stylesheet" href="styles/theme.css" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="scripts/resilient-ws.js"></script>
+    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+<body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">Preserving Living Traditions</p>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="index.html"><i class="ti ti-home"></i> Home</a></li>
+          <li><a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a></li>
+          <li><a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a></li>
+          <li><a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a></li>
+          <li><a href="sync.html" class="active"><i class="ti ti-wifi-off"></i> Local Sync</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="sync-main">
+        <div class="sync-header">
+            <h1 data-i18n="sync_title">Decentralized Sync</h1>
+            <p data-i18n="sync_subtitle">Directly share cultural content with nearby devices without internet.</p>
+        </div>
+
+        <div class="sync-dashboard">
+            <div class="sync-status-card">
+                <h2>Network Status</h2>
+                <div class="status-indicator">
+                    <div class="dot active"></div>
+                    <span id="network-status">Connected to Signaling Server</span>
+                </div>
+                <div class="my-node">
+                    <p>My Node ID: <strong id="my-node-id">Connecting...</strong></p>
+                </div>
+                <button id="start-sync-btn" class="primary-btn">Initialize P2P Network</button>
+            </div>
+
+            <div class="peers-list-card">
+                <h2>Local Peers</h2>
+                <ul id="peers-list" class="peers-list">
+                    <li class="empty-state">No local peers found.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sync-activity-card">
+            <h2>Synchronization Activity</h2>
+            <div id="activity-log" class="activity-log">
+                <!-- Log entries injected here -->
+            </div>
+        </div>
+    </main>
+
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/navbar.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/sync-engine.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startBtn = document.getElementById('start-sync-btn');
+            const myNodeIdEl = document.getElementById('my-node-id');
+            const peersListEl = document.getElementById('peers-list');
+            const activityLogEl = document.getElementById('activity-log');
+            
+            let syncEngine = null;
+
+            function logActivity(msg, type = 'info') {
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                const time = new Date().toLocaleTimeString();
+                entry.innerHTML = `<span class="time">[${time}]</span> ${msg}`;
+                activityLogEl.appendChild(entry);
+                activityLogEl.scrollTop = activityLogEl.scrollHeight;
+            }
+
+            startBtn.addEventListener('click', () => {
+                if (syncEngine) return;
+                
+                startBtn.disabled = true;
+                startBtn.textContent = 'Network Active';
+                
+                // Determine websocket URL
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                // the websocket server is on WS_PORT (default 8080 or process.env.WS_PORT)
+                // For local dev, it's 8080. If in prod, might be the same origin.
+                // Let's assume port 8080 for this sample.
+                const wsUrl = `${protocol}//${window.location.hostname}:8080`;
+                
+                syncEngine = new SyncEngine(wsUrl);
+                
+                logActivity('Connecting to local signaling network...', 'info');
+
+                // Hook up UI updates
+                syncEngine.onPeerDiscovered = (peer) => {
+                    logActivity(`Discovered peer: ${peer.userId}`, 'success');
+                    updatePeersUI();
+                };
+
+                syncEngine.onPeerConnected = (peerId) => {
+                    logActivity(`WebRTC Data Channel connected with ${peerId}`, 'success');
+                    updatePeersUI();
+                };
+
+                syncEngine.onPeerDisconnected = (peerId) => {
+                    logActivity(`Peer disconnected: ${peerId}`, 'error');
+                    updatePeersUI();
+                };
+
+                syncEngine.onSyncProgress = (peerId, status) => {
+                    logActivity(`Sync [${peerId.slice(0,6)}]: ${status}`, 'info');
+                    
+                    const peerItem = document.getElementById(`peer-${peerId}`);
+                    if (peerItem) {
+                        const statusEl = peerItem.querySelector('.peer-status');
+                        statusEl.textContent = status;
+                        statusEl.className = 'peer-status syncing';
+                    }
+                };
+
+                syncEngine.onSyncComplete = (peerId) => {
+                    logActivity(`Sync complete with ${peerId}`, 'success');
+                    const peerItem = document.getElementById(`peer-${peerId}`);
+                    if (peerItem) {
+                        const statusEl = peerItem.querySelector('.peer-status');
+                        statusEl.textContent = 'Synced';
+                        statusEl.className = 'peer-status success';
+                    }
+                };
+
+                // Override start to catch myUserId
+                const origStart = syncEngine.start.bind(syncEngine);
+                syncEngine.start = () => {
+                    origStart();
+                    // Polling for ID
+                    const idInterval = setInterval(() => {
+                        if (syncEngine.myUserId) {
+                            myNodeIdEl.textContent = syncEngine.myUserId;
+                            clearInterval(idInterval);
+                        }
+                    }, 500);
+                };
+
+                syncEngine.start();
+            });
+
+            function updatePeersUI() {
+                if (syncEngine.peers.size === 0) {
+                    peersListEl.innerHTML = '<li class="empty-state">No local peers found.</li>';
+                    return;
+                }
+                
+                peersListEl.innerHTML = '';
+                syncEngine.peers.forEach((pc, peerId) => {
+                    const li = document.createElement('li');
+                    li.id = `peer-${peerId}`;
+                    li.className = 'peer-item';
+                    li.innerHTML = `
+                        <div class="peer-icon">💻</div>
+                        <div class="peer-info">
+                            <strong>Node ${peerId.slice(0, 8)}...</strong>
+                            <span class="peer-status pending">Connecting WebRTC...</span>
+                        </div>
+                    `;
+                    peersListEl.appendChild(li);
+                });
+            }
+        });
+    </script>
+  <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
+</body>
+</html>

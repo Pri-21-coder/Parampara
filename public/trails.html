@@ -1,263 +1,206 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Plan responsible visits to rural villages, meet local hosts, and support artisans through Parampara heritage trails"
-    />
-    <title>Heritage Trails - Parampara</title>
-    <link rel="stylesheet" href="styles/main.css" />
-    <link rel="stylesheet" href="styles/trails.css" />
-    <link rel="stylesheet" href="styles/languageSelector.css" />
-    <link rel="stylesheet" href="styles/theme.css" />
-    <link rel="stylesheet" href="styles/skeleton.css" />
-  </head>
-  <body>
-    <nav class="navbar">
-      <div class="nav-container">
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
-          🌙
-        </button>
-        <div class="logo">
-          <h1 data-i18n="brand_name">Parampara</h1>
-          <p class="tagline" data-i18n="brand_tagline">
-            Preserving Living Traditions
-          </p>
-        </div>
-        <!-- Language selector injected here by language-switcher.js -->
-        <button
-          class="hamburger"
-          id="hamburgerBtn"
-          aria-label="Toggle navigation"
-        >
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-        </button>
-        <ul class="nav-menu" id="navMenu">
-          <li>
-            <a href="index.html"><i class="ti ti-home"></i> Home</a>
-          </li>
-          <li>
-            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
-          </li>
-          <li>
-            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
-          </li>
-          <li>
-            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
-          </li>
-          <li>
-            <a href="quest.html"
-              ><i class="ti ti-compass"></i> Discovery Quest</a
-            >
-          </li>
-          <li>
-            <a href="trails.html" class="active"
-              ><i class="ti ti-trail-sign"></i> Heritage Trails</a
-            >
-          </li>
-          <li>
-            <a href="chat.html"
-              ><i class="ti ti-message-circle"></i> Talk to Elder</a
-            >
-          </li>
-          <li>
-            <a href="revival.html"
-              ><i class="ti ti-hourglass"></i>
-              <span data-i18n="nav_revival">Lost Traditions</span></a
-            >
-          </li>
-          <li>
-            <a href="risk-dashboard.html"
-              ><i class="ti ti-alert-triangle"></i>
-              <span data-i18n="nav_risk">Risk </span></a
-            >
-          </li>
-          <li>
-            <a href="reputation.html"
-              ><i class="ti ti-medal"></i>
-              <span data-i18n="nav_reputation">Contributor Reputation</span></a
-            >
-          </li>
-          <li>
-            <a href="timeline.html"
-              ><i class="ti ti-history"></i>
-              <span data-i18n="nav_timeline">Historical Timeline</span></a
-            >
-          </li>
-          <li>
-            <a href="story-generator.html"
-              ><i class="ti ti-books"></i>
-              <span data-i18n="nav_story_generator">AI Story Generator</span></a
-            >
-          </li>
-                  <li>
-            <a href="favorites.html"><i class="ti ti-heart"></i> My Favorites</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
 
-    <!-- Full Width Nav Menu — BAHAR hai nav ke -->
-    <div class="nav-fullmenu" id="navFullMenu">
-      <div class="nav-fullmenu-inner">
-        <p class="nav-fullmenu-label">Navigation</p>
-        <div class="nav-fullmenu-grid">
-          <a href="index.html" 
-            ><i class="ti ti-home"></i> Home</a
-          >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Plan responsible visits to rural villages, meet local hosts, and support artisans through Parampara heritage trails" />
+  <title>Heritage Trails - Parampara</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/trails.css" />
+  <link rel="stylesheet" href="styles/languageSelector.css" />
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/skeleton.css" />
+  <script src="/scripts/tenant-interceptor.js"></script>`n
+  <script src="/scripts/tenant-switcher.js" defer></script>`n
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+        🌙
+      </button>
+      <div class="logo">
+        <h1 data-i18n="brand_name">Parampara</h1>
+        <p class="tagline" data-i18n="brand_tagline">
+          Preserving Living Traditions
+        </p>
+      </div>
+      <!-- Language selector injected here by language-switcher.js -->
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li>
+          <a href="index.html"><i class="ti ti-home"></i> Home</a>
+        </li>
+        <li>
           <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+        </li>
+        <li>
           <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+        </li>
+        <li>
           <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+        </li>
+        <li>
           <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
-          <a href="trails.html" class="active"
-            ><i class="ti ti-trail-sign"></i> Heritage Trails</a
-          >
-          <a href="chat.html"
-            ><i class="ti ti-message-circle"></i> Talk to Elder</a
-          >
-          <a href="risk-dashboard.html"
-            ><i class="ti ti-alert-triangle"></i> Risk </a
-          >
-          <a href="reputation.html"
-            ><i class="ti ti-medal"></i> Contributor Reputation</a
-          >
-          <a href="timeline.html"
-            ><i class="ti ti-history"></i> Historical Timeline</a
-          >
-          <a href="story-generator.html"
-            ><i class="ti ti-books"></i> AI Story Generator</a
-          >
-        </div>
+        </li>
+        <li>
+          <a href="trails.html" class="active"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+        </li>
+        <li>
+          <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
+        </li>
+        <li>
+          <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+        </li>
+        <li>
+          <a href="revival.html"><i class="ti ti-hourglass"></i>
+            <span data-i18n="nav_revival">Lost Traditions</span></a>
+        </li>
+        <li>
+          <a href="risk-dashboard.html"><i class="ti ti-alert-triangle"></i>
+            <span data-i18n="nav_risk">Risk </span></a>
+        </li>
+        <li>
+          <a href="reputation.html"><i class="ti ti-medal"></i>
+            <span data-i18n="nav_reputation">Contributor Reputation</span></a>
+        </li>
+        <li>
+          <a href="timeline.html"><i class="ti ti-history"></i>
+            <span data-i18n="nav_timeline">Historical Timeline</span></a>
+        </li>
+        <li>
+          <a href="story-generator.html"><i class="ti ti-books"></i>
+            <span data-i18n="nav_story_generator">AI Story Generator</span></a>
+        </li>
+        <li>
+          <a href="favorites.html"><i class="ti ti-heart"></i> My Favorites</a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
+        </li>
+        <li>
+          <a href="calendar.html"><i class="ti ti-calendar"></i>
+            <span data-i18n="nav_calendar">Seasonal Calendar</span></a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Full Width Nav Menu — BAHAR hai nav ke -->
+  <div class="nav-fullmenu" id="navFullMenu">
+    <div class="nav-fullmenu-inner">
+      <p class="nav-fullmenu-label">Navigation</p>
+      <div class="nav-fullmenu-grid">
+        <a href="index.html"><i class="ti ti-home"></i> Home</a>
+        <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+        <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+        <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+        <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+        <a href="trails.html" class="active"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+        <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+        <a href="risk-dashboard.html"><i class="ti ti-alert-triangle"></i> Risk </a>
+        <a href="reputation.html"><i class="ti ti-medal"></i> Contributor Reputation</a>
+        <a href="timeline.html"><i class="ti ti-history"></i> Historical Timeline</a>
+        <a href="story-generator.html"><i class="ti ti-books"></i> AI Story Generator</a>
       </div>
     </div>
-    <div class="nav-overlay" id="navOverlay"></div>
+  </div>
+  <div class="nav-overlay" id="navOverlay"></div>
 
-    <main class="trails-container">
-      <div class="trails-header">
-        <h2 data-i18n="trails_title">Heritage Trails &amp; Local Hosts</h2>
-        <p data-i18n="trails_subtitle">
-          Plan responsible visits to villages, meet cultural hosts, and support
-          local artisans
+  <main class="trails-container">
+    <div class="trails-header">
+      <h2 data-i18n="trails_title">Heritage Trails &amp; Local Hosts</h2>
+      <p data-i18n="trails_subtitle">
+        Plan responsible visits to villages, meet cultural hosts, and support
+        local artisans
+      </p>
+    </div>
+
+    <div id="trails-list" class="trails-list">
+      <!-- Trails will be loaded dynamically -->
+    </div>
+  </main>
+
+  <!-- Trail Detail Modal -->
+  <div id="trail-detail-modal" class="modal">
+    <div class="modal-content trail-detail">
+      <div class="modal-header">
+        <h3 id="trail-detail-title" data-i18n="trails_detail_title">
+          Trail Details
+        </h3>
+        <button class="close-btn" id="close-trail-modal" data-i18n="btn_close">
+          ×
+        </button>
+      </div>
+      <div id="trail-detail-content" class="trail-detail-content">
+        <!-- Trail details will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <!-- Brand Section -->
+      <div class="footer-brand">
+        <h2 class="footer-logo">🏛️ Parampara</h2>
+        <p>
+          Preserving rural heritage, traditions, and stories for future
+          generations.
         </p>
       </div>
 
-      <div id="trails-list" class="trails-list">
-        <!-- Trails will be loaded dynamically -->
-      </div>
-    </main>
+      <!-- Social media links -->
+      <div class="footer-links">
+        <h3>More about Parampara</h3>
+        <ul>
+          <li>
+            <a href=""><img loading="lazy" src="./assets/logos/instagram-svgrepo-com.svg" alt="insta-logo" /></a>
+          </li>
 
-    <!-- Trail Detail Modal -->
-    <div id="trail-detail-modal" class="modal">
-      <div class="modal-content trail-detail">
-        <div class="modal-header">
-          <h3 id="trail-detail-title" data-i18n="trails_detail_title">
-            Trail Details
-          </h3>
-          <button
-            class="close-btn"
-            id="close-trail-modal"
-            data-i18n="btn_close"
-          >
-            ×
-          </button>
-        </div>
-        <div id="trail-detail-content" class="trail-detail-content">
-          <!-- Trail details will be loaded here -->
-        </div>
+          <li>
+            <a href=""><img loading="lazy" src="./assets/logos/facebook-svgrepo-com.svg" alt="facebook-logo" /></a>
+          </li>
+          <li>
+            <a href=""><img loading="lazy" src="./assets/logos/twitter-svgrepo-com.svg" alt="X-logo" /></a>
+          </li>
+          <li>
+            <a href=""><img loading="lazy" src="./assets/logos/reddit-fill-svgrepo-com.svg" alt="reddit-logo" /></a>
+          </li>
+          <li>
+            <a href=""><img loading="lazy" src="./assets/logos/github-142-svgrepo-com.svg" alt="git-logo" /></a>
+          </li>
+          <li>
+            <a href=""><img loading="lazy" src="./assets/logos/youtube-svgrepo-com.svg" alt="yt-logo" /></a>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <footer class="footer">
-      <div class="footer-container">
-        <!-- Brand Section -->
-        <div class="footer-brand">
-          <h2 class="footer-logo">🏛️ Parampara</h2>
-          <p>
-            Preserving rural heritage, traditions, and stories for future
-            generations.
-          </p>
-        </div>
+    <div class="footer-bottom">
+      <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
+    </div>
+  </footer>
 
-        <!-- Social media links -->
-        <div class="footer-links">
-          <h3>More about Parampara</h3>
-          <ul>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/instagram-svgrepo-com.svg"
-                  alt="insta-logo"
-              /></a>
-            </li>
-
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/facebook-svgrepo-com.svg"
-                  alt="facebook-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/twitter-svgrepo-com.svg"
-                  alt="X-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/reddit-fill-svgrepo-com.svg"
-                  alt="reddit-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/github-142-svgrepo-com.svg"
-                  alt="git-logo"
-              /></a>
-            </li>
-            <li>
-              <a href=""
-                ><img
-                  loading="lazy"
-                  src="./assets/logos/youtube-svgrepo-com.svg"
-                  alt="yt-logo"
-              /></a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>© 2026 Parampara. Preserving rural heritage, one story at a time.</p>
-      </div>
-    </footer>
-
-    <!-- Back To Top Button -->
-    <button id="backToTopBtn" aria-label="Back to top">↑</button>
-    <script src="scripts/skeletonEngine.js"></script>
-    <script src="scripts/trails.js"></script>
-    <script src="scripts/cacheLayer.js"></script>
-    <script src="scripts/languageSwitcher.js"></script>
-    <script src="scripts/navbar.js"></script>
-    <script src="scripts/main.js"></script>
-    <script src="scripts/theme.js"></script>
-    <script src="scripts/sw-register.js"></script>
-<script src="scripts/breadcrumbs.js"></script>
-<script src="scripts/telemetry.js"></script>
+  <!-- Back To Top Button -->
+  <button id="backToTopBtn" aria-label="Back to top">↑</button>
+  <script src="scripts/skeletonEngine.js"></script>
+  <script src="scripts/trails.js"></script>
+  <script src="scripts/cacheLayer.js"></script>
+  <script src="scripts/languageSwitcher.js"></script>
+  <script src="scripts/navbar.js"></script>
+  <script src="scripts/crypto-utils.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
+  <script src="scripts/main.js"></script>
+  <script src="scripts/theme.js"></script>
+  <script src="scripts/sw-register.js"></script>
+  <script src="scripts/breadcrumbs.js"></script>
+  <script src="scripts/telemetry.js"></script>
 </body>
+
 </html>
-
-
-

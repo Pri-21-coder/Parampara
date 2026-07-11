@@ -1,371 +1,344 @@
 // public/scripts/moderation.js
 
-class ModerationDashboard {
-  constructor(options = {}) {
-    this.apiBase = options.apiBase || '/api/moderation';
-    this.container = options.container || '#moderation-dashboard';
-    this.isLoading = false;
-    
-    this.init();
+(function () {
+  'use strict';
+
+  // ── State ──────────────────────────────────────────────────────
+  let myPeerId = null;
+  let mySecret = null;
+  let myUsername = null;
+  let ws = null;
+  let csrfToken = '';
+  let currentFilter = 'pending';
+  let votedItems = new Set(); // itemIds this session peer has voted on
+
+  const WS_URL = `ws://${location.hostname}:8080`;
+  const API = '/api/moderation';
+
+  // ── DOM ─────────────────────────────────────────────────────────
+  const registerBtn  = document.getElementById('register-btn');
+  const submitBtn    = document.getElementById('submit-btn');
+  const peerUnreg    = document.getElementById('peer-unregistered');
+  const peerReg      = document.getElementById('peer-registered');
+  const myPeerName   = document.getElementById('my-peer-name');
+  const myPeerIdEl   = document.getElementById('my-peer-id');
+  const wsStatusEl   = document.getElementById('ws-status');
+  const peersListEl  = document.getElementById('peers-list');
+  const queueListEl  = document.getElementById('queue-list');
+  const activityFeed = document.getElementById('activity-feed');
+  const filterBtns   = document.querySelectorAll('.filter-btn');
+
+  // ── Helpers ─────────────────────────────────────────────────────
+  function generatePeerId() {
+    return 'peer-' + crypto.randomUUID().slice(0, 12);
   }
 
-  init() {
-    this.renderDashboard();
-    this.loadStats();
-    this.loadQueue();
-    this.setupEventListeners();
+  function formatTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleTimeString();
   }
 
-  renderDashboard() {
-    const container = document.querySelector(this.container);
-    if (!container) return;
-
-    container.innerHTML = `
-      <div class="moderation-dashboard">
-        <div class="dashboard-header">
-          <h2>🛡️ Content Moderation Dashboard</h2>
-          <div class="dashboard-actions">
-            <button id="refresh-moderation" class="btn btn-primary">
-              🔄 Refresh
-            </button>
-            <button id="train-model" class="btn btn-secondary">
-              🧠 Train Model
-            </button>
-          </div>
-        </div>
-
-        <div class="stats-grid" id="moderation-stats">
-          <div class="stat-card">
-            <div class="stat-value" id="stat-total">0</div>
-            <div class="stat-label">Total Moderated</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="stat-queue">0</div>
-            <div class="stat-label">In Queue</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="stat-accuracy">0%</div>
-            <div class="stat-label">Accuracy</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="stat-users">0</div>
-            <div class="stat-label">Users Tracked</div>
-          </div>
-        </div>
-
-        <div class="queue-section">
-          <h3>📋 Review Queue</h3>
-          <div class="queue-filters">
-            <select id="queue-filter-status">
-              <option value="all">All Status</option>
-              <option value="flagged">Flagged</option>
-              <option value="review">Review</option>
-              <option value="warn">Warn</option>
-            </select>
-            <select id="queue-filter-priority">
-              <option value="all">All Priorities</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-          </div>
-          <div id="queue-list" class="queue-list">
-            <p>Loading queue...</p>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  async loadStats() {
-    try {
-      const response = await fetch(`${this.apiBase}/stats`);
-      const data = await response.json();
-
-      if (data.success) {
-        document.getElementById('stat-total').textContent = data.stats.totalModerated || 0;
-        document.getElementById('stat-queue').textContent = data.stats.queueSize || 0;
-        document.getElementById('stat-accuracy').textContent = 
-          `${Math.round((data.stats.accuracy || 0.95) * 100)}%`;
-        document.getElementById('stat-users').textContent = data.stats.reputationCount || 0;
-      }
-    } catch (error) {
-      console.error('Error loading stats:', error);
+  function addFeedItem(text) {
+    const li = document.createElement('li');
+    li.className = 'feed-item';
+    li.innerHTML = `<span>${text}</span><span class="feed-time">${new Date().toLocaleTimeString()}</span>`;
+    if (activityFeed.querySelector('.hint-text')) activityFeed.innerHTML = '';
+    activityFeed.prepend(li);
+    // Keep feed at max 30 items
+    while (activityFeed.children.length > 30) {
+      activityFeed.removeChild(activityFeed.lastChild);
     }
   }
 
-  async loadQueue(filters = {}) {
-    const queueList = document.getElementById('queue-list');
-    if (!queueList) return;
+  // ── HMAC-SHA256 via SubtleCrypto ────────────────────────────────
+  async function signPayload(payload, secret) {
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const sig = await crypto.subtle.sign('HMAC', key, enc.encode(payload));
+    return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
-    this.setLoading(queueList, true);
+  // ── CSRF token fetch ────────────────────────────────────────────
+  async function fetchCsrfToken() {
+    try {
+      const res = await fetch('/api/csrf-token');
+      const data = await res.json();
+      csrfToken = data.csrfToken || '';
+    } catch { csrfToken = ''; }
+  }
+
+  // ── POST helper ─────────────────────────────────────────────────
+  async function post(url, body) {
+    if (!csrfToken) await fetchCsrfToken();
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
+      body: JSON.stringify(body)
+    });
+  }
+
+  // ── Register peer ────────────────────────────────────────────────
+  registerBtn.addEventListener('click', async () => {
+    const username = document.getElementById('peer-username').value.trim();
+    const secret   = document.getElementById('peer-secret').value.trim();
+
+    if (!username) return alert('Please enter your name.');
+    if (secret.length < 16) return alert('Secret must be at least 16 characters.');
+
+    myPeerId   = generatePeerId();
+    mySecret   = secret;
+    myUsername = username;
 
     try {
-      const params = new URLSearchParams(filters);
-      const response = await fetch(`${this.apiBase}/queue?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        this.renderQueue(queueList, data.queue);
+      const res = await post(`${API}/register-peer`, { peerId: myPeerId, secret, username });
+      if (!res.ok) {
+        const err = await res.json();
+        return alert('Registration failed: ' + err.error);
       }
-    } catch (error) {
-      console.error('Error loading queue:', error);
-      queueList.innerHTML = '<p class="error">Error loading queue</p>';
-    } finally {
-      this.setLoading(queueList, false);
+
+      // Update UI
+      peerUnreg.classList.add('hidden');
+      peerReg.classList.remove('hidden');
+      myPeerName.textContent = username;
+      myPeerIdEl.textContent = myPeerId;
+      submitBtn.disabled = false;
+
+      addFeedItem(`✅ Registered as ${username}`);
+
+      // Connect WebSocket
+      connectWebSocket();
+      // Load existing queue
+      loadQueue();
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
+  });
+
+  // ── WebSocket ────────────────────────────────────────────────────
+  function connectWebSocket() {
+    setWsStatus('connecting');
+    ws = new ResilientWebSocket(WS_URL);
+
+    ws.onopen = () => {
+      setWsStatus('connected');
+      addFeedItem('🔌 Connected to moderation network');
+      ws.send(JSON.stringify({ type: 'moderation:join', username: myUsername }));
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        handleWsMessage(msg);
+      } catch (e) { console.error('WS parse error', e); }
+    };
+
+    ws.onclose = () => {
+      setWsStatus('disconnected');
+      addFeedItem('🔴 Disconnected from network. Reconnecting in 3s...');
+      setTimeout(connectWebSocket, 3000);
+    };
+
+    ws.onerror = () => setWsStatus('disconnected');
+  }
+
+  function setWsStatus(status) {
+    const dot = wsStatusEl.querySelector('.status-dot');
+    dot.className = `status-dot ${status}`;
+    wsStatusEl.childNodes[1].textContent = ' ' + status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  function handleWsMessage(msg) {
+    switch (msg.type) {
+      case 'moderation:joined':
+        // Update peer list with existing moderators
+        msg.peers.forEach(p => addPeerToList(p.userId, p.username));
+        addFeedItem(`👥 ${msg.peers.length} moderator(s) online`);
+        break;
+
+      case 'moderation:peer-joined':
+        addPeerToList(msg.userId, msg.username);
+        addFeedItem(`👤 ${msg.username} joined as moderator`);
+        break;
+
+      case 'moderation:new-item':
+        addFeedItem(`📥 New submission: "${msg.data.title}" by ${msg.data.submittedBy}`);
+        loadQueue(); // reload queue from API
+        break;
+
+      case 'moderation:vote-update':
+        addFeedItem(`🗳️ Vote cast on "${msg.data.title}": ${msg.data.decision} (${msg.data.approvals}/${msg.data.threshold})`);
+        loadQueue();
+        break;
+
+      default:
+        break;
     }
   }
 
-  renderQueue(container, queue) {
-    if (!queue || queue.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <p>✅ No content in review queue</p>
-        </div>
-      `;
+  function addPeerToList(userId, username) {
+    // Avoid duplicates
+    if (document.querySelector(`[data-peer-id="${userId}"]`)) return;
+    const emptyHint = peersListEl.querySelector('.empty-hint');
+    if (emptyHint) emptyHint.remove();
+
+    const li = document.createElement('li');
+    li.className = 'peer-item';
+    li.dataset.peerId = userId;
+    li.textContent = username;
+    peersListEl.appendChild(li);
+  }
+
+  // ── Submit content ───────────────────────────────────────────────
+  submitBtn.addEventListener('click', async () => {
+    const title   = document.getElementById('sub-title').value.trim();
+    const content = document.getElementById('sub-content').value.trim();
+    const type    = document.getElementById('sub-type').value;
+
+    if (!title || !content) return alert('Title and content are required.');
+
+    try {
+      const res = await post(`${API}/submit`, {
+        type, title, content, submittedBy: myUsername
+      });
+      const data = await res.json();
+      if (!res.ok) return alert('Submit failed: ' + data.error);
+
+      addFeedItem(`📤 Submitted "${title}" for review (ID: ${data.itemId.slice(0,8)}...)`);
+      document.getElementById('sub-title').value = '';
+      document.getElementById('sub-content').value = '';
+
+      // Broadcast via WebSocket so other moderators see it instantly
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'moderation:request',
+          data: { itemId: data.itemId, title, content, submittedBy: myUsername }
+        }));
+      }
+
+      loadQueue();
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
+  });
+
+  // ── Load queue ───────────────────────────────────────────────────
+  async function loadQueue() {
+    try {
+      const res = await fetch(`${API}/queue?status=${currentFilter}`);
+      const items = await res.json();
+      renderQueue(items);
+    } catch (e) {
+      console.error('Failed to load queue', e);
+    }
+  }
+
+  function renderQueue(items) {
+    if (!items.length) {
+      queueListEl.innerHTML = `<div class="empty-state"><i class="ti ti-inbox"></i><p>No ${currentFilter} items.</p></div>`;
       return;
     }
 
-    const html = `
-      <div class="queue-items">
-        ${queue.map(item => this.renderQueueItem(item)).join('')}
-      </div>
-    `;
+    queueListEl.innerHTML = '';
+    items.forEach(item => {
+      const pct = item.threshold > 0 ? Math.round((item.approvals / item.threshold) * 100) : 0;
+      const rPct = item.threshold > 0 ? Math.round((item.rejections / item.threshold) * 100) : 0;
+      const hasVoted = votedItems.has(item.id);
+      const isPending = item.status === 'pending';
 
-    container.innerHTML = html;
-
-    // Add review handlers
-    container.querySelectorAll('.review-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.reviewContent(
-          btn.dataset.contentId,
-          btn.dataset.decision
-        );
-      });
-    });
-  }
-
-  renderQueueItem(item) {
-    const priorityColors = {
-      high: '#f44336',
-      medium: '#ff9800',
-      low: '#4CAF50'
-    };
-
-    return `
-      <div class="queue-item" style="
-        background: white;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        border-left: 4px solid ${priorityColors[item.priority] || '#999'};
-      ">
-        <div class="queue-item-header">
-          <span class="queue-item-id">📝 ${item.contentId}</span>
-          <span class="queue-item-status badge badge-${item.status}">
-            ${item.status}
-          </span>
-          <span class="queue-item-priority badge badge-${item.priority}">
-            ${item.priority}
-          </span>
+      const card = document.createElement('div');
+      card.className = `queue-item glass-card ${item.status}`;
+      card.innerHTML = `
+        <div class="qi-header">
+          <span class="qi-title">${item.title}</span>
+          <span class="qi-type-badge">${item.type}</span>
         </div>
-        <div class="queue-item-details">
-          <p><strong>Flags:</strong> ${item.flags ? item.flags.length : 0}</p>
-          <p><strong>Score:</strong> ${item.score || 0}</p>
-          <p><strong>User:</strong> ${item.userId || 'Unknown'}</p>
-          <p><strong>Time:</strong> ${new Date(item.addedAt).toLocaleString()}</p>
+        <p class="qi-content">${item.content}</p>
+        <p class="qi-meta">By <strong>${item.submittedBy}</strong> · ${formatTime(item.submittedAt)} · Expires ${formatTime(item.expiresAt)}</p>
+        <div class="qi-status-badge ${item.status}">${item.status.toUpperCase()} · ${item.voterCount} vote(s)</div>
+        <div class="vote-progress">
+          <div class="vote-bar-wrap">
+            <span class="vote-bar-label">Approvals</span>
+            <div class="vote-bar-bg"><div class="vote-bar-fill approve" style="width:${Math.min(pct,100)}%"></div></div>
+            <span class="vote-count">${item.approvals}/${item.threshold}</span>
+          </div>
+          <div class="vote-bar-wrap">
+            <span class="vote-bar-label">Rejections</span>
+            <div class="vote-bar-bg"><div class="vote-bar-fill reject" style="width:${Math.min(rPct,100)}%"></div></div>
+            <span class="vote-count">${item.rejections}/${item.threshold}</span>
+          </div>
         </div>
-        <div class="queue-item-actions">
-          <button class="review-btn btn btn-success" 
-                  data-content-id="${item.contentId}" 
-                  data-decision="approve">
-            ✅ Approve
+        ${isPending && !hasVoted ? `
+        <div class="qi-actions">
+          <button class="vote-approve-btn" data-id="${item.id}" data-title="${item.title}">
+            <i class="ti ti-thumb-up"></i> Approve
           </button>
-          <button class="review-btn btn btn-danger" 
-                  data-content-id="${item.contentId}" 
-                  data-decision="reject">
-            ❌ Reject
+          <button class="vote-reject-btn" data-id="${item.id}" data-title="${item.title}">
+            <i class="ti ti-thumb-down"></i> Reject
           </button>
-          <button class="review-btn btn btn-warning" 
-                  data-content-id="${item.contentId}" 
-                  data-decision="flag">
-            ⚠️ Flag
-          </button>
-        </div>
-      </div>
-    `;
-  }
-
-  async reviewContent(contentId, decision) {
-    const reviewerId = localStorage.getItem('userId') || 'moderator_1';
-
-    try {
-      const response = await fetch(`${this.apiBase}/review`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contentId,
-          reviewerId,
-          decision,
-          notes: `Reviewed via dashboard`
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        this.showToast(`✅ Content ${decision}ed successfully`, 'success');
-        this.loadQueue();
-        this.loadStats();
-      } else {
-        this.showToast(`❌ Error: ${data.error}`, 'error');
-      }
-    } catch (error) {
-      console.error('Error reviewing content:', error);
-      this.showToast('❌ Error processing review', 'error');
-    }
-  }
-
-  async trainModel() {
-    try {
-      this.showToast('🔄 Training model...', 'info');
-      
-      const response = await fetch(`${this.apiBase}/train`, {
-        method: 'POST'
-      });
-      
-      const data = await response.json();
-
-      if (data.success) {
-        this.showToast(`✅ Model trained! Accuracy: ${Math.round(data.accuracy * 100)}%`, 'success');
-        this.loadStats();
-      }
-    } catch (error) {
-      console.error('Error training model:', error);
-      this.showToast('❌ Error training model', 'error');
-    }
-  }
-
-  setupEventListeners() {
-    // Refresh button
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'refresh-moderation' || e.target.closest('#refresh-moderation')) {
-        this.loadStats();
-        this.loadQueue();
-        this.showToast('🔄 Refreshed dashboard', 'info');
-      }
-    });
-
-    // Train model button
-    document.addEventListener('click', (e) => {
-      if (e.target.id === 'train-model' || e.target.closest('#train-model')) {
-        this.trainModel();
-      }
-    });
-
-    // Filter changes
-    document.addEventListener('change', (e) => {
-      if (e.target.id === 'queue-filter-status' || e.target.id === 'queue-filter-priority') {
-        const status = document.getElementById('queue-filter-status').value;
-        const priority = document.getElementById('queue-filter-priority').value;
-        
-        const filters = {};
-        if (status !== 'all') filters.status = status;
-        if (priority !== 'all') filters.priority = priority;
-        
-        this.loadQueue(filters);
-      }
-    });
-  }
-
-  setLoading(container, isLoading) {
-    this.isLoading = isLoading;
-    if (isLoading) {
-      container.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-          <div style="
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4CAF50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-          "></div>
-          <p>Loading...</p>
-        </div>
+        </div>` : isPending && hasVoted ? `<p class="hint-text" style="margin:0">✅ You have already voted on this item.</p>` : ''}
       `;
+
+      queueListEl.appendChild(card);
+    });
+
+    // Attach vote listeners
+    queueListEl.querySelectorAll('.vote-approve-btn').forEach(btn => {
+      btn.addEventListener('click', () => castVote(btn.dataset.id, btn.dataset.title, 'approve'));
+    });
+    queueListEl.querySelectorAll('.vote-reject-btn').forEach(btn => {
+      btn.addEventListener('click', () => castVote(btn.dataset.id, btn.dataset.title, 'reject'));
+    });
+  }
+
+  // ── Cast vote ────────────────────────────────────────────────────
+  async function castVote(itemId, title, decision) {
+    if (!myPeerId || !mySecret) return alert('You must register first.');
+
+    try {
+      // Generate HMAC signature
+      const payload = `${itemId}:${myPeerId}:${decision}`;
+      const signature = await signPayload(payload, mySecret);
+
+      const res = await post(`${API}/vote`, {
+        itemId, peerId: myPeerId, decision, signature, secret: mySecret
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        addFeedItem(`❌ Vote rejected: ${data.error}`);
+        return alert(data.error);
+      }
+
+      votedItems.add(itemId);
+      addFeedItem(`🗳️ Voted "${decision}" on "${title}" (${data.approvals}/${data.threshold} approvals)`);
+
+      // Broadcast the vote to other peers for real-time UI update
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'moderation:vote-broadcast',
+          data: { itemId, title, decision, approvals: data.approvals, rejections: data.rejections, threshold: data.threshold }
+        }));
+      }
+
+      loadQueue();
+    } catch (e) {
+      alert('Error casting vote: ' + e.message);
     }
   }
 
-  showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 12px 24px;
-      background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
-      color: white;
-      border-radius: 8px;
-      z-index: 99999;
-      animation: slideIn 0.3s ease;
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-}
-
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  const dashboard = new ModerationDashboard({
-    container: '#moderation-dashboard'
+  // ── Filter buttons ────────────────────────────────────────────────
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.status;
+      loadQueue();
+    });
   });
-  
-  window.moderationDashboard = dashboard;
-});
 
-// Add CSS
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
-  .badge {
-    padding: 2px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-  .badge-approved { background: #4CAF50; color: white; }
-  .badge-flagged { background: #f44336; color: white; }
-  .badge-review { background: #ff9800; color: white; }
-  .badge-warn { background: #ffc107; color: black; }
-  .badge-high { background: #f44336; color: white; }
-  .badge-medium { background: #ff9800; color: white; }
-  .badge-low { background: #4CAF50; color: white; }
-  .btn-success { background: #4CAF50; color: white; }
-  .btn-danger { background: #f44336; color: white; }
-  .btn-warning { background: #ff9800; color: white; }
-  .btn { padding: 5px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 0 5px; }
-  .queue-item-actions { margin-top: 10px; }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
-  .stat-card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-  .stat-value { font-size: 2em; font-weight: bold; color: #2E7D32; }
-  .queue-filters { display: flex; gap: 10px; margin: 10px 0; }
-  .queue-filters select { padding: 5px 10px; border-radius: 5px; border: 1px solid #ddd; }
-`;
-document.head.appendChild(style);
+  // ── Init ─────────────────────────────────────────────────────────
+  fetchCsrfToken();
+
+})();

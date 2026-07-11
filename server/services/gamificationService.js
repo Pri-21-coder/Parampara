@@ -1,5 +1,5 @@
 // services/gamificationService.js
-const store = require('../data/store');
+const store = require('../../data/store');
 
 class GamificationService {
   constructor() {
@@ -7,7 +7,6 @@ class GamificationService {
     this.challenges = [];
     this.leaderboards = new Map();
     this.digitalArtifacts = new Map();
-    this.userProgress = new Map();
     
     this.init();
   }
@@ -201,17 +200,23 @@ class GamificationService {
   }
 
   /**
-   * Get user progress
+   * Get user progress from tenant-isolated store
    */
   getUserProgress(userId) {
-    if (!this.userProgress.has(userId)) {
-      this.userProgress.set(userId, {
+    if (!store.userProgress) {
+      store.userProgress = {};
+    }
+    
+    if (!store.userProgress[userId]) {
+      store.userProgress[userId] = {
         userId,
         points: 0,
         level: 1,
         badges: [],
         artifacts: [],
         challenges: [],
+        checkIns: [],
+        quests: [],
         stats: {
           sites_visited: 0,
           stories_read: 0,
@@ -222,12 +227,73 @@ class GamificationService {
           upvotes_received: 0,
           comments_made: 0,
           weekly_visits: 0,
-          monthly_stories: 0
+          monthly_stories: 0,
+          villages_explored: 0,
+          crafts_discovered: 0,
+          festivals_learned: 0,
+          paths_completed: 0,
+          nature_visited: 0,
+          artifacts_explored: 0,
+          gps_checkins: 0,
+          responsible_visits: 0,
+          audio_played: 0,
+          ai_conversations: 0,
+          exploration_time: 0
         },
+        activityTimeline: [],
         lastUpdated: new Date().toISOString()
-      });
+      };
     }
-    return this.userProgress.get(userId);
+
+    const progress = store.userProgress[userId];
+
+    // Ensure all gamification fields are present
+    if (!progress.userId) progress.userId = userId;
+    if (progress.points === undefined) progress.points = 0;
+    if (progress.level === undefined) progress.level = 1;
+    if (!progress.badges) progress.badges = [];
+    if (!progress.artifacts) progress.artifacts = [];
+    if (!progress.challenges) progress.challenges = [];
+    if (!progress.checkIns) progress.checkIns = [];
+    if (!progress.quests) progress.quests = [];
+    if (!progress.activityTimeline) progress.activityTimeline = [];
+    if (!progress.lastUpdated) progress.lastUpdated = new Date().toISOString();
+
+    if (!progress.stats) {
+      progress.stats = {};
+    }
+
+    const defaultStats = {
+      sites_visited: 0,
+      stories_read: 0,
+      stories_added: 0,
+      quests_completed: 0,
+      quizzes_taken: 0,
+      shares: 0,
+      upvotes_received: 0,
+      comments_made: 0,
+      weekly_visits: 0,
+      monthly_stories: 0,
+      villages_explored: 0,
+      crafts_discovered: 0,
+      festivals_learned: 0,
+      paths_completed: 0,
+      nature_visited: 0,
+      artifacts_explored: 0,
+      gps_checkins: 0,
+      responsible_visits: 0,
+      audio_played: 0,
+      ai_conversations: 0,
+      exploration_time: 0
+    };
+
+    for (const key in defaultStats) {
+      if (progress.stats[key] === undefined) {
+        progress.stats[key] = defaultStats[key];
+      }
+    }
+
+    return progress;
   }
 
   /**
@@ -235,7 +301,7 @@ class GamificationService {
    */
   earnPoints(userId, points, source) {
     const progress = this.getUserProgress(userId);
-    progress.points += points;
+    progress.points = (progress.points || 0) + points;
     progress.lastUpdated = new Date().toISOString();
     
     // Check level up
@@ -245,8 +311,29 @@ class GamificationService {
       this.checkBadgeUnlock(userId, 'level_up');
     }
     
-    this.userProgress.set(userId, progress);
     return progress;
+  }
+
+  /**
+   * Add a timeline event for user
+   */
+  addTimelineEvent(userId, type, title, description, metadata = {}) {
+    const progress = this.getUserProgress(userId);
+    if (!progress.activityTimeline) {
+      progress.activityTimeline = [];
+    }
+    progress.activityTimeline.push({
+      id: `act_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      type,
+      title,
+      description,
+      timestamp: new Date().toISOString(),
+      metadata: {
+        region: metadata.region || metadata.location || 'General',
+        category: metadata.category || metadata.type || 'General',
+        ...metadata
+      }
+    });
   }
 
   /**
@@ -261,29 +348,42 @@ class GamificationService {
         progress.stats.sites_visited++;
         progress.stats.weekly_visits++;
         this.earnPoints(userId, 10, 'site_visit');
+        this.addTimelineEvent(userId, 'visit_site', 'Visited Cultural Site', `Visited cultural site: ${metadata.name || 'Unnamed Site'}`, metadata);
+        break;
+      case 'visit_village':
+        progress.stats.villages_explored++;
+        progress.stats.sites_visited++;
+        progress.stats.weekly_visits++;
+        this.earnPoints(userId, 15, 'visit_village');
+        this.addTimelineEvent(userId, 'visit_village', 'Explored Village', `Explored village: ${metadata.name || 'Unnamed Village'}`, metadata);
         break;
       case 'read_story':
         progress.stats.stories_read++;
         this.earnPoints(userId, 5, 'read_story');
+        this.addTimelineEvent(userId, 'story_complete', 'Read Story', `Read heritage story: ${metadata.name || 'Unnamed Story'}`, metadata);
         break;
       case 'add_story':
         progress.stats.stories_added++;
         progress.stats.monthly_stories++;
         this.earnPoints(userId, 20, 'add_story');
+        this.addTimelineEvent(userId, 'story_add', 'Contributed Story', `Added a new cultural story: ${metadata.name || 'Unnamed Story'}`, metadata);
         break;
       case 'complete_quest':
         progress.stats.quests_completed++;
         this.earnPoints(userId, 30, 'complete_quest');
+        this.addTimelineEvent(userId, 'quest_complete', 'Completed Quest', `Completed quest: ${metadata.name || 'Unnamed Quest'}`, metadata);
         break;
       case 'take_quiz':
         progress.stats.quizzes_taken++;
         if (metadata.score && metadata.score > 80) {
           this.earnPoints(userId, 15, 'quiz_high_score');
         }
+        this.addTimelineEvent(userId, 'take_quiz', 'Completed Quiz', `Completed quiz on ${metadata.topic || 'heritage'} with score ${metadata.score || 0}%`, metadata);
         break;
       case 'share':
         progress.stats.shares++;
         this.earnPoints(userId, 10, 'share');
+        this.addTimelineEvent(userId, 'share', 'Shared Content', `Shared a story/path: ${metadata.name || 'Unnamed Item'}`, metadata);
         break;
       case 'upvote':
         progress.stats.upvotes_received++;
@@ -292,11 +392,68 @@ class GamificationService {
       case 'comment':
         progress.stats.comments_made++;
         this.earnPoints(userId, 5, 'comment');
+        this.addTimelineEvent(userId, 'comment', 'Added Comment', `Commented on: ${metadata.name || 'Unnamed Item'}`, metadata);
+        break;
+      case 'discover_craft':
+        progress.stats.crafts_discovered++;
+        this.earnPoints(userId, 15, 'discover_craft');
+        this.addTimelineEvent(userId, 'craft_discover', 'Discovered Craft', `Learned about craft: ${metadata.name || 'Unnamed Craft'}`, metadata);
+        break;
+      case 'learn_festival':
+        progress.stats.festivals_learned++;
+        this.earnPoints(userId, 15, 'learn_festival');
+        this.addTimelineEvent(userId, 'festival_learn', 'Learned Festival', `Explored festival: ${metadata.name || 'Unnamed Festival'}`, metadata);
+        break;
+      case 'complete_path':
+        progress.stats.paths_completed++;
+        this.earnPoints(userId, 25, 'complete_path');
+        this.addTimelineEvent(userId, 'path_complete', 'Completed Path', `Completed heritage path: ${metadata.name || 'Unnamed Path'}`, metadata);
+        break;
+      case 'visit_nature':
+        progress.stats.nature_visited++;
+        this.earnPoints(userId, 20, 'visit_nature');
+        this.addTimelineEvent(userId, 'nature_visit', 'Visited Nature Site', `Visited sacred natural heritage site: ${metadata.name || 'Unnamed Site'}`, metadata);
+        break;
+      case 'explore_artifact':
+        progress.stats.artifacts_explored++;
+        this.earnPoints(userId, 15, 'explore_artifact');
+        this.addTimelineEvent(userId, 'artifact_discover', 'Explored Artifact', `Explored cultural artifact: ${metadata.name || 'Unnamed Artifact'}`, metadata);
+        break;
+      case 'gps_checkin':
+        progress.stats.gps_checkins++;
+        const hasCheckin = progress.checkIns && progress.checkIns.some(c => typeof c === 'string' ? c === metadata.locationId : c.id === metadata.locationId);
+        if (!hasCheckin && metadata.locationId) {
+          if (!progress.checkIns) progress.checkIns = [];
+          progress.checkIns.push({ id: metadata.locationId, name: metadata.name, timestamp: new Date().toISOString() });
+        }
+        this.earnPoints(userId, 15, 'gps_checkin');
+        this.addTimelineEvent(userId, 'gps_checkin', 'GPS Check-in Badge', `Checked in at: ${metadata.name || 'Unnamed Location'}`, metadata);
+        break;
+      case 'responsible_visit':
+        progress.stats.responsible_visits++;
+        this.earnPoints(userId, 20, 'responsible_visit');
+        this.addTimelineEvent(userId, 'responsible_visit', 'Responsible Tourism Visit', `Visited local host responsibly at: ${metadata.name || 'Unnamed Location'}`, metadata);
+        break;
+      case 'play_audio':
+        progress.stats.audio_played++;
+        this.earnPoints(userId, 5, 'play_audio');
+        this.addTimelineEvent(userId, 'play_audio', 'Listened to Audio Story', `Listened to audio track: ${metadata.name || 'Unnamed Audio'}`, metadata);
+        break;
+      case 'ai_conversation':
+        progress.stats.ai_conversations++;
+        this.earnPoints(userId, 5, 'ai_conversation');
+        if (progress.stats.ai_conversations % 3 === 1) {
+          this.addTimelineEvent(userId, 'ai_conversation', 'AI Curator Conversation', `Spoke with the AI Curator about cultural traditions`, metadata);
+        }
+        break;
+      case 'add_exploration_time':
+        const timeToAdd = parseInt(metadata.time) || 1;
+        progress.stats.exploration_time += timeToAdd;
         break;
     }
     
-    // Update user progress
-    this.userProgress.set(userId, progress);
+    // Update user progress lastUpdated
+    progress.lastUpdated = new Date().toISOString();
     
     // Check badge unlocks
     this.checkBadgeUnlock(userId, action, metadata);
@@ -315,16 +472,24 @@ class GamificationService {
     let unlocked = [];
     
     this.badges.forEach(badge => {
-      if (progress.badges.includes(badge.id)) return;
+      const hasBadge = progress.badges.some(b => typeof b === 'string' ? b === badge.id : b.id === badge.id);
+      if (hasBadge) return;
       
       if (this.meetsBadgeRequirement(progress, badge, action, metadata)) {
-        progress.badges.push(badge.id);
+        progress.badges.push({
+          id: badge.id,
+          name: badge.name,
+          icon: badge.icon,
+          timestamp: new Date().toISOString()
+        });
         this.earnPoints(userId, badge.points, `badge_${badge.id}`);
         unlocked.push(badge);
+        
+        // Add to activity timeline
+        this.addTimelineEvent(userId, 'badge_unlock', `Unlocked Badge: ${badge.name}`, `Earned "${badge.name}" badge (${badge.icon}) for ${badge.description}`, { badgeId: badge.id });
       }
     });
     
-    this.userProgress.set(userId, progress);
     return unlocked;
   }
 
@@ -385,35 +550,31 @@ class GamificationService {
         
         progress.challenges.push(challenge.id);
         this.earnPoints(userId, challenge.points, `challenge_${challenge.id}`);
+        this.addTimelineEvent(userId, 'challenge_complete', 'Completed Challenge', `Completed challenge: ${challenge.title}`, { challengeId: challenge.id });
       }
     });
-    
-    this.userProgress.set(userId, progress);
   }
 
   /**
-   * Get leaderboard
+   * Get leaderboard from tenant store
    */
   getLeaderboard(region = null, limit = 100) {
-    const users = Array.from(this.userProgress.values());
+    const users = Object.values(store.userProgress || {});
     
-    // Filter by region if specified
     let filtered = users;
     if (region) {
-      // In production, would filter by user region
       filtered = users.filter(u => u.region === region);
     }
     
-    // Sort by points
-    filtered.sort((a, b) => b.points - a.points);
+    filtered.sort((a, b) => (b.points || 0) - (a.points || 0));
     
     return filtered.slice(0, limit).map((user, index) => ({
       rank: index + 1,
       userId: user.userId,
-      points: user.points,
-      level: user.level,
-      badges: user.badges.length,
-      artifacts: user.artifacts.length
+      points: user.points || 0,
+      level: user.level || 1,
+      badges: user.badges ? user.badges.length : 0,
+      artifacts: user.artifacts ? user.artifacts.length : 0
     }));
   }
 
@@ -436,8 +597,8 @@ class GamificationService {
     
     // Earn points for collecting
     this.earnPoints(userId, artifact.value, `artifact_${artifactId}`);
+    this.addTimelineEvent(userId, 'artifact_discover', 'Collected Digital Artifact', `Collected digital artifact: ${artifact.name} (${artifact.image})`, { artifactId });
     
-    this.userProgress.set(userId, progress);
     return artifact;
   }
 
@@ -447,14 +608,15 @@ class GamificationService {
   getUserAchievements(userId) {
     const progress = this.getUserProgress(userId);
     
-    const badges = this.badges.filter(b => progress.badges.includes(b.id));
-    const artifacts = progress.artifacts.map(id => this.digitalArtifacts.get(id));
+    const badgeIds = progress.badges.map(b => typeof b === 'string' ? b : b.id);
+    const badges = this.badges.filter(b => badgeIds.includes(b.id));
+    const artifacts = progress.artifacts.map(id => this.digitalArtifacts.get(id)).filter(Boolean);
     const challenges = this.challenges.filter(c => progress.challenges.includes(c.id));
     
     return {
       userId,
-      points: progress.points,
-      level: progress.level,
+      points: progress.points || 0,
+      level: progress.level || 1,
       badges,
       artifacts,
       challenges,
@@ -477,17 +639,17 @@ class GamificationService {
    * Get gamification statistics
    */
   getStatistics() {
-    const users = Array.from(this.userProgress.values());
+    const users = Object.values(store.userProgress || {});
     
     return {
       totalUsers: users.length,
-      totalPoints: users.reduce((sum, u) => sum + u.points, 0),
-      averagePoints: users.length ? users.reduce((sum, u) => sum + u.points, 0) / users.length : 0,
-      totalBadgesUnlocked: users.reduce((sum, u) => sum + u.badges.length, 0),
-      totalArtifactsCollected: users.reduce((sum, u) => sum + u.artifacts.length, 0),
-      topUser: users.length ? users.reduce((a, b) => a.points > b.points ? a : b) : null,
+      totalPoints: users.reduce((sum, u) => sum + (u.points || 0), 0),
+      averagePoints: users.length ? users.reduce((sum, u) => sum + (u.points || 0), 0) / users.length : 0,
+      totalBadgesUnlocked: users.reduce((sum, u) => sum + (u.badges ? u.badges.length : 0), 0),
+      totalArtifactsCollected: users.reduce((sum, u) => sum + (u.artifacts ? u.artifacts.length : 0), 0),
+      topUser: users.length ? users.reduce((a, b) => (a.points || 0) > (b.points || 0) ? a : b) : null,
       activeUsers: users.filter(u => {
-        const days = (Date.now() - new Date(u.lastUpdated).getTime()) / (1000 * 60 * 60 * 24);
+        const days = (Date.now() - new Date(u.lastUpdated || Date.now()).getTime()) / (1000 * 60 * 60 * 24);
         return days < 7;
       }).length,
       mostCollectedArtifact: this.getMostCollectedArtifact(),
@@ -500,10 +662,13 @@ class GamificationService {
    */
   getMostCollectedArtifact() {
     const counts = new Map();
-    this.userProgress.forEach(progress => {
-      progress.artifacts.forEach(artifactId => {
-        counts.set(artifactId, (counts.get(artifactId) || 0) + 1);
-      });
+    const users = Object.values(store.userProgress || {});
+    users.forEach(progress => {
+      if (progress.artifacts) {
+        progress.artifacts.forEach(artifactId => {
+          counts.set(artifactId, (counts.get(artifactId) || 0) + 1);
+        });
+      }
     });
     
     let maxCount = 0;
@@ -523,10 +688,13 @@ class GamificationService {
    */
   getPopularChallenges() {
     const counts = new Map();
-    this.userProgress.forEach(progress => {
-      progress.challenges.forEach(challengeId => {
-        counts.set(challengeId, (counts.get(challengeId) || 0) + 1);
-      });
+    const users = Object.values(store.userProgress || {});
+    users.forEach(progress => {
+      if (progress.challenges) {
+        progress.challenges.forEach(challengeId => {
+          counts.set(challengeId, (counts.get(challengeId) || 0) + 1);
+        });
+      }
     });
     
     return Array.from(counts.entries())
@@ -543,7 +711,9 @@ class GamificationService {
    * Reset user progress (for testing)
    */
   resetUserProgress(userId) {
-    this.userProgress.delete(userId);
+    if (store.userProgress && store.userProgress[userId]) {
+      delete store.userProgress[userId];
+    }
   }
 }
 

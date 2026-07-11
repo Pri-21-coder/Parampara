@@ -1,10 +1,16 @@
+
 // routes/archive.routes.js
 const express = require('express');
 const router = express.Router();
-const CommunityArchiveService = require('../services/communityArchiveService');
+const CommunityArchiveService = require('../server/services/communityArchiveService');
+const archiveController = require('../controllers/archive.controller');
 
 let archiveService = null;
 
+/**
+ * Lazy-initializer helper for the CommunityArchiveService instance.
+ * @returns {CommunityArchiveService} The archive service instance.
+ */
 const getService = () => {
   if (!archiveService) {
     archiveService = new CommunityArchiveService();
@@ -13,20 +19,45 @@ const getService = () => {
 };
 
 /**
- * POST /api/archive/memory
- * Submit new memory
+ * Express middleware helper to validate required request body fields.
+ * @param {string[]} fields - Array of required body parameter names.
+ * @returns {Function} Express middleware callback.
  */
-router.post('/memory', async (req, res, next) => {
-  try {
-    const { memoryData, userId } = req.body;
-
-    if (!memoryData || !userId) {
+const validateBody = (fields) => {
+  return (req, res, next) => {
+    const missing = fields.filter(field => !req.body || req.body[field] === undefined);
+    if (missing.length > 0) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: memoryData, userId'
+        error: `Missing required fields: ${missing.join(', ')}`
       });
     }
+    next();
+  };
+};
 
+/**
+ * @openapi
+ * /api/archive/memory:
+ *   post:
+ *     summary: Submit a new cultural memory
+ *     description: Registers a new digital archive memory under the specified contributor ID.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [memoryData, userId]
+ *             properties:
+ *               memoryData:
+ *                 type: object
+ *               userId:
+ *                 type: string
+ */
+router.post('/memory', validateBody(['memoryData', 'userId']), async (req, res, next) => {
+  try {
+    const { memoryData, userId } = req.body;
     const service = getService();
     const memory = await service.submitMemory(memoryData, userId);
 
@@ -45,8 +76,11 @@ router.post('/memory', async (req, res, next) => {
 });
 
 /**
- * GET /api/archive/memories
- * Get memories with filters
+ * @openapi
+ * /api/archive/memories:
+ *   get:
+ *     summary: Retrieve cultural memories
+ *     description: Fetches archived memory records filtered by query parameters.
  */
 router.get('/memories', (req, res, next) => {
   try {
@@ -74,8 +108,10 @@ router.get('/memories', (req, res, next) => {
 });
 
 /**
- * GET /api/archive/memory/:memoryId
- * Get memory by ID
+ * @openapi
+ * /api/archive/memory/{memoryId}:
+ *   get:
+ *     summary: Get single memory by ID
  */
 router.get('/memory/:memoryId', (req, res, next) => {
   try {
@@ -101,21 +137,15 @@ router.get('/memory/:memoryId', (req, res, next) => {
 });
 
 /**
- * POST /api/archive/memory/:memoryId/vote
- * Vote on a memory
+ * @openapi
+ * /api/archive/memory/{memoryId}/vote:
+ *   post:
+ *     summary: Upvote or downvote a memory
  */
-router.post('/memory/:memoryId/vote', (req, res, next) => {
+router.post('/memory/:memoryId/vote', validateBody(['userId', 'voteType']), (req, res, next) => {
   try {
     const { memoryId } = req.params;
     const { userId, voteType } = req.body;
-
-    if (!userId || !voteType) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: userId, voteType'
-      });
-    }
-
     const service = getService();
     const memory = service.voteMemory(memoryId, userId, voteType);
 
@@ -133,8 +163,10 @@ router.post('/memory/:memoryId/vote', (req, res, next) => {
 });
 
 /**
- * GET /api/archive/queue
- * Get verification queue
+ * @openapi
+ * /api/archive/queue:
+ *   get:
+ *     summary: Retrieve verification queue
  */
 router.get('/queue', (req, res, next) => {
   try {
@@ -158,20 +190,14 @@ router.get('/queue', (req, res, next) => {
 });
 
 /**
- * POST /api/archive/verify
- * Verify a memory
+ * @openapi
+ * /api/archive/verify:
+ *   post:
+ *     summary: Perform verification reviews
  */
-router.post('/verify', async (req, res, next) => {
+router.post('/verify', validateBody(['memoryId', 'expertId', 'decision']), async (req, res, next) => {
   try {
     const { memoryId, expertId, decision, notes } = req.body;
-
-    if (!memoryId || !expertId || !decision) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: memoryId, expertId, decision'
-      });
-    }
-
     const service = getService();
     const memory = await service.verifyMemory(memoryId, expertId, decision, notes);
 
@@ -190,8 +216,10 @@ router.post('/verify', async (req, res, next) => {
 });
 
 /**
- * GET /api/archive/exhibitions
- * Get exhibitions
+ * @openapi
+ * /api/archive/exhibitions:
+ *   get:
+ *     summary: Retrieve digital exhibitions
  */
 router.get('/exhibitions', (req, res, next) => {
   try {
@@ -214,8 +242,10 @@ router.get('/exhibitions', (req, res, next) => {
 });
 
 /**
- * GET /api/archive/timelines
- * Get timelines
+ * @openapi
+ * /api/archive/timelines:
+ *   get:
+ *     summary: Retrieve timelines linked to memory
  */
 router.get('/timelines', (req, res, next) => {
   try {
@@ -234,8 +264,10 @@ router.get('/timelines', (req, res, next) => {
 });
 
 /**
- * GET /api/archive/categories
- * Get archive categories
+ * @openapi
+ * /api/archive/categories:
+ *   get:
+ *     summary: List memory categories
  */
 router.get('/categories', (req, res, next) => {
   try {
@@ -254,8 +286,10 @@ router.get('/categories', (req, res, next) => {
 });
 
 /**
- * GET /api/archive/stats
- * Get archive statistics
+ * @openapi
+ * /api/archive/stats:
+ *   get:
+ *     summary: Retrieve archive statistics
  */
 router.get('/stats', (req, res, next) => {
   try {
@@ -273,8 +307,10 @@ router.get('/stats', (req, res, next) => {
 });
 
 /**
- * GET /api/archive/preservation
- * Get preservation status
+ * @openapi
+ * /api/archive/preservation:
+ *   get:
+ *     summary: Get digital preservation score/metrics
  */
 router.get('/preservation', (req, res, next) => {
   try {
@@ -292,8 +328,10 @@ router.get('/preservation', (req, res, next) => {
 });
 
 /**
- * POST /api/archive/backup
- * Create backup
+ * @openapi
+ * /api/archive/backup:
+ *   post:
+ *     summary: Trigger backup snapshot
  */
 router.post('/backup', async (req, res, next) => {
   try {
@@ -311,20 +349,14 @@ router.post('/backup', async (req, res, next) => {
 });
 
 /**
- * POST /api/archive/restore
- * Restore from backup
+ * @openapi
+ * /api/archive/restore:
+ *   post:
+ *     summary: Restore database state from backup ID
  */
-router.post('/restore', async (req, res, next) => {
+router.post('/restore', validateBody(['backupId']), async (req, res, next) => {
   try {
     const { backupId } = req.body;
-
-    if (!backupId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required field: backupId'
-      });
-    }
-
     const service = getService();
     const backup = await service.restoreFromBackup(backupId);
 
@@ -343,8 +375,10 @@ router.post('/restore', async (req, res, next) => {
 });
 
 /**
- * GET /api/archive/search
- * Search archive
+ * @openapi
+ * /api/archive/search:
+ *   get:
+ *     summary: Full text search query
  */
 router.get('/search', (req, res, next) => {
   try {
@@ -372,4 +406,45 @@ router.get('/search', (req, res, next) => {
   }
 });
 
+/**
+ * @openapi
+ * /api/archive/keys:
+ *   post:
+ *     summary: Register p2p key
+ */
+router.post('/keys', archiveController.registerPublicKey);
+
+/**
+ * @openapi
+ * /api/archive/keys/{userId}:
+ *   get:
+ *     summary: Retrieve public key by user ID
+ */
+router.get('/keys/:userId', archiveController.getPublicKey);
+
+/**
+ * @openapi
+ * /api/archive/keys:
+ *   get:
+ *     summary: Get all active public keys
+ */
+router.get('/keys', archiveController.getAllPublicKeys);
+
+/**
+ * @openapi
+ * /api/archive/:
+ *   post:
+ *     summary: Create new archive registry
+ */
+router.post('/', archiveController.createArchive);
+
+/**
+ * @openapi
+ * /api/archive/:
+ *   get:
+ *     summary: List accessible local archives
+ */
+router.get('/', archiveController.getAccessibleArchives);
+
 module.exports = router;
+

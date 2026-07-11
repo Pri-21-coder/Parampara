@@ -312,7 +312,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
 });
 
-// ── Merge sample data with localStorage contributions ──
+/**
+ * Retrieves all registered traditions, merging the core static sample dataset
+ * with any user-submitted community contributions stored in LocalStorage.
+ * Handles parsing, normalizes defaults, and flags custom submissions.
+ * @returns {Object[]} Array of merged tradition objects.
+ */
 function getAllTraditions() {
   const contributions = loadContributions();
   const contributionTraditions = contributions.map((c, index) => ({
@@ -337,7 +342,11 @@ function getAllTraditions() {
   return [...LOST_TRADITIONS_SAMPLE, ...contributionTraditions];
 }
 
-// ── localStorage helpers ──
+/**
+ * Loads custom community submissions from the browser's LocalStorage.
+ * Gracefully defaults to an empty array if storage fails or is empty.
+ * @returns {Object[]} Stored user contributions list.
+ */
 function loadContributions() {
   try {
     const raw = localStorage.getItem(REVIVAL_STORAGE_KEY);
@@ -347,6 +356,11 @@ function loadContributions() {
   }
 }
 
+/**
+ * Appends a new community tradition submission to LocalStorage, generating a stable
+ * ID and tracking submission timestamps and default states.
+ * @param {Object} entry - Raw contribution payload from the submit form.
+ */
 function saveContribution(entry) {
   const contributions = loadContributions();
   contributions.push({
@@ -391,7 +405,11 @@ window.ParamparaLostTraditions = {
   sampleData: LOST_TRADITIONS_SAMPLE,
 };
 
-// ── Populate category and state filter dropdowns ──
+/**
+ * Populates category and state filter dropdown elements dynamically based on
+ * the unique attributes present in the loaded traditions dataset.
+ * Clears prior options and appends new alphabetized choices.
+ */
 function populateFilterOptions() {
   const categoryFilter = document.getElementById('category-filter');
   const stateFilter = document.getElementById('state-filter');
@@ -418,7 +436,10 @@ function populateFilterOptions() {
   });
 }
 
-// ── Event listeners: search, filters, modal, form ──
+/**
+ * Binds DOM event listeners for search filters, category selectors,
+ * modal toggle elements, and community contribution form submissions.
+ */
 function setupEventListeners() {
   document
     .getElementById('revival-search')
@@ -454,7 +475,13 @@ async function handleFilterChange() {
   renderTraditions(filtered);
 }
 
-// ── Search and filter logic ──
+/**
+ * Queries UI input values (search bar text, category filter, state filter, status filter)
+ * and executes a filter operation on the loaded traditions list.
+ * Delegates to window.dataWorker for background performance, falling back to main-thread
+ * array filters on worker failure or rejection.
+ * @returns {Promise<Object[]>} Filtered traditions.
+ */
 async function getFilteredTraditions() {
   const search = document
     .getElementById('revival-search')
@@ -499,7 +526,11 @@ async function getFilteredTraditions() {
   }
 }
 
-// ── Update statistics cards ──
+/**
+ * Computes statistical highlights (total count, endangered count, active revival count,
+ * and user-submitted contribution count) and updates the top stat block cards in the UI.
+ * @param {Object[]} traditions - The list of traditions currently loaded.
+ */
 function updateStatistics(traditions) {
   const contributions = loadContributions();
 
@@ -514,7 +545,11 @@ function updateStatistics(traditions) {
     contributions.length;
 }
 
-// ── Render tradition cards ──
+/**
+ * Compiles tradition objects into styled HTML cards and mounts them in the grid.
+ * Configures the patterned backgrounds sequentially and hooks up event handlers.
+ * @param {Object[]} traditions - Array of filtered traditions to render.
+ */
 function renderTraditions(traditions) {
   const grid = document.getElementById('traditions-grid');
   const resultsCount = document.getElementById('results-count');
@@ -531,18 +566,20 @@ function renderTraditions(traditions) {
   }
 
   grid.innerHTML = traditions
-    .map(
-      (t) => `
+    .map((t, index) => {
+      const bgClass = `card-bg-${index % 4}`;
+      return `
     <button
       class="tradition-card"
       data-id="${escapeHtml(t.id)}"
       aria-label="View details for ${escapeHtml(t.title)}"
     >
-      <div class="tradition-card-image">
+      <div class="tradition-card-image ${bgClass}">
         ${
           t.images && t.images.length > 0
-            ? `<img src="${escapeHtml(t.images[0])}" alt="${escapeHtml(t.title)}" loading="lazy" class="lazy-img" onload="this.classList.add('loaded')" />`
-            : `<span class="placeholder-icon"><i class="ti ${CATEGORY_ICONS[t.category] || 'ti-book'}" aria-hidden="true"></i></span>`
+            ? `<img src="${escapeHtml(t.images[0])}" alt="${escapeHtml(t.title)}" loading="lazy" class="lazy-img" />
+               <span class="placeholder-icon" style="display: none;"><i class="ti ${CATEGORY_ICONS[t.category] || 'ti-book'}" aria-hidden="true"></i></span>`
+            : `<span class="placeholder-icon" style="display: flex;"><i class="ti ${CATEGORY_ICONS[t.category] || 'ti-book'}" aria-hidden="true"></i></span>`
         }
       </div>
       <div class="tradition-card-body">
@@ -559,9 +596,34 @@ function renderTraditions(traditions) {
           <span class="status-badge status-${t.revivalStatus}">${formatStatus(t.revivalStatus)}</span>
         </div>
       </div>
-    </button>`
+    </button>`;
+      }
     )
     .join('');
+
+  // Dynamically attach load and error event listeners to comply with CSP
+  grid.querySelectorAll('.tradition-card-image img').forEach((img) => {
+    // If the image loaded from cache before event listeners attached
+    if (img.complete) {
+      if (img.naturalWidth > 0) {
+        img.classList.add('loaded');
+      } else {
+        // Fallback for broken cached images
+        img.style.display = 'none';
+        const placeholder = img.nextElementSibling;
+        if (placeholder) placeholder.style.display = 'flex';
+      }
+    } else {
+      img.addEventListener('load', () => {
+        img.classList.add('loaded');
+      });
+      img.addEventListener('error', () => {
+        img.style.display = 'none';
+        const placeholder = img.nextElementSibling;
+        if (placeholder) placeholder.style.display = 'flex';
+      });
+    }
+  });
 
   grid.querySelectorAll('.tradition-card').forEach((card) => {
     card.addEventListener('click', () => openModal(card.dataset.id));

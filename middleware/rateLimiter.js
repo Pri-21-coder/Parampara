@@ -1,40 +1,40 @@
 /**
- * Sliding Window Rate Limiter Middleware
- * Uses an in-memory Map to track request timestamps per IP address.
+ * Heuristic Rate Limiting and Adaptive Throttling Middleware
+ * Uses an in-memory Map to track tokens and dynamically delays responses to tarpit abusive users.
  */
-class SlidingWindowLimiter {
-  /**
-   * @param {Object} options
-   * @param {number} options.windowMs - Sliding window duration in milliseconds
-   * @param {number} options.max - Maximum number of requests allowed in the window
-   * @param {string} options.message - Error message returned when limit is exceeded
-   * @param {Function} options.exclude - Function (req) => boolean to bypass limiter
-   */
+class HeuristicRateLimiter {
   constructor(options = {}) {
-    this.windowMs = options.windowMs || 60000; // Default 1 minute
-    this.max = options.max || 10; // Default 10 requests
+    this.windowMs = options.windowMs || 60000;
+    this.maxTokens = options.maxTokens || 100; // Total tokens in bucket
     this.message = options.message || 'Too many requests, please try again later.';
     this.exclude = options.exclude || null;
+    this.baseDelayMs = options.baseDelayMs || 2000; // Max artificial delay to introduce (2 seconds)
+    
     this.store = new Map();
 
-    // Cleanup interval to remove inactive IPs and prevent memory leaks
     this.cleanupInterval = setInterval(() => {
       const now = Date.now();
-      for (const [ip, timestamps] of this.store.entries()) {
-        // Keep only timestamps within the current window
-        const activeTimestamps = timestamps.filter(t => t > now - this.windowMs);
-        if (activeTimestamps.length === 0) {
+      for (const [ip, bucket] of this.store.entries()) {
+        if (now - bucket.lastRefill > this.windowMs) {
           this.store.delete(ip);
-        } else {
-          this.store.set(ip, activeTimestamps);
         }
       }
     }, this.windowMs);
 
-    // Prevent the interval from keeping the Node.js event loop alive unnecessarily
-    if (this.cleanupInterval.unref) {
-      this.cleanupInterval.unref();
+    if (this.cleanupInterval.unref) this.cleanupInterval.unref();
+  }
+
+  // Calculate heuristic cost of a request
+  calculateCost(req) {
+    let cost = 1; // Base cost for GET
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+      cost = 3; // Modifying operations are 3x as expensive
     }
+    // High risk endpoints (e.g., search, reports) cost more
+    if (req.path.includes('/search') || req.path.includes('/report')) {
+      cost += 2; 
+    }
+    return cost;
   }
 
   middleware() {
@@ -42,44 +42,81 @@ class SlidingWindowLimiter {
       const ip = req.ip || req.connection.remoteAddress || 'unknown';
       const now = Date.now();
 
-      // Check if request is excluded from rate limiting
-      if (this.exclude && this.exclude(req)) {
-        return next();
+      // Skip rate limiting in test environment
+      if (process.env.NODE_ENV === 'test') return next();
+
+      try {
+        if (this.exclude && this.exclude(req)) return next();
+      } catch (err) {
+        console.error('[RateLimiter] Error in exclude function:', err);
       }
 
-      if (!this.store.has(ip)) {
-        this.store.set(ip, []);
+      let bucket = this.store.get(ip);
+      if (!bucket) {
+        bucket = { tokens: this.maxTokens, lastRefill: now, lastRequestTime: 0, burstCount: 0 };
+        this.store.set(ip, bucket);
+      } else {
+        const timePassed = now - bucket.lastRefill;
+        const refillRate = this.maxTokens / this.windowMs; 
+        const tokensToAdd = timePassed * refillRate;
+        if (tokensToAdd > 0) {
+          bucket.tokens = Math.min(this.maxTokens, bucket.tokens + tokensToAdd);
+          bucket.lastRefill = now;
+        }
       }
 
-      const timestamps = this.store.get(ip);
-      
-      // Fast removal of expired timestamps from the front of the array
-      while (timestamps.length > 0 && timestamps[0] <= now - this.windowMs) {
-        timestamps.shift();
+      // Burst Detection Heuristics
+      const timeSinceLastRequest = now - bucket.lastRequestTime;
+      if (timeSinceLastRequest < 500) { // Less than 500ms between requests
+        bucket.burstCount++;
+      } else if (timeSinceLastRequest > 2000) {
+        bucket.burstCount = Math.max(0, bucket.burstCount - 1);
+      }
+      bucket.lastRequestTime = now;
+
+      // Calculate cost
+      let cost = this.calculateCost(req);
+      if (bucket.burstCount > 5) cost *= 2; // Burst penalty
+
+      const remaining = Math.max(0, Math.floor(bucket.tokens) - cost);
+
+      let retryAfterSeconds = 0;
+      if (bucket.tokens < cost) {
+         const timeToNextToken = (cost - bucket.tokens) / (this.maxTokens / this.windowMs);
+         retryAfterSeconds = Math.ceil(timeToNextToken / 1000);
       }
 
-      // Add current request
-      timestamps.push(now);
-
-      const remaining = Math.max(0, this.max - timestamps.length);
-      const resetTime = timestamps[0] + this.windowMs;
-
-      // Set Rate Limit headers
-      res.setHeader('X-RateLimit-Limit', this.max);
+      res.setHeader('X-RateLimit-Limit', this.maxTokens);
       res.setHeader('X-RateLimit-Remaining', remaining);
-      res.setHeader('Retry-After', Math.ceil((resetTime - now) / 1000));
+      if (retryAfterSeconds > 0) res.setHeader('Retry-After', retryAfterSeconds);
 
-      if (timestamps.length > this.max) {
-        console.warn(`[RateLimiter] Limit exceeded for IP: ${ip} at ${req.originalUrl}`);
-        return res.status(429).json({ 
-          error: this.message, 
-          retryAfter: Math.ceil((resetTime - now) / 1000) 
-        });
+      if (bucket.tokens < cost) {
+        console.warn(`[RateLimiter] BLOCKED ${req.method} ${req.originalUrl} from ${ip} (Burst: ${bucket.burstCount}, Cost: ${cost})`);
+        return res.status(429).json({ error: this.message, retryAfter: retryAfterSeconds });
       }
 
-      next();
+      // Consume tokens
+      bucket.tokens -= cost;
+
+      // Adaptive Throttling (Tarpitting)
+      // If tokens drop below 30%, start introducing artificial delay
+      const healthPercentage = bucket.tokens / this.maxTokens;
+      let delayMs = 0;
+      
+      if (healthPercentage < 0.3) {
+        // Linearly increase delay from 0 to baseDelayMs as health drops from 30% to 0%
+        const delayFactor = (0.3 - healthPercentage) / 0.3; // 0 to 1
+        delayMs = Math.floor(this.baseDelayMs * delayFactor);
+      }
+
+      if (delayMs > 50) {
+        console.log(`[RateLimiter] THROTTLING ${req.method} ${req.originalUrl} from ${ip} (Delay: ${delayMs}ms, Health: ${Math.round(healthPercentage*100)}%)`);
+        setTimeout(() => next(), delayMs);
+      } else {
+        next();
+      }
     };
   }
 }
 
-module.exports = SlidingWindowLimiter;
+module.exports = HeuristicRateLimiter;

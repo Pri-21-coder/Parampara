@@ -1,0 +1,196 @@
+/* Markdown Editor Styles */
+
+.markdown-editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--theme-border, #ddd);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--theme-bg, #fff);
+  margin-bottom: 15px;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.markdown-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px 12px;
+  background-color: var(--theme-header-bg, #f8f9fa);
+  border-bottom: 1px solid var(--theme-border, #ddd);
+  align-items: center;
+}
+
+.markdown-toolbar-group {
+  display: flex;
+  gap: 2px;
+  border-right: 1px solid var(--theme-border, #ddd);
+  padding-right: 8px;
+  margin-right: 3px;
+}
+
+.markdown-toolbar-group:last-child {
+  border-right: none;
+}
+
+.markdown-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 5px 8px;
+  cursor: pointer;
+  color: var(--theme-text, #333);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.markdown-btn:hover {
+  background-color: var(--theme-hover, #e9ecef);
+  border-color: var(--theme-border, #ddd);
+}
+
+.markdown-btn i {
+  font-size: 16px;
+}
+
+.markdown-panels {
+  display: flex;
+  flex-direction: row;
+  min-height: 300px;
+  max-height: 600px;
+}
+
+.markdown-editor-pane,
+.markdown-preview-pane {
+  flex: 1;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.markdown-editor-pane {
+  border-right: 1px solid var(--theme-border, #ddd);
+}
+
+.markdown-textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 300px;
+  border: none;
+  padding: 15px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: var(--theme-input-bg, #fff);
+  color: var(--theme-text, #333);
+  resize: vertical;
+  outline: none;
+}
+
+.markdown-preview-pane {
+  padding: 15px;
+  overflow-y: auto;
+  background-color: var(--theme-bg, #fff);
+  color: var(--theme-text, #333);
+}
+
+/* Markdown typography in preview */
+.markdown-preview-pane h1,
+.markdown-preview-pane h2,
+.markdown-preview-pane h3 {
+  margin-top: 0;
+  color: var(--theme-primary, #2c3e50);
+}
+
+.markdown-preview-pane img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.markdown-preview-pane pre {
+  background: #f1f3f5;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.markdown-preview-pane code {
+  font-family: 'Fira Code', monospace;
+  background: rgba(0,0,0,0.05);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.markdown-preview-pane blockquote {
+  border-left: 4px solid var(--theme-primary, #3498db);
+  margin: 0;
+  padding-left: 15px;
+  color: #555;
+  font-style: italic;
+}
+
+/* Status Indicator */
+.markdown-status {
+  margin-left: auto;
+  font-size: 12px;
+  color: #7f8c8d;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Mobile Responsiveness */
+.markdown-tabs {
+  display: none;
+  width: 100%;
+  background: var(--theme-header-bg, #f8f9fa);
+  border-bottom: 1px solid var(--theme-border, #ddd);
+}
+
+.markdown-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-weight: bold;
+  color: #7f8c8d;
+}
+
+.markdown-tab.active {
+  color: var(--theme-primary, #3498db);
+  border-bottom: 2px solid var(--theme-primary, #3498db);
+}
+
+@media (max-width: 768px) {
+  .markdown-panels {
+    flex-direction: column;
+  }
+  
+  .markdown-editor-pane,
+  .markdown-preview-pane {
+    width: 100%;
+  }
+
+  .markdown-editor-pane {
+    border-right: none;
+  }
+
+  .markdown-tabs {
+    display: flex;
+  }
+
+  /* When tabs are active, hide the inactive pane */
+  .markdown-panels.mode-write .markdown-preview-pane {
+    display: none;
+  }
+
+  .markdown-panels.mode-preview .markdown-editor-pane {
+    display: none;
+  }
+}

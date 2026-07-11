@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="styles/languageSelector.css" />
     <link rel="stylesheet" href="styles/theme.css" />
     <link rel="stylesheet" href="styles/shareModal.css" />
-  </head>
+      <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
   <body>
     <nav class="navbar">
       <div class="nav-container">
@@ -37,9 +37,11 @@
           <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
           <li><a href="revival.html"><i class="ti ti-hourglass"></i> <span data-i18n="nav_revival">Lost Traditions</span></a></li>
           <li><a href="risk-dashboard.html"><i class="ti ti-alert-triangle"></i> <span data-i18n="nav_risk">Risk </span></a></li>
-          <li><a href="reputation.html"><i class="ti ti-medal"></i> <span data-i18n="nav_reputation">Contributor Reputation</span></a></li>
+          <li><a href="reputation.html"><i class="ti ti-medal"></i> <span data-i18n="nav_reputation">Contributor Reputation</span></a>
+          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a></li>
           <li><a href="timeline.html"><i class="ti ti-history"></i> <span data-i18n="nav_timeline">Historical Timeline</span></a></li>
-          <li><a href="story-generator.html"><i class="ti ti-books"></i> <span data-i18n="nav_story_generator">AI Story Generator</span></a></li>
+          <li><a href="story-generator.html"><i class="ti ti-books"></i> <span data-i18n="nav_story_generator">AI Story Generator</span></a>
+          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a></li>
           <li><a href="favorites.html"><i class="ti ti-heart"></i> My Favorites</a></li>`n          <li><a href="compare.html"><i class="ti ti-arrows-split"></i> Compare Items</a></li>
         </ul>
       </div>
@@ -192,6 +194,8 @@
     <script src="scripts/cacheLayer.js"></script>
     <script src="scripts/languageSwitcher.js"></script>
     <script src="scripts/navbar.js"></script>
+    <script src="scripts/crypto-utils.js"></script>
+    <script src="scripts/integrityBadge.js"></script>
     <script src="scripts/main.js"></script>
     <script src="scripts/theme.js"></script>
     <script src="scripts/sw-register.js"></script>

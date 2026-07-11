@@ -1,7 +1,7 @@
 // routes/blockchain.routes.js
 const express = require('express');
 const router = express.Router();
-const BlockchainService = require('../services/blockchainService');
+const BlockchainService = require('../server/services/blockchainService');
 
 let blockchainService = null;
 

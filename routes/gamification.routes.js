@@ -1,7 +1,7 @@
 // routes/gamification.routes.js
 const express = require('express');
 const router = express.Router();
-const GamificationService = require('../services/gamificationService');
+const GamificationService = require('../server/services/gamificationService');
 
 let gamificationService = null;
 

@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "name": "Asha Patel",
+    "completedChallenges": 12,
+    "points": 720,
+    "badges": ["b1", "b2", "b3", "b5"]
+  },
+  {
+    "rank": 2,
+    "name": "Rohan Singh",
+    "completedChallenges": 10,
+    "points": 600,
+    "badges": ["b1", "b4", "b6"]
+  },
+  {
+    "rank": 3,
+    "name": "Meena Kumari",
+    "completedChallenges": 9,
+    "points": 540,
+    "badges": ["b2", "b3", "b7"]
+  },
+  {
+    "rank": 4,
+    "name": "Sanjay Rao",
+    "completedChallenges": 8,
+    "points": 480,
+    "badges": ["b1", "b5"]
+  },
+  {
+    "rank": 5,
+    "name": "Leela Joshi",
+    "completedChallenges": 7,
+    "points": 420,
+    "badges": ["b3", "b4", "b6"]
+  },
+  {
+    "rank": 6,
+    "name": "Vikram Desai",
+    "completedChallenges": 6,
+    "points": 360,
+    "badges": ["b2", "b5"]
+  },
+  {
+    "rank": 7,
+    "name": "Anita Sharma",
+    "completedChallenges": 5,
+    "points": 300,
+    "badges": ["b1", "b7"]
+  },
+  {
+    "rank": 8,
+    "name": "Deepak Verma",
+    "completedChallenges": 4,
+    "points": 240,
+    "badges": ["b4"]
+  },
+  {
+    "rank": 9,
+    "name": "Kiran Nair",
+    "completedChallenges": 3,
+    "points": 180,
+    "badges": ["b3"]
+  },
+  {
+    "rank": 10,
+    "name": "Sunita Gupta",
+    "completedChallenges": 2,
+    "points": 120,
+    "badges": ["b2"]
+  }
+]

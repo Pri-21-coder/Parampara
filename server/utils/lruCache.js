@@ -104,6 +104,30 @@ class LRUCache {
   get length() {
     return this.cache.size;
   }
+
+  /**
+   * Return an iterator of [key, value] pairs for every entry in the cache.
+   * @returns {IterableIterator<[any, any]>}
+   */
+  entries() {
+    return this.cache.entries();
+  }
+
+  /**
+   * Return an iterator of keys in the cache.
+   * @returns {IterableIterator<any>}
+   */
+  keys() {
+    return this.cache.keys();
+  }
+
+  /**
+   * Default iterator for the cache, allowing for...of loops directly on the cache instance.
+   * @returns {IterableIterator<[any, any]>}
+   */
+  [Symbol.iterator]() {
+    return this.cache.entries();
+  }
 }
 
 module.exports = LRUCache;
