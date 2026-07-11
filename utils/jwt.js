@@ -1,7 +1,16 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'parampara_secret_key_12345';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'parampara_refresh_secret_98765';
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('Missing required environment variable: JWT_SECRET');
+}
+
+if (!JWT_REFRESH_SECRET) {
+  throw new Error('Missing required environment variable: JWT_REFRESH_SECRET');
+}
+
 const JWT_EXPIRES_IN = '15m'; // Short-lived access token
 const JWT_REFRESH_EXPIRES_IN = '7d'; // Long-lived refresh token
 

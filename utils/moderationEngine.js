@@ -13,7 +13,12 @@ class ModerationEngine {
     // Build a regular expression for efficient matching
     // Boundary \b is used for English words. For a more advanced system,
     // fuzzy matching or phonetic matching could be implemented.
-    const wordsPattern = Array.from(this.profanityList).join('|');
+    const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const wordsPattern = Array.from(this.profanityList)
+      .map(escapeRegex)
+      .join('|');
+
     this.profanityRegex = new RegExp(`\\b(${wordsPattern})\\b`, 'i');
   }
 
