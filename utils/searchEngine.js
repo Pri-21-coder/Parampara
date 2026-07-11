@@ -64,16 +64,16 @@ class SearchEngine {
     this.documents = {}; // docId -> { type, data }
     this.docCount = 0;
     this.totalTokenCount = 0; // For BM25 avgdl
-    
+
     // BM25 Parameters
     this.k1 = 1.2;
     this.b = 0.75;
-    
+
     // Multilingual Stop Words
     this.stopWords = new Set([
       // English
-      'a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in', 
-      'into', 'is', 'it', 'no', 'not', 'of', 'on', 'or', 'such', 'that', 'the', 
+      'a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if', 'in',
+      'into', 'is', 'it', 'no', 'not', 'of', 'on', 'or', 'such', 'that', 'the',
       'their', 'then', 'there', 'these', 'they', 'this', 'to', 'was', 'will', 'with',
       // Hindi (Transliterated & Devanagari)
       'aur', 'hai', 'ki', 'ke', 'ka', 'ko', 'mein', 'se', 'ek', 'par', 'bhi', 'kya',
@@ -97,10 +97,10 @@ class SearchEngine {
 
   tokenize(text) {
     if (!text || typeof text !== 'string') return [];
-    
+
     return text
       .toLowerCase()
-      .replace(/[^\w\s\u0900-\u097F]/g, ' ') 
+      .replace(/[^\w\s\u0900-\u097F]/g, ' ')
       .split(/\s+/)
       .filter(token => token.length > 0 && !this.stopWords.has(token))
       .map(token => stem(token)); // Apply Stemmer
@@ -118,7 +118,7 @@ class SearchEngine {
 
     for (const field of indexableFields) {
       if (!doc[field]) continue;
-      
+
       let text = Array.isArray(doc[field]) ? doc[field].join(' ') : String(doc[field]);
       const tokens = this.tokenize(text);
       const weight = this.fieldWeights[field] || 1.0;
@@ -180,11 +180,11 @@ class SearchEngine {
     // Otherwise, find closest terms (Levenshtein distance <= 1 or 2 depending on length)
     const maxDist = token.length > 5 ? 2 : 1;
     const matches = [];
-    
+
     for (const indexTerm of Object.keys(this.invertedIndex)) {
       // Fast length filter before expensive Levenshtein
       if (Math.abs(indexTerm.length - token.length) > maxDist) continue;
-      
+
       if (levenshtein(token, indexTerm) <= maxDist) {
         matches.push(indexTerm);
       }
@@ -201,13 +201,13 @@ class SearchEngine {
     // 1. Synonym Expansion
     queryTokens = this.expandQuery(queryTokens);
 
-    const scores = {}; 
+    const scores = {};
     const avgdl = this.docCount > 0 ? this.totalTokenCount / this.docCount : 0;
 
     for (const token of queryTokens) {
       // 2. Fuzzy Matching
       const matchedTerms = this.findFuzzyMatches(token);
-      
+
       for (const matchedTerm of matchedTerms) {
         const docEntries = this.invertedIndex[matchedTerm];
         if (!docEntries) continue;
@@ -219,16 +219,16 @@ class SearchEngine {
         // Score docs
         for (const [docId, tf] of Object.entries(docEntries)) {
           if (!scores[docId]) scores[docId] = 0;
-          
+
           const D = this.documentLengths[docId];
-          
+
           // BM25 TF calculation
           const tf_numerator = tf * (this.k1 + 1);
           const tf_denominator = tf + this.k1 * (1 - this.b + this.b * (D / avgdl));
-          
+
           // Multiply by a dampening factor for fuzzy matches so exact matches rank higher
           const fuzzyPenalty = matchedTerm === token ? 1.0 : 0.7;
-          
+
           scores[docId] += idf * (tf_numerator / tf_denominator) * fuzzyPenalty;
         }
       }
@@ -242,7 +242,7 @@ class SearchEngine {
 
       results.push({
         ...docEntry.data,
-        _score: score 
+        _score: score
       });
     }
 
@@ -255,34 +255,36 @@ function createSearchProxy(searchEngine, resourceType, indexableFields, cacheIns
   const originalSet = cacheInstance.set.bind(cacheInstance);
   const originalDelete = cacheInstance.delete.bind(cacheInstance);
   const originalClear = cacheInstance.clear.bind(cacheInstance);
-  
+
   cacheInstance.set = (key, value) => {
     originalSet(key, value);
     searchEngine.addDocument(value, resourceType, indexableFields);
   };
-  
+
   cacheInstance.delete = (key) => {
     originalDelete(key);
     searchEngine.removeDocument(key);
   };
-  
+
   cacheInstance.clear = () => {
-    const allValues = cacheInstance.values();
+    const allValues = Array.from(cacheInstance.values());
+
     allValues.forEach(val => {
       searchEngine.removeDocument(val.id || 'unknown');
     });
+
     originalClear();
   };
-  
+
   const originalPush = cacheInstance.push.bind(cacheInstance);
   if (originalPush) {
     cacheInstance.push = (item) => {
       const key = item.id || Date.now().toString() + Math.random().toString(36).substr(2, 5);
       cacheInstance.set(key, item);
-      return cacheInstance.length; 
+      return cacheInstance.length;
     };
   }
-  
+
   return cacheInstance;
 }
 
