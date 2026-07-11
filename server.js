@@ -38,6 +38,7 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const { csrfProtection } = require('./middleware/csrf');
 const store = require('./data/store');
+const calendarRoutes = require('./routes/calendar.routes');
 
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
@@ -118,10 +119,16 @@ app.use(globalLimiter.middleware());
 // Initialize Data
 initializeSampleData();
 initializeSampleLanguageData();
+const initializeSampleData = require('./config/sampleData');
+initializeSampleData();
+
 const initializeSampleRecipeData = require('./config/sampleRecipeData');
 initializeSampleRecipeData();
 initializeSampleNatureData();
 initializeSampleArtifactData();
+
+const initializeSampleCalendarData = require('./config/sampleCalendarData');
+initializeSampleCalendarData();
 
 // API Routes (existing)
 app.use('/api/items', itemRoutes);
@@ -148,6 +155,7 @@ setInterval(
 // ==================== FRONTEND ROUTES ====================
 
 // Home Route
+app.use('/api/calendar', calendarRoutes);
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -490,15 +498,15 @@ try {
 app.get('/api/health', (req, res) => {
   const wsStatus = wsServer
     ? {
-        status: 'running',
-        port: WS_PORT,
-        clients: wsServer.clients ? wsServer.clients.size : 0,
-        markers: wsServer.markers ? wsServer.markers.size : 0,
-      }
+      status: 'running',
+      port: WS_PORT,
+      clients: wsServer.clients ? wsServer.clients.size : 0,
+      markers: wsServer.markers ? wsServer.markers.size : 0,
+    }
     : {
-        status: 'stopped',
-        port: WS_PORT,
-      };
+      status: 'stopped',
+      port: WS_PORT,
+    };
 
   res.json({
     status: 'OK',
@@ -626,12 +634,21 @@ app.get('/virtual-tour', (req, res) => {
 // const languageLearningRoutes = require('./routes/languageLearning.routes');
 // app.use('/api/language', languageLearningRoutes);
 
+
 // Itinerary Planner routes (disabled - service missing)
 // const itineraryRoutes = require('./routes/itineraryPlanner.routes');
 // app.use('/api/itinerary', itineraryRoutes);
 // app.get('/itinerary-planner', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public', 'itinerary-planner.html'));
 // });
+
+
+// Itinerary Planner routes
+const itineraryRoutes = require('./routes/itineraryPlanner.routes');
+app.use('/api/itinerary', itineraryRoutes);
+app.get('/itinerary-planner', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'itinerary-planner.html'));
+});
 
 // Language Learning page
 app.get('/language-learning', (req, res) => {
@@ -644,6 +661,13 @@ app.get('/language-learning', (req, res) => {
 // AR Experience page
 app.get('/ar-experience', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'ar-experience.html'));
+});
+
+// Rangoli Generator routes
+const rangoliRoutes = require('./routes/rangoli.routes');
+app.use('/api/rangoli', rangoliRoutes);
+app.get('/rangoli-generator', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'rangoli.html'));
 });
 // Add search engine routes
 const searchEngineRoutes = require('./routes/searchEngine');

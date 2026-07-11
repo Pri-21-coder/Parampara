@@ -222,6 +222,7 @@ const PARAMPARA_TRANSLATIONS = {
     nav_quest: 'Discovery Quest',
     nav_trails: 'Heritage Trails',
     nav_chat: 'Talk to Elder',
+    nav_calendar: 'Seasonal Calendar',
     nav_revival: 'Lost Traditions',
     revival_title: 'Lost Traditions Revival Center',
     revival_subtitle:
@@ -603,6 +604,18 @@ const PARAMPARA_TRANSLATIONS = {
     nature_subtitle: 'Discover culturally significant trees, groves, rivers, ponds, and landscapes.',
     nav_nature: 'Sacred Heritage',
     nature_nearby_links: 'Nearby Connections',
+    calendar_title: 'Seasonal Cultural Calendar',
+    calendar_subtitle:
+      'Discover village traditions, festivals, and harvests throughout the year',
+    filter_type: 'Event Type',
+    filter_month: 'Month',
+    filter_season: 'Season',
+    filter_state: 'State',
+    sort_by: 'Sort By',
+    view_monthly: 'Monthly Grid',
+    view_seasonal: 'Seasonal Decks',
+    view_timeline: 'Timeline List',
+    view_region: 'Region Clusters',
   },
 
   hi: {
@@ -615,6 +628,7 @@ const PARAMPARA_TRANSLATIONS = {
     nav_quest: 'खोज अभियान',
     nav_trails: 'विरासत ट्रेल्स',
     nav_chat: 'बुजुर्ग से बात करें',
+    nav_calendar: 'मौसमी कैलेंडर',
     nav_revival: 'लुप्त परंपराएं',
     revival_title: 'लुप्त परंपरा पुनरुत्थान केंद्र',
     revival_subtitle:
@@ -995,6 +1009,18 @@ const PARAMPARA_TRANSLATIONS = {
     nature_subtitle: 'सांस्कृतिक रूप से महत्वपूर्ण पेड़ों, जंगलों, नदियों, तालाबों और परिदृश्यों की खोज करें।',
     nav_nature: 'पवित्र विरासत',
     nature_nearby_links: 'निकटतम संबंध',
+    calendar_title: 'मौसमी सांस्कृतिक कैलेंडर',
+    calendar_subtitle:
+      'वर्ष भर गाँव की परंपराओं, त्योहारों और फसलों का अन्वेषण करें',
+    filter_type: 'कार्यक्रम का प्रकार',
+    filter_month: 'महीना',
+    filter_season: 'मौसम',
+    filter_state: 'राज्य',
+    sort_by: 'क्रमबद्ध करें',
+    view_monthly: 'मासिक ग्रिड',
+    view_seasonal: 'मौसमी डेक',
+    view_timeline: 'समय-सीमा सूची',
+    view_region: 'क्षेत्र समूह',
   },
 
   mr: {
@@ -1007,6 +1033,7 @@ const PARAMPARA_TRANSLATIONS = {
     nav_quest: 'शोध मोहीम',
     nav_trails: 'वारसा ट्रेल्स',
     nav_chat: 'वडिलांशी बोला',
+    nav_calendar: 'हंगामी कॅलेंडर',
     nav_revival: 'हरवलेल्या परंपरा',
     revival_title: 'हरवलेल्या परंपरा पुनरुज्जीवन केंद्र',
     revival_subtitle:
@@ -1385,6 +1412,17 @@ const PARAMPARA_TRANSLATIONS = {
     nature_subtitle: 'सांस्कृतिकदृष्ट्या महत्त्वाचे वृक्ष, जंगले, नद्या, तलाव आणि निसर्गचित्रे शोधा.',
     nav_nature: 'पवित्र वारसा',
     nature_nearby_links: 'जवळचे कनेक्शन',
+    calendar_title: 'हंगामी सांस्कृतिक कॅलेंडर',
+    calendar_subtitle: 'वर्षभरातील गावातील परंपरा, सण आणि पिकांचा शोध घ्या',
+    filter_type: 'कार्यक्रमाचा प्रकार',
+    filter_month: 'महिना',
+    filter_season: 'ऋतू',
+    filter_state: 'राज्य',
+    sort_by: 'क्रमवारी लावा',
+    view_monthly: 'मासिक ग्रिड',
+    view_seasonal: 'हंगामी डेक',
+    view_timeline: 'टाइमलाइन सूची',
+    view_region: 'प्रदेश समूह',
   },
 };
 

@@ -77,6 +77,53 @@ router.post('/calculate-route', (req, res, next) => {
 });
 
 /**
+ * POST /api/itinerary/optimize
+ * Optimizes a sequence of sites using A* Search.
+ */
+router.post('/optimize', (req, res, next) => {
+  try {
+    const { sites } = req.body;
+    if (!sites || !Array.isArray(sites)) {
+      return res.status(400).json({ success: false, error: 'Invalid sites array' });
+    }
+
+    // Filter valid sites
+    const validSites = sites.filter(s => s && s.location && typeof s.location.lat === 'number' && typeof s.location.lng === 'number');
+    
+    // Flatten locations for optimization
+    const locationsToOptimize = validSites.map(s => ({
+      ...s,
+      lat: s.location.lat,
+      lng: s.location.lng
+    }));
+
+    const { optimizeMultiDestinationRoute } = require('../utils/pathfinding');
+    const optimizedLocations = optimizeMultiDestinationRoute(locationsToOptimize);
+    
+    // Calculate total distance and time of the optimized route
+    const { calculateHaversineDistance } = require('../utils/haversine');
+    let totalDistance = 0;
+    for (let i = 0; i < optimizedLocations.length - 1; i++) {
+      totalDistance += calculateHaversineDistance(
+        optimizedLocations[i].lat, optimizedLocations[i].lng,
+        optimizedLocations[i + 1].lat, optimizedLocations[i + 1].lng
+      );
+    }
+    const travelHours = totalDistance / 40; 
+
+    res.json({
+      success: true,
+      optimizedRoute: optimizedLocations,
+      totalDistanceKm: totalDistance,
+      estimatedTimeHours: travelHours,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * GET /api/itinerary/:itineraryId
  * Get itinerary by ID
  */

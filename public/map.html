@@ -1,549 +1,420 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <script>
-      window.addEventListener('error', function(e) {
-        alert('JS Error: ' + e.message + '\nFile: ' + e.filename + '\nLine: ' + e.lineno);
-      });
-      window.addEventListener('unhandledrejection', function(e) {
-        alert('Unhandled Rejection: ' + e.reason);
-      });
-    </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Discover villages and their unique traditions, festivals, and crafts on the Parampara interactive cultural map"
-    />
-    <title>Cultural Map - Parampara</title>
-    <link rel="stylesheet" href="styles/main.css" />
-    <link rel="stylesheet" href="styles/livingHeritageBadge.css" />
-    <link rel="stylesheet" href="styles/map.css?v=5.0" />
-    <link rel="stylesheet" href="styles/languageSelector.css" />
-    <link rel="stylesheet" href="styles/theme.css" />
-    <link rel="stylesheet" href="styles/main.css" />
-    <link rel="stylesheet" href="styles/timeMachine.css" />
-    <link rel="stylesheet" href="styles/historicalTimeline.css" />
-    <link
-      href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css"
-      type="text/css"
-    />
-    <link rel="stylesheet" href="styles/languageSelector.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-      <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
-  <body>
-    <nav class="navbar">
-      <div class="nav-container">
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
-          🌙
-        </button>
-        <div class="logo">
-          <h1 data-i18n="brand_name">Parampara</h1>
-          <p class="tagline" data-i18n="brand_tagline">
-            Preserving Living Traditions
-          </p>
-        </div>
-        <!-- Language selector injected here by language-switcher.js -->
-        <button
-          class="hamburger"
-          id="hamburgerBtn"
-          aria-label="Toggle navigation"
-        >
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-        </button>
-        <ul class="nav-menu" id="navMenu">
-          <li>
-            <a href="index.html"><i class="ti ti-home"></i> Home</a>
-          </li>
-          <li>
-            <a href="map.html" class="active"
-              ><i class="ti ti-map-2"></i> Explore Map</a
-            >
-          </li>
-          <li>
-            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
-          </li>
-          <li>
-            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
-          </li>
-          <li>
-            <a href="quest.html"
-              ><i class="ti ti-compass"></i> Discovery Quest</a
-            >
-          </li>
-          <li>
-            <a href="trails.html"
-              ><i class="ti ti-trail-sign"></i> Heritage Trails</a
-            >
-          </li>
-          <li>
-            <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
-          </li>
-          <li>
-            <a href="chat.html"
-              ><i class="ti ti-message-circle"></i> Talk to Elder</a
-            >
-          </li>
-          <li>
-            <a href="revival.html"
-              ><i class="ti ti-hourglass"></i>
-              <span data-i18n="nav_revival">Lost Traditions</span></a
-            >
-          </li>
-          <li>
-            <a href="risk-dashboard.html"
-              ><i class="ti ti-alert-triangle"></i>
-              <span data-i18n="nav_risk">Risk </span></a
-            >
-          </li>
-          <li>
-            <a href="reputation.html"
-              ><i class="ti ti-medal"></i>
-              <span data-i18n="nav_reputation">Contributor Reputation</span></a
-            >
-          </li>
-          <li>
-            <a href="timeline.html"
-              ><i class="ti ti-history"></i>
-              <span data-i18n="nav_timeline">Historical Timeline</span></a
-            >
-          </li>
-          <li>
-            <a href="story-generator.html"
-              ><i class="ti ti-books"></i>
-              <span data-i18n="nav_story_generator">AI Story Generator</span></a
-            >
-          </li>
-          <li>
-            <a href="favorites.html"
-              ><i class="ti ti-heart"></i> My Favorites</a
-            >
-          </li>
-        </ul>
-      </div>
-    </nav>
 
-    <!-- Full Width Nav Menu — BAHAR hai nav ke -->
-    <div class="nav-fullmenu" id="navFullMenu">
-      <div class="nav-fullmenu-inner">
-        <p class="nav-fullmenu-label">Navigation</p>
-        <div class="nav-fullmenu-grid">
+<head>
+  <script>
+    window.addEventListener('error', function (e) {
+      alert('JS Error: ' + e.message + '\nFile: ' + e.filename + '\nLine: ' + e.lineno);
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      alert('Unhandled Rejection: ' + e.reason);
+    });
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Discover villages and their unique traditions, festivals, and crafts on the Parampara interactive cultural map" />
+  <title>Cultural Map - Parampara</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/livingHeritageBadge.css" />
+  <link rel="stylesheet" href="styles/map.css?v=5.0" />
+  <link rel="stylesheet" href="styles/languageSelector.css" />
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/timeMachine.css" />
+  <link rel="stylesheet" href="styles/historicalTimeline.css" />
+  <link href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css"
+    type="text/css" />
+  <link rel="stylesheet" href="styles/languageSelector.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="/scripts/tenant-interceptor.js"></script>`n
+  <script src="/scripts/tenant-switcher.js" defer></script>`n
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+        🌙
+      </button>
+      <div class="logo">
+        <h1 data-i18n="brand_name">Parampara</h1>
+        <p class="tagline" data-i18n="brand_tagline">
+          Preserving Living Traditions
+        </p>
+      </div>
+      <!-- Language selector injected here by language-switcher.js -->
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li>
           <a href="index.html"><i class="ti ti-home"></i> Home</a>
-          <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>
-          <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
-          <a href="map.html" class="active"
-            ><i class="ti ti-map-2"></i> Explore Map</a
-          >
+        </li>
+        <li>
+          <a href="map.html" class="active"><i class="ti ti-map-2"></i> Explore Map</a>
+        </li>
+        <li>
           <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+        </li>
+        <li>
           <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+        </li>
+        <li>
           <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
-          <a href="trails.html"
-            ><i class="ti ti-trail-sign"></i> Heritage Trails</a
-          >
-          <a href="chat.html"
-            ><i class="ti ti-message-circle"></i> Talk to Elder</a
-          >
-          <a href="risk-dashboard.html"
-            ><i class="ti ti-alert-triangle"></i> Risk
-          </a>
-          <a href="reputation.html"
-            ><i class="ti ti-medal"></i> Contributor Reputation</a
-          >
-          <a href="timeline.html"
-            ><i class="ti ti-history"></i> Historical Timeline</a
-          >
-          <a href="story-generator.html"
-            ><i class="ti ti-books"></i> AI Story Generator</a
-          >
-        </div>
+        </li>
+        <li>
+          <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+        </li>
+        <li>
+          <a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a>
+        </li>
+        <li>
+          <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+        </li>
+        <li>
+          <a href="calendar.html"><i class="ti ti-calendar"></i>
+            <span data-i18n="nav_calendar">Seasonal Calendar</span></a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Full Width Nav Menu — BAHAR hai nav ke -->
+  <div class="nav-fullmenu" id="navFullMenu">
+    <div class="nav-fullmenu-inner">
+      <p class="nav-fullmenu-label">Navigation</p>
+      <div class="nav-fullmenu-grid">
+        <a href="index.html"><i class="ti ti-home"></i> Home</a>
+        <a href="theme-builder.html"><i class="ti ti-palette"></i> Village Themes</a>
+        <a href="p2p-share.html"><i class="ti ti-share"></i> P2P Share</a>
+        <a href="map.html" class="active"><i class="ti ti-map-2"></i> Explore Map</a>
+        <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+        <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+        <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+        <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+        <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+        <a href="risk-dashboard.html"><i class="ti ti-alert-triangle"></i> Risk
+        </a>
+        <a href="reputation.html"><i class="ti ti-medal"></i> Contributor Reputation</a>
+        <a href="timeline.html"><i class="ti ti-history"></i> Historical Timeline</a>
+        <a href="story-generator.html"><i class="ti ti-books"></i> AI Story Generator</a>
       </div>
     </div>
-    <div class="nav-overlay" id="navOverlay"></div>
+  </div>
+  <div class="nav-overlay" id="navOverlay"></div>
 
-    <main class="map-container">
-      <div class="map-header">
-        <h2 data-i18n="map_title">
-          Digital Time-Travel: Explore Rural Heritage
-        </h2>
-        <p data-i18n="map_subtitle">
-          Click on villages to discover their unique traditions, festivals, and
-          crafts
-        </p>
-        <div class="map-controls">
-          <!-- language-switcher.js keeps this in sync with the global selector -->
-          <div class="map-control-panel">
-            <div class="primary-controls">
-              <select id="language-selector" class="btn btn-secondary">
-                <option value="en">English</option>
-                <option value="hi">हिन्दी</option>
-                <option value="mr">मराठी</option>
-              </select>
-              <button
-                id="toggle-heatmap"
-                class="btn btn-secondary"
-                data-i18n="map_toggle_heatmap"
-              >
-                Toggle Heatmap
-              </button>
+  <main class="map-container">
+    <div class="map-header">
+      <h2 data-i18n="map_title">
+        Digital Time-Travel: Explore Rural Heritage
+      </h2>
+      <p data-i18n="map_subtitle">
+        Click on villages to discover their unique traditions, festivals, and
+        crafts
+      </p>
+      <div class="map-controls">
+        <!-- language-switcher.js keeps this in sync with the global selector -->
+        <div class="map-control-panel">
+          <div class="primary-controls">
+            <select id="language-selector" class="btn btn-secondary">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी</option>
+              <option value="mr">मराठी</option>
+            </select>
+            <button id="toggle-heatmap" class="btn btn-secondary" data-i18n="map_toggle_heatmap">
+              Toggle Heatmap
+            </button>
 
-              <button
-                id="toggle-sound"
-                class="btn btn-secondary"
-                data-i18n="map_ambient_on"
-              >
-                Ambient Sounds : OFF
-              </button>
-            </div>
-
-            <div class="radius-search-control">
-              <select
-                id="radius-select"
-                class="btn btn-secondary"
-                aria-label="Select search radius"
-              >
-                <option value="5">5 km</option>
-                <option value="10">10 km</option>
-                <option value="25">25 km</option>
-                <option value="50">50 km</option>
-              </select>
-              <button id="btn-find-nearby" class="btn btn-primary">
-                <i class="ti ti-map-pin"></i> Find Nearby
-              </button>
-
-              <label class="heritage-toggle">
-                <span data-i18n="map_toggle_heritage"
-                  >Heritage Health View</span
-                >
-                <input type="checkbox" id="toggle-heritage-health" />
-              </label>
-            </div>
+            <button id="toggle-sound" class="btn btn-secondary" data-i18n="map_ambient_on">
+              Ambient Sounds : OFF
+            </button>
           </div>
-          <div class="custom-route-controls">
-            <input
-              type="file"
-              id="import-route-input"
-              accept=".geojson, .json, application/geo+json"
-            />
-            <button
-              id="btn-import-route"
-              class="btn btn-secondary"
-              title="Import GeoJSON Route"
-            >
-              <i class="ti ti-upload"></i> Import
+
+          <div class="radius-search-control">
+            <select id="radius-select" class="btn btn-secondary" aria-label="Select search radius">
+              <option value="5">5 km</option>
+              <option value="10">10 km</option>
+              <option value="25">25 km</option>
+              <option value="50">50 km</option>
+            </select>
+            <button id="btn-find-nearby" class="btn btn-primary">
+              <i class="ti ti-map-pin"></i> Find Nearby
             </button>
-            <button
-              id="btn-export-route"
-              class="btn btn-secondary"
-              title="Export Route as GeoJSON"
-            >
-              <i class="ti ti-download"></i> Export
-            </button>
+
+            <label class="heritage-toggle">
+              <span data-i18n="map_toggle_heritage">Heritage Health View</span>
+              <input type="checkbox" id="toggle-heritage-health" />
+            </label>
           </div>
         </div>
+        <div class="custom-route-controls">
+          <input type="file" id="import-route-input" accept=".geojson, .json, application/geo+json" />
+          <button id="btn-import-route" class="btn btn-secondary" title="Import GeoJSON Route">
+            <i class="ti ti-upload"></i> Import
+          </button>
+          <button id="btn-export-route" class="btn btn-secondary" title="Export Route as GeoJSON">
+            <i class="ti ti-download"></i> Export
+          </button>
+        </div>
+      </div>
 
-        <!-- Time Machine Slider -->
-        <div
-          id="map-time-machine-container"
-          style="
+      <!-- Time Machine Slider -->
+      <div id="map-time-machine-container" style="
             margin-top: 15px;
             width: 100%;
             max-width: 800px;
             margin-left: auto;
             margin-right: auto;
-          "
-        ></div>
-        
-        <!-- Interactive Historical Timeline Component -->
-        <div id="historical-timeline-mount"></div>
+          "></div>
 
-        <div class="route-finder-control">
-          <strong><i class="ti ti-route"></i> Route Finder:</strong>
-          <input
-            type="text"
-            id="route-start-input"
-            list="villages-datalist"
-            placeholder="Start Location..."
-            class="route-input"
-          />
-          <input
-            type="text"
-            id="route-end-input"
-            list="villages-datalist"
-            placeholder="End Location..."
-            class="route-input"
-          />
-          <datalist id="villages-datalist"></datalist>
-          <select id="route-theme">
-            <option value="">Any Theme</option>
-          </select>
-          <button id="btn-find-route" class="btn btn-primary">
-            Find Route
-          </button>
+      <!-- Interactive Historical Timeline Component -->
+      <div id="historical-timeline-mount"></div>
+
+      <div class="route-finder-control">
+        <strong><i class="ti ti-route"></i> Route Finder:</strong>
+        <input type="text" id="route-start-input" list="villages-datalist" placeholder="Start Location..."
+          class="route-input" />
+        <input type="text" id="route-end-input" list="villages-datalist" placeholder="End Location..."
+          class="route-input" />
+        <datalist id="villages-datalist"></datalist>
+        <select id="route-theme">
+          <option value="">Any Theme</option>
+        </select>
+        <button id="btn-find-route" class="btn btn-primary">
+          Find Route
+        </button>
+      </div>
+    </div>
+
+    <div id="map" class="map-view"></div>
+
+    <!-- Custom Route Dashboard -->
+    <div id="custom-route-dashboard" class="route-dashboard" style="display: none">
+      <div class="route-dashboard-header">
+        <h4><i class="ti ti-route"></i> Route Statistics</h4>
+      </div>
+      <div class="route-dashboard-content">
+        <div class="stat-item">
+          <span class="stat-label">Distance</span>
+          <span id="route-distance" class="stat-value">0 km</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Est. Walking Time</span>
+          <span id="route-time" class="stat-value">0 mins</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Waypoints</span>
+          <span id="route-waypoints" class="stat-value">0</span>
         </div>
       </div>
+    </div>
 
-      <div id="map" class="map-view"></div>
-
-      <!-- Custom Route Dashboard -->
-      <div
-        id="custom-route-dashboard"
-        class="route-dashboard"
-        style="display: none"
-      >
-        <div class="route-dashboard-header">
-          <h4><i class="ti ti-route"></i> Route Statistics</h4>
-        </div>
-        <div class="route-dashboard-content">
-          <div class="stat-item">
-            <span class="stat-label">Distance</span>
-            <span id="route-distance" class="stat-value">0 km</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Est. Walking Time</span>
-            <span id="route-time" class="stat-value">0 mins</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Waypoints</span>
-            <span id="route-waypoints" class="stat-value">0</span>
-          </div>
-        </div>
+    <!-- Flyover Controls -->
+    <div id="flyover-controls" class="flyover-controls" style="display: none">
+      <div class="flyover-header">
+        <h4 id="flyover-title">Cinematic Flyover</h4>
       </div>
-
-      <!-- Flyover Controls -->
-      <div id="flyover-controls" class="flyover-controls" style="display: none">
-        <div class="flyover-header">
-          <h4 id="flyover-title">Cinematic Flyover</h4>
-        </div>
-        <div class="flyover-actions">
-          <button id="btn-flyover-pause" class="btn btn-secondary">
-            Pause
-          </button>
-          <button id="btn-flyover-stop" class="btn btn-primary">
-            Stop Flyover
-          </button>
-        </div>
+      <div class="flyover-actions">
+        <button id="btn-flyover-pause" class="btn btn-secondary">
+          Pause
+        </button>
+        <button id="btn-flyover-stop" class="btn btn-primary">
+          Stop Flyover
+        </button>
       </div>
+    </div>
 
-      <div id="village-info" class="village-info-panel">
-        <div class="info-header">
-          <h3 id="village-name" data-i18n="map_select_village">
-            Select a Village
-          </h3>
-          <button id="close-info" class="close-btn" data-i18n="btn_close">
-            ×
-          </button>
-        </div>
-        <div id="info-content" class="info-content">
-          <p data-i18n="map_click_marker">
-            Click on a village marker to see details
+    <div id="village-info" class="village-info-panel">
+      <div class="info-header">
+        <h3 id="village-name" data-i18n="map_select_village">
+          Select a Village
+        </h3>
+        <button id="close-info" class="close-btn" data-i18n="btn_close">
+          ×
+        </button>
+      </div>
+      <div id="info-content" class="info-content">
+        <p data-i18n="map_click_marker">
+          Click on a village marker to see details
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== NEW HERITAGE FOOTER ===== -->
+  <footer class="heritage-footer">
+    <div class="footer-container">
+      <!-- Brand Section -->
+      <div class="footer-column">
+        <div class="footer-brand">
+          <div class="brand-logo">
+            <span class="logo-icon">🏛️</span>
+            <span class="brand-name">Parampara</span>
+          </div>
+          <p class="brand-description">
+            Discover the rich cultural heritage of India. Explore rural
+            heritage sites, traditional crafts, and cultural landmarks that
+            define our nation's identity.
           </p>
-        </div>
-      </div>
-    </main>
-
-    <!-- ===== NEW HERITAGE FOOTER ===== -->
-    <footer class="heritage-footer">
-      <div class="footer-container">
-        <!-- Brand Section -->
-        <div class="footer-column">
-          <div class="footer-brand">
-            <div class="brand-logo">
-              <span class="logo-icon">🏛️</span>
-              <span class="brand-name">Parampara</span>
-            </div>
-            <p class="brand-description">
-              Discover the rich cultural heritage of India. Explore rural
-              heritage sites, traditional crafts, and cultural landmarks that
-              define our nation's identity.
-            </p>
-            <div class="footer-social">
-              <a href="#" aria-label="Facebook" class="social-link"
-                ><i class="fab fa-facebook-f"></i
-              ></a>
-              <a href="#" aria-label="Twitter" class="social-link"
-                ><i class="fab fa-twitter"></i
-              ></a>
-              <a href="#" aria-label="Instagram" class="social-link"
-                ><i class="fab fa-instagram"></i
-              ></a>
-              <a href="#" aria-label="YouTube" class="social-link"
-                ><i class="fab fa-youtube"></i
-              ></a>
-              <a href="#" aria-label="LinkedIn" class="social-link"
-                ><i class="fab fa-linkedin-in"></i
-              ></a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Links -->
-        <div class="footer-column">
-          <h3 class="footer-heading">Quick Links</h3>
-          <ul class="footer-links">
-            <li>
-              <a href="index.html"><i class="fas fa-home"></i> Home</a>
-            </li>
-            <li>
-              <a href="map.html"
-                ><i class="fas fa-map-marked-alt"></i> Heritage Map</a
-              >
-            </li>
-            <li>
-              <a href="gallery.html"
-                ><i class="fas fa-landmark"></i> Heritage Sites</a
-              >
-            </li>
-            <li>
-              <a href="paths.html"
-                ><i class="fas fa-route"></i> Heritage Paths</a
-              >
-            </li>
-            <li>
-              <a href="quest.html"
-                ><i class="fas fa-compass"></i> Discovery Quest</a
-              >
-            </li>
-          </ul>
-        </div>
-
-        <!-- Explore Categories -->
-        <div class="footer-column">
-          <h3 class="footer-heading">Explore</h3>
-          <ul class="footer-links">
-            <li>
-              <a href="#"><i class="fas fa-temple"></i> Temples & Shrines</a>
-            </li>
-            <li>
-              <a href="#"
-                ><i class="fas fa-fort-awesome"></i> Forts & Palaces</a
-              >
-            </li>
-            <li>
-              <a href="#"><i class="fas fa-tree"></i> Natural Heritage</a>
-            </li>
-            <li>
-              <a href="#"><i class="fas fa-music"></i> Folk Arts & Music</a>
-            </li>
-            <li>
-              <a href="#"
-                ><i class="fas fa-utensils"></i> Traditional Cuisine</a
-              >
-            </li>
-          </ul>
-        </div>
-
-        <!-- Newsletter & Contact -->
-        <div class="footer-column">
-          <h3 class="footer-heading">Stay Updated</h3>
-          <p class="newsletter-text">
-            Subscribe to get updates about new heritage sites and events.
-          </p>
-          <form class="newsletter-form" id="newsletterForm">
-            <div class="newsletter-group">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                required
-                aria-label="Email address"
-              />
-              <button type="submit" aria-label="Subscribe">
-                <i class="fas fa-paper-plane"></i>
-              </button>
-            </div>
-          </form>
-
-          <div class="footer-contact">
-            <h4 class="contact-heading">Contact Us</h4>
-            <p><i class="fas fa-envelope"></i> info@parampara.org</p>
-            <p><i class="fas fa-phone"></i> +91 12345 67890</p>
-            <p><i class="fas fa-map-marker-alt"></i> New Delhi, India</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Twitter" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="Instagram" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="YouTube" class="social-link"><i class="fab fa-youtube"></i></a>
+            <a href="#" aria-label="LinkedIn" class="social-link"><i class="fab fa-linkedin-in"></i></a>
           </div>
         </div>
       </div>
 
-      <!-- Footer Bottom -->
-      <div class="footer-bottom">
-        <div class="footer-bottom-content">
-          <p class="copyright">
-            &copy; 2026 <span class="brand-highlight">Parampara</span>. All
-            rights reserved.
-          </p>
-          <div class="footer-legal">
-            <a href="#">Privacy Policy</a>
-            <span class="separator">|</span>
-            <a href="#">Terms of Service</a>
-            <span class="separator">|</span>
-            <a href="#">Cookie Policy</a>
+      <!-- Quick Links -->
+      <div class="footer-column">
+        <h3 class="footer-heading">Quick Links</h3>
+        <ul class="footer-links">
+          <li>
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="map.html"><i class="fas fa-map-marked-alt"></i> Heritage Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="fas fa-landmark"></i> Heritage Sites</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="fas fa-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"><i class="fas fa-compass"></i> Discovery Quest</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Explore Categories -->
+      <div class="footer-column">
+        <h3 class="footer-heading">Explore</h3>
+        <ul class="footer-links">
+          <li>
+            <a href="#"><i class="fas fa-temple"></i> Temples & Shrines</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-fort-awesome"></i> Forts & Palaces</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-tree"></i> Natural Heritage</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-music"></i> Folk Arts & Music</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-utensils"></i> Traditional Cuisine</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Newsletter & Contact -->
+      <div class="footer-column">
+        <h3 class="footer-heading">Stay Updated</h3>
+        <p class="newsletter-text">
+          Subscribe to get updates about new heritage sites and events.
+        </p>
+        <form class="newsletter-form" id="newsletterForm">
+          <div class="newsletter-group">
+            <input type="email" placeholder="Enter your email" required aria-label="Email address" />
+            <button type="submit" aria-label="Subscribe">
+              <i class="fas fa-paper-plane"></i>
+            </button>
           </div>
-          <p class="footer-credit">
-            Made with <i class="fas fa-heart heart-icon"></i> for preserving
-            Indian heritage
-          </p>
+        </form>
+
+        <div class="footer-contact">
+          <h4 class="contact-heading">Contact Us</h4>
+          <p><i class="fas fa-envelope"></i> info@parampara.org</p>
+          <p><i class="fas fa-phone"></i> +91 12345 67890</p>
+          <p><i class="fas fa-map-marker-alt"></i> New Delhi, India</p>
         </div>
       </div>
-    </footer>
+    </div>
 
-    <!-- Back To Top Button -->
-    <button id="backToTopBtn" aria-label="Back to top">↑</button>
-    <!-- Markdown Support -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-    <script src="scripts/markdown.js"></script>
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-content">
+        <p class="copyright">
+          &copy; 2026 <span class="brand-highlight">Parampara</span>. All
+          rights reserved.
+        </p>
+        <div class="footer-legal">
+          <a href="#">Privacy Policy</a>
+          <span class="separator">|</span>
+          <a href="#">Terms of Service</a>
+          <span class="separator">|</span>
+          <a href="#">Cookie Policy</a>
+        </div>
+        <p class="footer-credit">
+          Made with <i class="fas fa-heart heart-icon"></i> for preserving
+          Indian heritage
+        </p>
+      </div>
+    </div>
+  </footer>
 
-    <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
-    <script src="scripts/cacheLayer.js"></script>
-    <script src="scripts/spatial.js"></script>
-    <script src="scripts/heritageScoreUtil.js"></script>
-    <script src="scripts/clusterEngine.js?v=5.0"></script>
-    <script src="scripts/routeFinder.js?v=5.0"></script>
-    <script src="scripts/timeMachine.js"></script>
-    <script src="scripts/historicalTimeline.js"></script>
-    <script src="scripts/map.js?v=5.0"></script>
-    <script src="scripts/languageSwitcher.js?v=5.0"></script>
-    <script src="scripts/navbar.js?v=5.0"></script>
-    <script src="scripts/theme.js?v=5.0"></script>
-    <script src="scripts/main.js?v=5.0"></script>
-    <script src="scripts/sw-register.js?v=5.0"></script>
-    <script src="scripts/breadcrumbs.js?v=5.0"></script>
-    <script src="scripts/telemetry.js?v=5.0"></script>
+  <!-- Back To Top Button -->
+  <button id="backToTopBtn" aria-label="Back to top">↑</button>
+  <!-- Markdown Support -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script src="scripts/markdown.js"></script>
 
-    <!-- Newsletter Form Script -->
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        var newsletterForm = document.getElementById('newsletterForm');
-        if (newsletterForm) {
-          newsletterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var input = this.querySelector('input[type="email"]');
-            var email = input.value.trim();
+  <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+  <script src="scripts/cacheLayer.js"></script>
+  <script src="scripts/spatial.js"></script>
+  <script src="scripts/heritageScoreUtil.js"></script>
+  <script src="scripts/clusterEngine.js?v=5.0"></script>
+  <script src="scripts/routeFinder.js?v=5.0"></script>
+  <script src="scripts/timeMachine.js"></script>
+  <script src="scripts/historicalTimeline.js"></script>
+  <script src="scripts/map.js?v=5.0"></script>
+  <script src="scripts/languageSwitcher.js?v=5.0"></script>
+  <script src="scripts/navbar.js?v=5.0"></script>
+  <script src="scripts/theme.js?v=5.0"></script>
+  <script src="scripts/main.js?v=5.0"></script>
+  <script src="scripts/sw-register.js?v=5.0"></script>
+  <script src="scripts/breadcrumbs.js?v=5.0"></script>
+  <script src="scripts/telemetry.js?v=5.0"></script>
 
-            if (email) {
-              var btn = this.querySelector('button');
-              var originalText = btn.innerHTML;
-              btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-              btn.disabled = true;
+  <!-- Newsletter Form Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var newsletterForm = document.getElementById('newsletterForm');
+      if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var input = this.querySelector('input[type="email"]');
+          var email = input.value.trim();
 
-              setTimeout(function() {
-                alert('Thank you for subscribing to Parampara newsletter!');
-                input.value = '';
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-              }, 1500);
-            }
-          });
-        }
-      });
-    </script>
-    <script src="scripts/crypto-utils.js"></script>
+          if (email) {
+            var btn = this.querySelector('button');
+            var originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            setTimeout(function () {
+              alert('Thank you for subscribing to Parampara newsletter!');
+              input.value = '';
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }, 1500);
+          }
+        });
+      }
+    });
+  </script>
+  <script src="scripts/crypto-utils.js"></script>
   <script src="scripts/integrityBadge.js"></script>
 </body>
+
 </html>

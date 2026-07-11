@@ -1,3 +1,4 @@
+
 // Main JavaScript for Home Page
 
 // Load village posts on page load
@@ -896,3 +897,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+>>>>>>> upstream/main

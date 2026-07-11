@@ -36,3 +36,26 @@
 }
 
 
+<<<<<<< HEAD
+@media (max-width: 768px) {
+  .lang-selector-wrapper {
+    width: auto;
+    /* was 100% — was pushing it to wrap below */
+    justify-content: flex-end;
+    margin-left: 0;
+    padding: 0;
+    border-top: none;
+  }
+
+  .nav-container {
+    gap: 0.6rem;
+    /* small gap between logo, hamburger, and language pill */
+  }
+
+  .global-lang-selector {
+    font-size: 0.78rem;
+    padding: 0.3rem 1.3rem 0.3rem 0.6rem;
+  }
+}
+=======
+>>>>>>> upstream/main

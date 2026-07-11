@@ -8,7 +8,9 @@
   <link rel="stylesheet" href="styles/main.css" />
   <link rel="stylesheet" href="styles/challenges.css" />
   <link rel="stylesheet" href="styles/languageSelector.css" />
-    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+  <script src="/scripts/tenant-interceptor.js"></script>
+  <script src="/scripts/tenant-switcher.js" defer></script>
+</head>
 <body>
   <!-- Navigation -->
   <nav class="navbar">
@@ -30,36 +32,43 @@
         <li><a href="nature.html"><i class="ti ti-leaf"></i> Sacred Heritage</a></li>
         <li><a href="timeline.html">Timeline</a></li>
         <li><a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a></li>
+        <li><a href="calendar.html"><i class="ti ti-calendar"></i> <span data-i18n="nav_calendar">Seasonal Calendar</span></a></li>
         <li><a href="challenges.html" class="active"><i class="ti ti-flag"></i> Challenges</a></li>
       </ul>
     </div>
   </nav>
 
-  <main class="challenges-container">
-    <section class="dashboard" id="dashboard"></section>
-    <section class="featured" id="featured"></section>
-    <section class="filters" id="filters"></section>
-    <section class="challenge-list" id="challengeList"></section>
-    <section class="badges" id="badgeSection"></section>
-    <section class="leaderboard" id="leaderboardSection"></section>
-    <section class="campaigns" id="campaignSection"></section>
-    <section class="certificate" id="certificateModal" class="modal hidden"></section>
-  </main>
+    <main class="challenges-container">
+      <section class="dashboard" id="dashboard"></section>
+      <section class="featured" id="featured"></section>
+      <section class="filters" id="filters"></section>
+      <section class="challenge-list" id="challengeList"></section>
+      <section class="badges" id="badgeSection"></section>
+      <section class="leaderboard" id="leaderboardSection"></section>
+      <section class="campaigns" id="campaignSection"></section>
+      <section
+        class="certificate"
+        id="certificateModal"
+        class="modal hidden"
+      ></section>
+    </main>
 
-  <footer class="footer">
-    <div class="container">
-      <p data-i18n="footer_copy">© 2024 Parampara. Preserving rural heritage, one story at a time.</p>
-    </div>
-  </footer>
+    <footer class="footer">
+      <div class="container">
+        <p data-i18n="footer_copy">
+          © 2024 Parampara. Preserving rural heritage, one story at a time.
+        </p>
+      </div>
+    </footer>
 
-  <button id="backToTopBtn" aria-label="Back to top">↑</button>
+    <button id="backToTopBtn" aria-label="Back to top">↑</button>
 
-  <script src="scripts/translations.js"></script>
+  <script src="scripts/translationsData.js"></script>
   <script src="scripts/languageSwitcher.js"></script>
   <script src="scripts/navbar.js"></script>
   <script src="scripts/crypto-utils.js"></script>
-    <script src="scripts/integrityBadge.js"></script>
-    <script src="scripts/main.js"></script>
+  <script src="scripts/integrityBadge.js"></script>
+  <script src="scripts/main.js"></script>
   <script src="scripts/challenges.js"></script>
 </body>
 </html>

@@ -8,7 +8,9 @@
 
   // State
   let allRecipes = [];
-  let favorites = new Set(JSON.parse(localStorage.getItem('favoriteRecipes') || '[]'));
+  let favorites = new Set(
+    JSON.parse(localStorage.getItem('favoriteRecipes') || '[]')
+  );
 
   // DOM references
   const recipesGrid = document.getElementById('recipesGrid');
@@ -65,13 +67,15 @@
   // Populate filter dropdowns based on data
   function populateFilters() {
     const uniq = (arr) => [...new Set(arr)].sort();
-    const regions = uniq(allRecipes.map(r => r.region));
-    const villages = uniq(allRecipes.map(r => r.village));
-    const categories = uniq(allRecipes.map(r => r.category));
-    const festivals = uniq(allRecipes.map(r => r.festivalAssociation).filter(Boolean));
+    const regions = uniq(allRecipes.map((r) => r.region));
+    const villages = uniq(allRecipes.map((r) => r.village));
+    const categories = uniq(allRecipes.map((r) => r.category));
+    const festivals = uniq(
+      allRecipes.map((r) => r.festivalAssociation).filter(Boolean)
+    );
 
     const addOptions = (select, items) => {
-      items.forEach(v => {
+      items.forEach((v) => {
         const opt = document.createElement('option');
         opt.value = v;
         opt.textContent = v;
@@ -88,18 +92,32 @@
   // Filter logic – returns subset based on current UI controls
   function getFilteredRecipes() {
     const query = searchInput.value.trim().toLowerCase();
-    return allRecipes.filter(r => {
-      if (query && !(
-        r.title.toLowerCase().includes(query) ||
-        r.village.toLowerCase().includes(query) ||
-        r.region.toLowerCase().includes(query) ||
-        r.ingredients.some(i => i.toLowerCase().includes(query))
-      )) return false;
+    return allRecipes.filter((r) => {
+      if (
+        query &&
+        !(
+          r.title.toLowerCase().includes(query) ||
+          r.village.toLowerCase().includes(query) ||
+          r.region.toLowerCase().includes(query) ||
+          r.ingredients.some((i) => i.toLowerCase().includes(query))
+        )
+      )
+        return false;
       if (regionFilter.value && r.region !== regionFilter.value) return false;
-      if (villageFilter.value && r.village !== villageFilter.value) return false;
-      if (categoryFilter.value && r.category !== categoryFilter.value) return false;
-      if (festivalFilter.value && r.festivalAssociation !== festivalFilter.value) return false;
-      if (difficultyFilter.value && r.difficultyLevel !== difficultyFilter.value) return false;
+      if (villageFilter.value && r.village !== villageFilter.value)
+        return false;
+      if (categoryFilter.value && r.category !== categoryFilter.value)
+        return false;
+      if (
+        festivalFilter.value &&
+        r.festivalAssociation !== festivalFilter.value
+      )
+        return false;
+      if (
+        difficultyFilter.value &&
+        r.difficultyLevel !== difficultyFilter.value
+      )
+        return false;
       if (vegFilter.value) {
         const veg = vegFilter.value === 'true';
         if (Boolean(r.isVegetarian) !== veg) return false;
@@ -117,7 +135,10 @@
     card.setAttribute('aria-label', `View details for ${recipe.title}`);
 
     const img = document.createElement('img');
-    img.src = recipe.images && recipe.images[0] ? recipe.images[0] : 'assets/food/placeholder.jpg';
+    img.src =
+      recipe.images && recipe.images[0]
+        ? recipe.images[0]
+        : 'assets/food/placeholder.jpg';
     img.alt = `${recipe.title}`;
     card.appendChild(img);
 
@@ -136,7 +157,9 @@
 
     const favBtn = document.createElement('button');
     favBtn.className = 'view-btn';
-    favBtn.textContent = favorites.has(recipe.id) ? '★ Favorite' : 'View Details';
+    favBtn.textContent = favorites.has(recipe.id)
+      ? '★ Favorite'
+      : 'View Details';
     favBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (favorites.has(recipe.id)) {
@@ -163,7 +186,7 @@
       recipesGrid.textContent = 'No recipes match your criteria.';
       return;
     }
-    filtered.forEach(r => renderCard(r, recipesGrid));
+    filtered.forEach((r) => renderCard(r, recipesGrid));
   }
 
   // Featured recipe (random for demo, could be server‑side daily)
@@ -174,7 +197,10 @@
       const recipe = await res.json();
       featuredCard.innerHTML = '';
       const img = document.createElement('img');
-      img.src = recipe.images && recipe.images[0] ? recipe.images[0] : 'assets/food/placeholder.jpg';
+      img.src =
+        recipe.images && recipe.images[0]
+          ? recipe.images[0]
+          : 'assets/food/placeholder.jpg';
       img.alt = recipe.title;
       const info = document.createElement('div');
       info.className = 'info';
@@ -195,7 +221,7 @@
   // Festival foods – group recipes by festival
   function renderFestivalFoods() {
     const byFest = {};
-    allRecipes.forEach(r => {
+    allRecipes.forEach((r) => {
       const fest = r.festivalAssociation || 'General';
       if (!byFest[fest]) byFest[fest] = [];
       byFest[fest].push(r);
@@ -208,7 +234,7 @@
       section.appendChild(heading);
       const grid = document.createElement('div');
       grid.className = 'recipes-grid';
-      list.slice(0, 4).forEach(r => renderCard(r, grid));
+      list.slice(0, 4).forEach((r) => renderCard(r, grid));
       section.appendChild(grid);
       festivalContainer.appendChild(section);
     });
@@ -217,11 +243,11 @@
   // Ingredient explorer – list unique indigenous ingredients
   function renderIngredientExplorer() {
     const ingSet = new Set();
-    allRecipes.forEach(r => {
-      (r.indigenousIngredients || []).forEach(i => ingSet.add(i));
+    allRecipes.forEach((r) => {
+      (r.indigenousIngredients || []).forEach((i) => ingSet.add(i));
     });
     ingredientContainer.innerHTML = '';
-    ingSet.forEach(ing => {
+    ingSet.forEach((ing) => {
       const div = document.createElement('div');
       div.className = 'ingredient-card';
       div.textContent = ing;
@@ -232,31 +258,33 @@
   // Favorites rendering
   function renderFavorites() {
     favoritesGrid.innerHTML = '';
-    const favRecipes = allRecipes.filter(r => favorites.has(r.id));
+    const favRecipes = allRecipes.filter((r) => favorites.has(r.id));
     if (favRecipes.length === 0) {
       favoritesGrid.textContent = 'No favorite recipes yet.';
       return;
     }
-    favRecipes.forEach(r => renderCard(r, favoritesGrid));
+    favRecipes.forEach((r) => renderCard(r, favoritesGrid));
   }
 
   // Statistics – simple counts
   function renderStats() {
     const total = allRecipes.length;
-    const regions = new Set(allRecipes.map(r => r.region)).size;
-    const villages = new Set(allRecipes.map(r => r.village)).size;
-    const festivals = new Set(allRecipes.map(r => r.festivalAssociation).filter(Boolean)).size;
-    const ingredients = new Set(allRecipes.flatMap(r => r.ingredients)).size;
+    const regions = new Set(allRecipes.map((r) => r.region)).size;
+    const villages = new Set(allRecipes.map((r) => r.village)).size;
+    const festivals = new Set(
+      allRecipes.map((r) => r.festivalAssociation).filter(Boolean)
+    ).size;
+    const ingredients = new Set(allRecipes.flatMap((r) => r.ingredients)).size;
 
     const data = [
       { label: 'Total Recipes', value: total },
       { label: 'Regions', value: regions },
       { label: 'Villages', value: villages },
       { label: 'Festivals', value: festivals },
-      { label: 'Ingredients', value: ingredients }
+      { label: 'Ingredients', value: ingredients },
     ];
     statsGrid.innerHTML = '';
-    data.forEach(d => {
+    data.forEach((d) => {
       const card = document.createElement('div');
       card.className = 'stat-card';
       card.innerHTML = `<h3>${d.value}</h3><p>${d.label}</p>`;
@@ -266,10 +294,11 @@
 
   // Regional comparison – simple list of recipes per region
   function populateRegionComparison() {
-    const regions = [...new Set(allRecipes.map(r => r.region))].sort();
-    regions.forEach(r => {
+    const regions = [...new Set(allRecipes.map((r) => r.region))].sort();
+    regions.forEach((r) => {
       const optA = document.createElement('option');
-      optA.value = r; optA.textContent = r;
+      optA.value = r;
+      optA.textContent = r;
       const optB = optA.cloneNode(true);
       regionASelect.appendChild(optA);
       regionBSelect.appendChild(optB);
@@ -281,7 +310,9 @@
     const b = regionBSelect.value;
     if (!a || !b) return (compareResult.textContent = 'Select two regions');
     try {
-      const res = await fetch(`${API_BASE}/compare?regionA=${encodeURIComponent(a)}&regionB=${encodeURIComponent(b)}`);
+      const res = await fetch(
+        `${API_BASE}/compare?regionA=${encodeURIComponent(a)}&regionB=${encodeURIComponent(b)}`
+      );
       const data = await res.json();
       compareResult.innerHTML = '';
       const renderList = (title, list) => {
@@ -290,7 +321,7 @@
         h.textContent = title;
         div.appendChild(h);
         const ul = document.createElement('ul');
-        list.forEach(r => {
+        list.forEach((r) => {
           const li = document.createElement('li');
           li.textContent = `${r.title} (${r.village})`;
           ul.appendChild(li);
@@ -315,7 +346,10 @@
     modalBody.appendChild(title);
 
     const img = document.createElement('img');
-    img.src = recipe.images && recipe.images[0] ? recipe.images[0] : 'assets/food/placeholder.jpg';
+    img.src =
+      recipe.images && recipe.images[0]
+        ? recipe.images[0]
+        : 'assets/food/placeholder.jpg';
     img.alt = recipe.title;
     img.style.maxWidth = '100%';
     modalBody.appendChild(img);
@@ -342,7 +376,9 @@
 
     // Favorite toggle inside modal
     const favBtn = document.createElement('button');
-    favBtn.textContent = favorites.has(recipe.id) ? 'Remove from Favorites' : 'Add to Favorites';
+    favBtn.textContent = favorites.has(recipe.id)
+      ? 'Remove from Favorites'
+      : 'Add to Favorites';
     favBtn.addEventListener('click', () => {
       if (favorites.has(recipe.id)) {
         favorites.delete(recipe.id);
@@ -377,7 +413,9 @@
   vegFilter.addEventListener('change', renderRecipes);
   compareBtn.addEventListener('click', runComparison);
   modalClose.addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
 
   // Initialize
   document.addEventListener('DOMContentLoaded', loadRecipes);

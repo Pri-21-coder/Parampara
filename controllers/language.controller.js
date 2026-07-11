@@ -4,7 +4,9 @@ const store = require('../data/store');
 // Utility to get today’s word index (deterministic)
 function getTodayIndex() {
   const today = new Date();
-  const seed = Number(`${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`);
+  const seed = Number(
+    `${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}`
+  );
   return seed % store.heritageLanguages.length;
 }
 
@@ -37,21 +39,27 @@ exports.getWordOfTheDay = (req, res) => {
 // Filter by language
 exports.getByLanguage = (req, res) => {
   const lang = req.params.lang.toLowerCase();
-  const filtered = store.heritageLanguages.filter((w) => w.language.toLowerCase() === lang);
+  const filtered = store.heritageLanguages.filter(
+    (w) => w.language.toLowerCase() === lang
+  );
   res.json(filtered);
 };
 
 // Filter by village
 exports.getByVillage = (req, res) => {
   const village = req.params.village.toLowerCase();
-  const filtered = store.heritageLanguages.filter((w) => w.village.toLowerCase() === village);
+  const filtered = store.heritageLanguages.filter(
+    (w) => w.village.toLowerCase() === village
+  );
   res.json(filtered);
 };
 
 // Filter by category
 exports.getByCategory = (req, res) => {
   const cat = req.params.category.toLowerCase();
-  const filtered = store.heritageLanguages.filter((w) => w.category.toLowerCase() === cat);
+  const filtered = store.heritageLanguages.filter(
+    (w) => w.category.toLowerCase() === cat
+  );
   res.json(filtered);
 };
 
@@ -76,10 +84,16 @@ exports.searchWords = (req, res) => {
 exports.compareDialects = (req, res) => {
   const { dialectA, dialectB } = req.query;
   if (!dialectA || !dialectB) {
-    return res.status(400).json({ message: 'Both dialectA and dialectB are required' });
+    return res
+      .status(400)
+      .json({ message: 'Both dialectA and dialectB are required' });
   }
-  const wordsA = store.heritageLanguages.filter((w) => w.dialect.toLowerCase() === dialectA.toLowerCase());
-  const wordsB = store.heritageLanguages.filter((w) => w.dialect.toLowerCase() === dialectB.toLowerCase());
+  const wordsA = store.heritageLanguages.filter(
+    (w) => w.dialect.toLowerCase() === dialectA.toLowerCase()
+  );
+  const wordsB = store.heritageLanguages.filter(
+    (w) => w.dialect.toLowerCase() === dialectB.toLowerCase()
+  );
   const common = wordsA.filter((a) => wordsB.some((b) => b.word === a.word));
   const uniqueA = wordsA.filter((a) => !common.some((c) => c.word === a.word));
   const uniqueB = wordsB.filter((b) => !common.some((c) => c.word === b.word));

@@ -10,7 +10,7 @@
   --text: #222;
   --text-dark: #eee;
   --radius: 0.75rem;
-  --shadow: 0 4px 12px rgba(0,0,0,0.07);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,7 +37,11 @@ body {
   overflow: hidden;
   padding: 4rem 1rem;
   text-align: center;
-  background: linear-gradient(135deg, var(--primary), hsl(var(--primary-hue), 80%, 70%));
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    hsl(var(--primary-hue), 80%, 70%)
+  );
   color: #fff;
 }
 .hero.language-hero .hero-content {
@@ -48,7 +52,7 @@ body {
 }
 .hero.language-hero .hero-badge {
   display: inline-block;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   padding: 0.4rem 0.8rem;
   border-radius: var(--radius);
   font-size: 0.9rem;
@@ -67,14 +71,16 @@ body {
   padding: 0.8rem 1.5rem;
   border-radius: var(--radius);
   font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .hero.language-hero .hero-buttons .btn-primary {
   background: #fff;
   color: var(--primary);
 }
 .hero.language-hero .hero-buttons .btn-secondary {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
 }
 .hero.language-hero .hero-buttons .btn:hover {
@@ -94,7 +100,10 @@ body {
 }
 .hero.language-hero .hero-img {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-size: cover;
   background-position: center;
   filter: brightness(0.85);
@@ -102,7 +111,7 @@ body {
 .hero.language-hero .hero-img-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4));
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
 }
 
 /* Section titles */
@@ -137,7 +146,8 @@ body {
 }
 
 /* Cards Grid */
-.cards-grid .grid, .favorites .grid {
+.cards-grid .grid,
+.favorites .grid {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -212,7 +222,8 @@ body {
   width: 100%;
   border-collapse: collapse;
 }
-.comparison-results th, .comparison-results td {
+.comparison-results th,
+.comparison-results td {
   padding: 0.5rem;
   border: 1px solid #ddd;
   text-align: left;
@@ -229,10 +240,17 @@ body {
   padding: 1.5rem 0;
   margin-top: 3rem;
 }
-.footer p { margin: 0; }
+.footer p {
+  margin: 0;
+}
 
 /* Responsive tweaks */
 @media (max-width: 600px) {
-  .hero.language-hero { padding: 2rem 0.5rem; }
-  .filters { flex-direction: column; align-items: stretch; }
+  .hero.language-hero {
+    padding: 2rem 0.5rem;
+  }
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

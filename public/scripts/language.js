@@ -66,7 +66,7 @@ function createCard(word) {
   if (word.tags && Array.isArray(word.tags) && word.tags.length) {
     const tagContainer = document.createElement('div');
     tagContainer.className = 'tags';
-    word.tags.forEach(t => {
+    word.tags.forEach((t) => {
       const span = document.createElement('span');
       span.className = 'tag';
       span.textContent = t;
@@ -96,11 +96,11 @@ function createCard(word) {
   bookmarkBtn.className = 'bookmark';
   bookmarkBtn.title = 'Add to favorites';
   bookmarkBtn.innerHTML = '★';
-  const isFav = loadFavorites().some(f => f.id === word.id);
+  const isFav = loadFavorites().some((f) => f.id === word.id);
   if (isFav) bookmarkBtn.classList.add('active');
   bookmarkBtn.addEventListener('click', () => {
     const favs = loadFavorites();
-    const idx = favs.findIndex(f => f.id === word.id);
+    const idx = favs.findIndex((f) => f.id === word.id);
     if (idx >= 0) {
       favs.splice(idx, 1);
       bookmarkBtn.classList.remove('active');
@@ -128,7 +128,7 @@ function renderGrid(containerId, words) {
     container.textContent = 'No results found.';
     return;
   }
-  words.forEach(word => container.appendChild(createCard(word)));
+  words.forEach((word) => container.appendChild(createCard(word)));
 }
 
 /** Render favorites section */
@@ -146,7 +146,7 @@ async function populateFilters() {
     const regions = new Set();
     const villages = new Set();
     const categories = new Set();
-    all.forEach(w => {
+    all.forEach((w) => {
       if (w.language) langs.add(w.language);
       if (w.region) regions.add(w.region);
       if (w.village) villages.add(w.village);
@@ -157,12 +157,14 @@ async function populateFilters() {
       if (!sel) return;
       // clear existing (keep first placeholder option)
       sel.length = 1; // preserve placeholder
-      Array.from(set).sort().forEach(val => {
-        const opt = document.createElement('option');
-        opt.value = val;
-        opt.textContent = val;
-        sel.appendChild(opt);
-      });
+      Array.from(set)
+        .sort()
+        .forEach((val) => {
+          const opt = document.createElement('option');
+          opt.value = val;
+          opt.textContent = val;
+          sel.appendChild(opt);
+        });
     };
     fillSelect('filterLanguage', langs);
     fillSelect('filterRegion', regions);
@@ -203,7 +205,9 @@ const performSearch = debounce(async () => {
   if (category) params.append('category', category);
 
   try {
-    const url = params.toString() ? `${API_BASE}/search?${params}` : `${API_BASE}`;
+    const url = params.toString()
+      ? `${API_BASE}/search?${params}`
+      : `${API_BASE}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('Search failed');
     const data = await res.json();
@@ -232,7 +236,7 @@ async function loadDialectComparison() {
     const table = document.createElement('table');
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    ['Term', dialectA, dialectB].forEach(txt => {
+    ['Term', dialectA, dialectB].forEach((txt) => {
       const th = document.createElement('th');
       th.textContent = txt;
       headerRow.appendChild(th);
@@ -240,7 +244,7 @@ async function loadDialectComparison() {
     thead.appendChild(headerRow);
     table.appendChild(thead);
     const tbody = document.createElement('tbody');
-    data.forEach(row => {
+    data.forEach((row) => {
       const tr = document.createElement('tr');
       const tdTerm = document.createElement('td');
       tdTerm.textContent = row.term;
@@ -262,8 +266,8 @@ async function loadDialectComparison() {
 /** Hero button smooth scroll */
 function initHeroButtons() {
   const heroBtns = document.querySelectorAll('.hero-buttons a');
-  heroBtns.forEach(btn => {
-    btn.addEventListener('click', ev => {
+  heroBtns.forEach((btn) => {
+    btn.addEventListener('click', (ev) => {
       ev.preventDefault();
       const targetId = btn.getAttribute('href').substring(1);
       const targetEl = document.getElementById(targetId);
@@ -281,17 +285,20 @@ function initListeners() {
   if (searchInput) searchInput.addEventListener('input', performSearch);
 
   // Filter selects
-  ['filterLanguage', 'filterRegion', 'filterVillage', 'filterCategory'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (sel) sel.addEventListener('change', performSearch);
-  });
+  ['filterLanguage', 'filterRegion', 'filterVillage', 'filterCategory'].forEach(
+    (id) => {
+      const sel = document.getElementById(id);
+      if (sel) sel.addEventListener('change', performSearch);
+    }
+  );
 
   // Compare button
   const compareBtn = document.getElementById('compareBtn');
-  if (compareBtn) compareBtn.addEventListener('click', ev => {
-    ev.preventDefault();
-    loadDialectComparison();
-  });
+  if (compareBtn)
+    compareBtn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      loadDialectComparison();
+    });
 
   initHeroButtons();
 }

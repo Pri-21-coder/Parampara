@@ -14,9 +14,33 @@ class ItineraryPlannerUI {
 
   async init() {
     this.renderLayout();
+    this.initMap();
     await this.loadSites();
     this.loadPersistedItinerary();
     this.setupEventListeners();
+  }
+
+  initMap() {
+    this.map = new maplibregl.Map({
+      container: 'itinerary-map',
+      style: '/api/map-style',
+      center: [78.9629, 20.5937],
+      zoom: 4
+    });
+    this.map.on('load', () => {
+      this.map.addSource('route', {
+        type: 'geojson',
+        data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } }
+      });
+      this.map.addLayer({
+        id: 'route-line',
+        type: 'line',
+        source: 'route',
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#4CAF50', 'line-width': 4, 'line-dasharray': [2, 2] }
+      });
+      this.markers = [];
+    });
   }
 
   renderLayout() {
@@ -44,9 +68,10 @@ class ItineraryPlannerUI {
             </div>
           </div>
 
-          <!-- Right Column: Days Dropzone -->
+          <!-- Right Column: Days Dropzone & Map -->
           <div class="schedule-column">
             <h3>Your Travel Schedule</h3>
+            <div id="itinerary-map" style="width: 100%; height: 350px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ddd;"></div>
             <div id="days-container" class="days-container">
               <!-- Day dropzones populate here -->
             </div>
@@ -128,7 +153,10 @@ class ItineraryPlannerUI {
     let innerHtml = `
       <div class="day-header">
         <h4>Day ${dayIndex + 1}</h4>
-        <button class="btn-remove-day" data-day="${dayId}">✖</button>
+        <div>
+          <button class="btn btn-secondary btn-optimize-day" data-day="${dayId}" style="margin-right:10px; padding:4px 8px; font-size:12px;">✨ Optimize Route</button>
+          <button class="btn-remove-day" data-day="${dayId}">✖</button>
+        </div>
       </div>
       <div class="day-sites-list" id="list-${dayId}">
     `;
@@ -187,8 +215,8 @@ class ItineraryPlannerUI {
       }
     });
 
-    // Remove site from day
-    dayEl.addEventListener('click', (e) => {
+    // Click events inside dayEl
+    dayEl.addEventListener('click', async (e) => {
       if (e.target.classList.contains('btn-remove-site')) {
         const sid = e.target.dataset.siteId;
         const dData = this.daysData.find(d => d.id === dayId);
@@ -199,6 +227,34 @@ class ItineraryPlannerUI {
       if (e.target.classList.contains('btn-remove-day')) {
         this.daysData = this.daysData.filter(d => d.id !== dayId);
         this.saveAndRenderDays();
+      }
+
+      if (e.target.classList.contains('btn-optimize-day')) {
+        const dData = this.daysData.find(d => d.id === dayId);
+        if (dData.sites.length > 2) {
+          e.target.innerText = "Optimizing...";
+          e.target.disabled = true;
+          try {
+            const res = await fetch(`${this.apiBase}/optimize`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sites: dData.sites })
+            });
+            const data = await res.json();
+            if (data.success && data.optimizedRoute) {
+              dData.sites = data.optimizedRoute;
+              this.saveAndRenderDays();
+            } else {
+              alert('Optimization failed: ' + (data.error || 'Unknown error'));
+            }
+          } catch(err) {
+            console.error("Optimization failed", err);
+          }
+          e.target.innerText = "✨ Optimize Route";
+          e.target.disabled = false;
+        } else {
+          alert('Add at least 3 sites to optimize.');
+        }
       }
     });
 
@@ -265,6 +321,15 @@ class ItineraryPlannerUI {
   async calculateRoutes() {
     let globalDistance = 0;
     let globalTime = 0;
+    let allCoords = [];
+    
+    // Clear old markers
+    if (this.markers) {
+      this.markers.forEach(m => m.remove());
+      this.markers = [];
+    } else {
+      this.markers = [];
+    }
 
     for (const day of this.daysData) {
       const metricsEl = document.getElementById(`metrics-${day.id}`);
@@ -273,6 +338,34 @@ class ItineraryPlannerUI {
       const routeCoords = day.sites
         .map(s => s.location)
         .filter(l => l && typeof l.lat === 'number' && typeof l.lng === 'number');
+
+      // Add to overall coords array for map rendering
+      allCoords.push(...routeCoords.map(c => [c.lng, c.lat]));
+
+      // Add markers
+      routeCoords.forEach((c, idx) => {
+        if (this.map && window.maplibregl) {
+           const el = document.createElement('div');
+           el.className = 'marker';
+           el.style.backgroundColor = '#2E7D32';
+           el.style.width = '24px';
+           el.style.height = '24px';
+           el.style.borderRadius = '50%';
+           el.style.border = '2px solid white';
+           el.style.color = 'white';
+           el.style.textAlign = 'center';
+           el.style.lineHeight = '20px';
+           el.style.fontSize = '12px';
+           el.style.fontWeight = 'bold';
+           el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+           el.innerText = (idx + 1);
+
+           const m = new maplibregl.Marker(el)
+             .setLngLat([c.lng, c.lat])
+             .addTo(this.map);
+           this.markers.push(m);
+        }
+      });
 
       if (routeCoords.length > 1) {
         try {
@@ -289,15 +382,37 @@ class ItineraryPlannerUI {
           }
         } catch(err) {
           console.error("Haversine calc failed", err);
-          metricsEl.innerHTML = `<span style="color:#f44336">Error calculating route</span>`;
+          if (metricsEl) metricsEl.innerHTML = `<span style="color:#f44336">Error calculating route</span>`;
         }
       } else {
-        metricsEl.innerHTML = '';
+        if (metricsEl) metricsEl.innerHTML = '';
       }
     }
 
-    document.getElementById('total-distance').innerText = `${globalDistance.toFixed(1)} km`;
-    document.getElementById('total-time').innerText = `${globalTime.toFixed(1)} hrs`;
+    // Update map line
+    if (this.map && this.map.getSource('route')) {
+      this.map.getSource('route').setData({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: allCoords
+        }
+      });
+      // fit bounds
+      if (allCoords.length > 1) {
+        const bounds = new maplibregl.LngLatBounds();
+        allCoords.forEach(c => bounds.extend(c));
+        this.map.fitBounds(bounds, { padding: 50, maxZoom: 12 });
+      } else if (allCoords.length === 1) {
+        this.map.flyTo({ center: allCoords[0], zoom: 10 });
+      }
+    }
+
+    const distEl = document.getElementById('total-distance');
+    const timeEl = document.getElementById('total-time');
+    if (distEl) distEl.innerText = `${globalDistance.toFixed(1)} km`;
+    if (timeEl) timeEl.innerText = `${globalTime.toFixed(1)} hrs`;
   }
 
   persistItinerary() {
@@ -364,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // CSS Injection
 const style = document.createElement('style');
-style.textContent = \`
+style.textContent = `
   .itinerary-builder { max-width: 1300px; margin: 0 auto; padding: 20px; font-family: 'Inter', sans-serif; }
   .itinerary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
   .header-actions { display: flex; gap: 10px; }
@@ -419,5 +534,5 @@ style.textContent = \`
     .itinerary-builder { padding: 0; }
     h2, h3 { color: black !important; border-bottom: 1px solid black !important; }
   }
-\`;
+`;
 document.head.appendChild(style);

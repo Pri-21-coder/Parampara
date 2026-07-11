@@ -1,9 +1,9 @@
 /* timeline.css */
 /* Earthy palette */
 :root {
-  --color-primary: #6B4F4F; /* deep brown */
-  --color-secondary: #A58F8F; /* muted taupe */
-  --color-bg: #F5F0EB; /* light parchment */
+  --color-primary: #6b4f4f; /* deep brown */
+  --color-secondary: #a58f8f; /* muted taupe */
+  --color-bg: #f5f0eb; /* light parchment */
   --color-card-bg: rgba(255, 255, 255, 0.25);
   --color-card-border: rgba(255, 255, 255, 0.4);
   --color-shadow: rgba(0, 0, 0, 0.1);
@@ -40,7 +40,9 @@
   border-radius: 4px;
   background: transparent;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 .zoom-controls button.active,
 .zoom-controls button:hover {
@@ -90,15 +92,17 @@
   box-shadow: 0 4px 12px var(--color-shadow);
   padding: 1rem;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   cursor: pointer;
 }
 .timeline-card:hover {
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 16px var(--color-shadow);
 }
-.timeline-card[aria-expanded="true"] {
-  background: rgba(255,255,255,0.4);
+.timeline-card[aria-expanded='true'] {
+  background: rgba(255, 255, 255, 0.4);
 }
 .timeline-card .year {
   font-weight: 700;
@@ -131,7 +135,7 @@
   transition: max-height 0.3s ease;
   font-size: 0.9rem;
 }
-.timeline-card[aria-expanded="true"] .description {
+.timeline-card[aria-expanded='true'] .description {
   max-height: 200px; /* enough for a few lines */
   margin-top: 0.5rem;
 }

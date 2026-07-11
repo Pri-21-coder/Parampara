@@ -53,6 +53,11 @@ function createTenantStore(tenantId) {
             createAuditProxy('artisans', new LRUCache(500), auditLog)
         ),
         recipes: [], // new collection for traditional recipes
+        calendarEvents: [], // new collection for seasonal cultural events
+        rangoliDesigns: createSearchProxy(
+            searchEngine, 'rangoliDesign', ['title', 'author', 'style'],
+            createAuditProxy('rangoliDesigns', new LRUCache(500), auditLog)
+        ),
         artifacts: createSearchProxy(
             searchEngine, 'artifact', ['name', 'category', 'state', 'village', 'community', 'historicalPeriod', 'materials', 'description', 'associatedFestivals', 'associatedCrafts'],
             createAuditProxy('artifacts', new LRUCache(2000), auditLog)

@@ -1,12 +1,16 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Heritage Timeline – Parampara</title>
   <link rel="stylesheet" href="styles/main.css" />
   <link rel="stylesheet" href="styles/timeline.css" />
-    <script src="/scripts/tenant-interceptor.js"></script>`n      <script src="/scripts/tenant-switcher.js" defer></script>`n  </head>
+  <script src="/scripts/tenant-interceptor.js"></script>`n
+  <script src="/scripts/tenant-switcher.js" defer></script>`n
+</head>
+
 <body>
   <!-- Navigation (shared) -->
   <nav class="navbar">
@@ -32,46 +36,108 @@
     </div>
   </nav>
 
-  <main class="timeline-page">
-    <section class="timeline-controls">
-      <input type="text" id="timeline-search" placeholder="Search milestones..." aria-label="Search timeline" />
-      <select id="category-filter" aria-label="Filter by category">
-        <option value="all">All Categories</option>
-        <option value="Craft">Craft</option>
-        <option value="Festival">Festival</option>
-        <option value="Village">Village</option>
-        <option value="Revival">Revival</option>
-        <option value="Modern Innovation">Modern Innovation</option>
-      </select>
-      <div class="zoom-controls" role="group" aria-label="Zoom controls">
-        <button data-zoom="normal" class="active" aria-pressed="true">Normal</button>
-        <button data-zoom="compact" aria-pressed="false">Compact</button>
-        <button data-zoom="detailed" aria-pressed="false">Detailed</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heritage Timeline – Parampara</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/timeline.css" />
+  </head>
+
+  <body>
+    <!-- Navigation (shared) -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">
+            Preserving Living Traditions
+          </p>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle navigation">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li>
+            <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"><i class="ti ti-compass"></i> Discovery Quest</a>
+          </li>
+          <li>
+            <a href="trails.html"><i class="ti ti-trail-sign"></i> Heritage Trails</a>
+          </li>
+          <li><a href="timeline.html">Timeline</a></li>
+          <li>
+            <a href="chat.html"><i class="ti ti-message-circle"></i> Talk to Elder</a>
+          </li>
+          <li>
+            <a href="calendar.html"><i class="ti ti-calendar"></i>
+              <span data-i18n="nav_calendar">Seasonal Calendar</span></a>
+          </li>
+        </ul>
       </div>
-    </section>
+    </nav>
 
-    <section class="timeline-progress" aria-hidden="true">
-      <div class="progress-bar"></div>
-    </section>
+    <main class="timeline-page">
+      <section class="timeline-controls">
+        <input type="text" id="timeline-search" placeholder="Search milestones..." aria-label="Search timeline" />
+        <select id="category-filter" aria-label="Filter by category">
+          <option value="all">All Categories</option>
+          <option value="Craft">Craft</option>
+          <option value="Festival">Festival</option>
+          <option value="Village">Village</option>
+          <option value="Revival">Revival</option>
+          <option value="Modern Innovation">Modern Innovation</option>
+        </select>
+        <div class="zoom-controls" role="group" aria-label="Zoom controls">
+          <button data-zoom="normal" class="active" aria-pressed="true">
+            Normal
+          </button>
+          <button data-zoom="compact" aria-pressed="false">Compact</button>
+          <button data-zoom="detailed" aria-pressed="false">Detailed</button>
+        </div>
+      </section>
 
-    <section class="timeline-container" role="list" aria-label="Heritage timeline">
-      <!-- Cards will be injected here -->
-    </section>
-  </main>
+      <section class="timeline-progress" aria-hidden="true">
+        <div class="progress-bar"></div>
+      </section>
 
-  <footer class="footer">
-    <div class="container">
-      <p data-i18n="footer_copy">© 2024 Parampara. Preserving rural heritage, one story at a time.</p>
-    </div>
-  </footer>
+      <section class="timeline-container" role="list" aria-label="Heritage timeline">
+        <!-- Cards will be injected here -->
+      </section>
+    </main>
 
-  <button id="backToTopBtn" aria-label="Back to top">↑</button>
+    <footer class="footer">
+      <div class="container">
+        <p data-i18n="footer_copy">
+          © 2024 Parampara. Preserving rural heritage, one story at a time.
+        </p>
+      </div>
+    </footer>
 
-  <script src="scripts/crypto-utils.js"></script>
+    <button id="backToTopBtn" aria-label="Back to top">↑</button>
+
+    <script src="scripts/crypto-utils.js"></script>
     <script src="scripts/integrityBadge.js"></script>
     <script src="scripts/main.js"></script>
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/timeline.js"></script>
+  </body>
+  <script src="scripts/main.js"></script>
   <script src="scripts/translations.js"></script>
   <script src="scripts/languageSwitcher.js"></script>
   <script src="scripts/timeline.js"></script>
 </body>
+
 </html>

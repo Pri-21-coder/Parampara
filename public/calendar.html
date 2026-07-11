@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Explore India's rich rural heritage through a seasonal cultural calendar of festivals, harvest celebrations, crafts fairs, and village rituals."
+    />
+    <title>Seasonal Cultural Calendar - Parampara</title>
+
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/calendar.css" />
+    <link rel="stylesheet" href="styles/languageSelector.css" />
+    <link
+      href="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">
+          <h1 data-i18n="brand_name">Parampara</h1>
+          <p class="tagline" data-i18n="brand_tagline">
+            Preserving Living Traditions
+          </p>
+        </div>
+        <button
+          class="hamburger"
+          id="hamburgerBtn"
+          aria-label="Toggle navigation"
+        >
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li>
+            <a href="index.html"><i class="ti ti-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="map.html"><i class="ti ti-map-2"></i> Explore Map</a>
+          </li>
+          <li>
+            <a href="gallery.html"><i class="ti ti-photo"></i> Gallery</a>
+          </li>
+          <li>
+            <a href="paths.html"><i class="ti ti-route"></i> Heritage Paths</a>
+          </li>
+          <li>
+            <a href="quest.html"
+              ><i class="ti ti-compass"></i> Discovery Quest</a
+            >
+          </li>
+          <li>
+            <a href="trails.html"
+              ><i class="ti ti-trail-sign"></i> Heritage Trails</a
+            >
+          </li>
+          <li>
+            <a href="timeline.html">Timeline</a>
+          </li>
+          <li>
+            <a href="chat.html"
+              ><i class="ti ti-message-circle"></i> Talk to Elder</a
+            >
+          </li>
+          <li>
+            <a href="calendar.html" class="active"
+              ><i class="ti ti-calendar"></i>
+              <span data-i18n="nav_calendar">Seasonal Calendar</span></a
+            >
+          </li>
+          <li>
+            <a href="food.html">Traditional Foods</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="calendar-container">
+      <div class="calendar-header">
+        <h2 id="calendar-title" data-i18n="calendar_title">
+          Seasonal Cultural Calendar
+        </h2>
+        <p id="calendar-subtitle" data-i18n="calendar_subtitle">
+          Discover village traditions, festivals, and harvests throughout the
+          year
+        </p>
+      </div>
+
+      <!-- Controls Panel -->
+      <section class="controls-panel" aria-label="Search and Filter Controls">
+        <div class="search-box">
+          <i class="ti ti-search search-icon"></i>
+          <input
+            type="text"
+            id="calendar-search"
+            placeholder="Search by festival, state, craft, keyword..."
+            aria-label="Search events"
+          />
+        </div>
+
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="filter-category" data-i18n="filter_type"
+              >Event Type</label
+            >
+            <select id="filter-category" aria-label="Filter by Event Type">
+              <option value="">All Categories</option>
+              <option value="Festival">Festival</option>
+              <option value="Harvest Festival">Harvest Festival</option>
+              <option value="Craft Fair">Craft Fair</option>
+              <option value="Tribal Festival">Tribal Festival</option>
+              <option value="Temple Festival">Temple Festival</option>
+              <option value="Folk Performance">Folk Performance</option>
+              <option value="Seasonal Market">Seasonal Market</option>
+              <option value="Village Celebration">Village Celebration</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-month" data-i18n="filter_month">Month</label>
+            <select id="filter-month" aria-label="Filter by Month">
+              <option value="">All Months</option>
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-season" data-i18n="filter_season">Season</label>
+            <select id="filter-season" aria-label="Filter by Season">
+              <option value="">All Seasons</option>
+              <option value="Spring">Spring</option>
+              <option value="Summer">Summer</option>
+              <option value="Monsoon">Monsoon</option>
+              <option value="Autumn">Autumn</option>
+              <option value="Winter">Winter</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-state" data-i18n="filter_state">State</label>
+            <select id="filter-state" aria-label="Filter by State">
+              <option value="">All States</option>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="sort-by" data-i18n="sort_by">Sort By</label>
+            <select id="sort-by" aria-label="Sort options">
+              <option value="upcoming">Upcoming</option>
+              <option value="alphabetical">Alphabetical</option>
+              <option value="recently_added">Recently Added</option>
+              <option value="state">Region/State</option>
+              <option value="season">Season</option>
+              <option value="popularity">Popularity</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- View Switcher -->
+        <div class="view-switcher" role="tablist" aria-label="Calendar Views">
+          <button
+            id="btn-view-monthly"
+            class="view-btn active"
+            role="tab"
+            aria-selected="true"
+            aria-controls="view-content"
+            tabindex="0"
+          >
+            <i class="ti ti-calendar-grid"></i>
+            <span data-i18n="view_monthly">Monthly Grid</span>
+          </button>
+          <button
+            id="btn-view-seasonal"
+            class="view-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="view-content"
+            tabindex="-1"
+          >
+            <i class="ti ti-wind-sun"></i>
+            <span data-i18n="view_seasonal">Seasonal Decks</span>
+          </button>
+          <button
+            id="btn-view-timeline"
+            class="view-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="view-content"
+            tabindex="-1"
+          >
+            <i class="ti ti-list-details"></i>
+            <span data-i18n="view_timeline">Timeline List</span>
+          </button>
+          <button
+            id="btn-view-region"
+            class="view-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="view-content"
+            tabindex="-1"
+          >
+            <i class="ti ti-map-pin"></i>
+            <span data-i18n="view_region">Region Clusters</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Active view container -->
+      <section id="view-content" class="view-content-area" aria-live="polite">
+        <!-- Event list/cards/grid injected here -->
+      </section>
+
+      <!-- Pagination Panel -->
+      <div id="pagination-panel" class="pagination-bar">
+        <button
+          id="prev-page-btn"
+          class="btn btn-secondary"
+          aria-label="Previous Page"
+        >
+          <i class="ti ti-chevron-left"></i> Previous
+        </button>
+        <span id="page-info" aria-live="polite">Page 1 of 1</span>
+        <button
+          id="next-page-btn"
+          class="btn btn-secondary"
+          aria-label="Next Page"
+        >
+          Next <i class="ti ti-chevron-right"></i>
+        </button>
+      </div>
+    </main>
+
+    <!-- Detailed View Modal -->
+    <div
+      id="event-detail-modal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-event-title"
+      aria-hidden="true"
+    >
+      <div class="modal-content calendar-modal">
+        <div class="modal-header">
+          <h3 id="modal-event-title">Event Detail</h3>
+          <button
+            class="close-btn"
+            id="close-detail-modal"
+            aria-label="Close modal"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="modal-body-grid">
+          <!-- Left Column (Text Info) -->
+          <div class="modal-left-column">
+            <div class="modal-image-wrapper">
+              <img
+                id="modal-event-img"
+                src=""
+                alt="Event visual representation"
+              />
+              <div id="modal-event-countdown" class="event-countdown-badge">
+                Happening Now
+              </div>
+            </div>
+
+            <div class="event-meta-badges">
+              <span id="modal-event-date" class="meta-badge date"
+                ><i class="ti ti-calendar-event"></i> Date</span
+              >
+              <span id="modal-event-category" class="meta-badge category"
+                ><i class="ti ti-tag"></i> Category</span
+              >
+              <span id="modal-event-location" class="meta-badge location"
+                ><i class="ti ti-map-pin"></i> Location</span
+              >
+              <span id="modal-event-community" class="meta-badge community"
+                ><i class="ti ti-users"></i> Community</span
+              >
+            </div>
+
+            <div id="modal-audio-container" class="audio-narration-section">
+              <h4><i class="ti ti-volume"></i> Listen to Oral Story</h4>
+              <audio id="modal-event-audio" controls>
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+
+            <div class="event-detail-sections">
+              <div class="detail-section">
+                <h4>About the Festival</h4>
+                <p id="modal-event-desc">Description</p>
+              </div>
+
+              <div class="detail-section">
+                <h4>Historical Background</h4>
+                <p id="modal-event-history">History</p>
+              </div>
+
+              <div class="detail-section">
+                <h4>Cultural Significance</h4>
+                <p id="modal-event-importance">Significance</p>
+              </div>
+
+              <div class="detail-section">
+                <h4>Traditional Rituals &amp; Ceremonies</h4>
+                <ul id="modal-event-rituals" class="detail-list">
+                  <!-- Rituals list -->
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column (Maps & Integrations) -->
+          <div class="modal-right-column">
+            <!-- Map Integration -->
+            <div class="map-integration-section">
+              <h4>Location Map</h4>
+              <p class="section-hint">
+                Explore the village and nearby heritage trails
+              </p>
+              <div id="detail-map" class="embedded-detail-map"></div>
+            </div>
+
+            <!-- Inter-feature integrations -->
+            <div class="cross-integrations-section">
+              <h4>Cross-Cultural Archives</h4>
+
+              <div class="integration-group">
+                <h5>
+                  <i class="ti ti-brush"></i> Associated Crafts &amp; Art Forms
+                </h5>
+                <div id="modal-associated-crafts" class="tag-pool">
+                  <!-- Associated crafts -->
+                </div>
+              </div>
+
+              <div class="integration-group">
+                <h5><i class="ti ti-soup"></i> Traditional Recipes</h5>
+                <div id="modal-associated-recipes" class="tag-pool">
+                  <!-- Associated recipes -->
+                </div>
+              </div>
+
+              <div class="integration-group">
+                <h5>
+                  <i class="ti ti-book-open"></i> Oral Stories &amp; Artifacts
+                </h5>
+                <div id="modal-associated-stories" class="tag-pool">
+                  <!-- Related stories -->
+                </div>
+              </div>
+
+              <div class="integration-group">
+                <h5><i class="ti ti-route"></i> Related Heritage Trails</h5>
+                <div id="modal-associated-trails" class="tag-pool">
+                  <!-- Related trails -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Visitor Guide -->
+            <div class="visitor-guide-section">
+              <h4>Visitor Information</h4>
+              <p id="modal-visitor-info">Visitor info</p>
+              <h5>Travel Tips &amp; Responsible Conduct</h5>
+              <p id="modal-travel-tips">Travel tips</p>
+            </div>
+
+            <!-- Actions Panel (Export & Reminder) -->
+            <div class="actions-panel-section">
+              <h4>Calendar Actions</h4>
+
+              <!-- Export ICS -->
+              <button id="btn-export-ics" class="btn btn-primary btn-block">
+                <i class="ti ti-download"></i> Export to Calendar (.ICS)
+              </button>
+
+              <!-- Reminder Form -->
+              <div class="reminder-form-box">
+                <h5>Set Event Reminder</h5>
+                <form id="reminder-setup-form">
+                  <div class="form-group-inline">
+                    <select
+                      id="reminder-lead-time"
+                      aria-label="Reminder warning lead time"
+                      required
+                    >
+                      <option value="1">1 Day Before</option>
+                      <option value="3">3 Days Before</option>
+                      <option value="7">1 Week Before</option>
+                      <option value="14">2 Weeks Before</option>
+                    </select>
+                    <button type="submit" class="btn btn-secondary">Set</button>
+                  </div>
+                  <p id="reminder-status-message" class="reminder-status"></p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p data-i18n="footer_copy">
+          © 2024 Parampara. Preserving rural heritage, one story at a time.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Back To Top Button -->
+    <button id="backToTopBtn" aria-label="Back to top">↑</button>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/languageSwitcher.js"></script>
+    <script src="scripts/navbar.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/calendar.js"></script>
+  </body>
+</html>
