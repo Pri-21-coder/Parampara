@@ -559,10 +559,22 @@ app.get('/api/recommendations/health', async (req, res) => {
     });
   }
 });
+// Add blockchain routes
+const blockchainRoutes = require('./routes/blockchain.routes');
+app.use('/api/blockchain', blockchainRoutes);
+// Add preservation AI routes
+const preservationAIRoutes = require('./routes/preservationAI.routes');
+app.use('/api/preservation', preservationAIRoutes);
+
 // Blockchain routes (temporarily disabled - service dependencies need fixing)
 // const blockchainRoutes = require('./routes/blockchain.routes');
 // app.use('/api/blockchain', blockchainRoutes);
 
+
+// Preservation page
+app.get('/preservation', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'preservation.html'));
+});
 // Blockchain page
 
 app.get('/blockchain', (req, res) => {
@@ -571,6 +583,15 @@ app.get('/blockchain', (req, res) => {
 // Add impact metrics routes
 const impactMetricsRoutes = require('./routes/impactMetrics.routes');
 app.use('/api/impact', impactMetricsRoutes);
+
+// Add developer portal routes
+const developerPortalRoutes = require('./routes/developerPortal.routes');
+app.use('/api/developer', developerPortalRoutes);
+
+// Developer Portal page
+app.get('/developer-portal', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'developer-portal.html'));
+});
 
 // Impact Metrics page
 app.get('/impact-metrics', (req, res) => {
@@ -625,6 +646,7 @@ app.get('/storytelling', (req, res) => {
 const languageLearningRoutes = require('./routes/languageLearning.routes');
 app.use('/api/language', languageLearningRoutes);
 // Add itinerary planner routes
+
 // Storytelling routes (disabled - service missing)
 // const storytellingRoutes = require('./routes/storytelling.routes');
 // app.use('/api/story', storytellingRoutes);
