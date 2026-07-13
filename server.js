@@ -559,15 +559,48 @@ app.get('/api/recommendations/health', async (req, res) => {
     });
   }
 });
+// Add blockchain routes
+const blockchainRoutes = require('./routes/blockchain.routes');
+app.use('/api/blockchain', blockchainRoutes);
+// Add preservation AI routes
+const preservationAIRoutes = require('./routes/preservationAI.routes');
+app.use('/api/preservation', preservationAIRoutes);
+
 // Blockchain routes (temporarily disabled - service dependencies need fixing)
 // const blockchainRoutes = require('./routes/blockchain.routes');
 // app.use('/api/blockchain', blockchainRoutes);
 
+
+// Preservation page
+app.get('/preservation', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'preservation.html'));
+});
 // Blockchain page
+
 
 app.get('/blockchain', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
 });
+
+app.get('/blockchain', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
+});
+// Add impact metrics routes
+const impactMetricsRoutes = require('./routes/impactMetrics.routes');
+app.use('/api/impact', impactMetricsRoutes);
+// Add developer portal routes
+const developerPortalRoutes = require('./routes/developerPortal.routes');
+app.use('/api/developer', developerPortalRoutes);
+
+// Developer Portal page
+app.get('/developer-portal', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'developer-portal.html'));
+});
+// Impact Metrics page
+app.get('/impact-metrics', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'impact-metrics.html'));
+});
+
 // Add analytics dashboard routes
 const analyticsDashboardRoutes = require('./routes/analyticsDashboard.routes');
 app.use('/api/analytics', analyticsDashboardRoutes);
