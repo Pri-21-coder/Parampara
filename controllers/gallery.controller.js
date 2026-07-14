@@ -1,43 +1,24 @@
 const store = require('../data/store');
+const { cache, generateKey, clearByPattern, getStats } = require('../utils/cache');
+const galleryConfig = require('../config/gallery.config');
 
-const CACHE_TTL = 300000; // 5 minutes
-const DEFAULT_LIMIT = 12;
-const MAX_LIMIT = 100;
-const VALID_SORT_FIELDS = ['latest', 'oldest', 'name', 'name_desc'];
-const VALID_TYPES = ['all', 'painting', 'sculpture', 'textile', 'pottery', 'jewellery'];
+// ============================================
+// DESTRUCTURE CONFIGURATION
+// ============================================
 
-const cache = new Map();
+const { PAGINATION, GALLERY } = galleryConfig;
 
-const getCacheKey = (params) => {
-  return JSON.stringify(params);
-};
-
-const getFromCache = (key) => {
-  const cached = cache.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
-  }
-  return null;
-};
-
-const setCache = (key, data) => {
-  cache.set(key, {
-    data: data,
-    timestamp: Date.now()
-  });
-};
-
-const clearCache = () => {
-  cache.clear();
-};
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
 
 const validatePagination = (page, limit) => {
-  let validPage = parseInt(page, 10) || 1;
-  let validLimit = parseInt(limit, 10) || DEFAULT_LIMIT;
+  let validPage = parseInt(page, 10) || PAGINATION.DEFAULT_PAGE;
+  let validLimit = parseInt(limit, 10) || PAGINATION.DEFAULT_LIMIT;
 
-  if (validPage < 1) validPage = 1;
-  if (validLimit < 1) validLimit = DEFAULT_LIMIT;
-  if (validLimit > MAX_LIMIT) validLimit = MAX_LIMIT;
+  if (validPage < 1) validPage = PAGINATION.DEFAULT_PAGE;
+  if (validLimit < 1) validLimit = PAGINATION.DEFAULT_LIMIT;
+  if (validLimit > PAGINATION.MAX_LIMIT) validLimit = PAGINATION.MAX_LIMIT;
 
   return { page: validPage, limit: validLimit };
 };
@@ -123,35 +104,47 @@ const applySorting = (items, sort) => {
   return sorted;
 };
 
+// ============================================
+// MAIN CONTROLLER
+// ============================================
+
 const getGallery = (req, res, next) => {
   try {
     const { search, craft, state, tag, type, year, sort } = req.query;
 
-    if (type && type !== 'all' && !VALID_TYPES.includes(type)) {
+    // Validate type using config
+    if (type && type !== 'all' && !GALLERY.ALLOWED_FILTERS.TYPES.includes(type)) {
       return res.status(400).json({
         success: false,
-        error: `Invalid type. Allowed: ${VALID_TYPES.join(', ')}`
+        error: `Invalid type. Allowed: ${GALLERY.ALLOWED_FILTERS.TYPES.join(', ')}`
       });
     }
 
-    if (sort && !VALID_SORT_FIELDS.includes(sort)) {
+    // Validate sort using config
+    if (sort && !GALLERY.ALLOWED_SORT_OPTIONS.includes(sort)) {
       return res.status(400).json({
         success: false,
-        error: `Invalid sort. Allowed: ${VALID_SORT_FIELDS.join(', ')}`
+        error: `Invalid sort. Allowed: ${GALLERY.ALLOWED_SORT_OPTIONS.join(', ')}`
       });
     }
 
     const { page, limit } = validatePagination(req.query.page, req.query.limit);
 
-    const cacheKey = getCacheKey({ search, craft, state, tag, type, year, sort, page, limit });
-    const cachedData = getFromCache(cacheKey);
+    // Generate cache key using cache utility
+    const cacheKey = generateKey({ 
+      search, craft, state, tag, type, year, sort, page, limit 
+    });
+    
+    // Get from cache using cache utility
+    const cachedData = cache.get(cacheKey);
 
     if (cachedData) {
       return res.json({
         success: true,
         data: cachedData.data,
         pagination: cachedData.pagination,
-        cached: true
+        cached: true,
+        cacheStats: getStats()
       });
     }
 
@@ -194,7 +187,8 @@ const getGallery = (req, res, next) => {
       }
     };
 
-    setCache(cacheKey, response);
+    // Set cache using cache utility
+    cache.set(cacheKey, response);
 
     res.json({
       success: true,
@@ -206,7 +200,44 @@ const getGallery = (req, res, next) => {
   }
 };
 
+/**
+ * Clear gallery cache
+ */
+const clearGalleryCache = (req, res) => {
+  try {
+    clearByPattern('gallery:');
+    res.json({
+      success: true,
+      message: 'Gallery cache cleared successfully',
+      stats: getStats()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to clear cache'
+    });
+  }
+};
+
+/**
+ * Get cache statistics
+ */
+const getCacheStats = (req, res) => {
+  try {
+    res.json({
+      success: true,
+      stats: getStats()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get cache stats'
+    });
+  }
+};
+
 module.exports = {
   getGallery,
-  clearCache
+  clearGalleryCache,
+  getCacheStats
 };
