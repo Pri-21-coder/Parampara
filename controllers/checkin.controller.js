@@ -1,21 +1,12 @@
 // controllers/checkin.controller.js
 const store = require('../data/store');
+const checkinConfig = require('../config/checkin.config');
 
 // ============================================
-// CONSTANTS
+// DESTRUCTURE CONFIGURATION
 // ============================================
 
-const MAX_VILLAGE_LENGTH = 100;
-const MIN_VILLAGE_LENGTH = 2;
-const COORDINATE_PRECISION = 6;
-
-const BADGE_NAMES = {
-  FIRST_EXPLORER: 'First Explorer',
-  VILLAGE_EXPLORER: 'Village Explorer',
-  MASTER_EXPLORER: 'Master Explorer',
-  STREAK_MASTER: 'Streak Master',
-  DEDICATED_EXPLORER: 'Dedicated Explorer'
-};
+const { VILLAGE, COORDINATE, BADGES, CHECKIN } = checkinConfig;
 
 // ============================================
 // VALIDATION FUNCTIONS
@@ -65,12 +56,12 @@ function validateVillage(village) {
     errors.push('village cannot be empty or only whitespace.');
   }
 
-  if (trimmed.length < MIN_VILLAGE_LENGTH) {
-    errors.push(`village name must be at least ${MIN_VILLAGE_LENGTH} characters.`);
+  if (trimmed.length < VILLAGE.MIN_LENGTH) {
+    errors.push(`village name must be at least ${VILLAGE.MIN_LENGTH} characters.`);
   }
 
-  if (trimmed.length > MAX_VILLAGE_LENGTH) {
-    errors.push(`village name cannot exceed ${MAX_VILLAGE_LENGTH} characters.`);
+  if (trimmed.length > VILLAGE.MAX_LENGTH) {
+    errors.push(`village name cannot exceed ${VILLAGE.MAX_LENGTH} characters.`);
   }
 
   // Check for dangerous characters (XSS protection)
@@ -124,6 +115,16 @@ function validateCoordinates(coordinates) {
     valid: errors.length === 0,
     value: { lat, lng },
     errors
+  };
+}
+
+/**
+ * Format coordinates with precision
+ */
+function formatCoordinates(lat, lng) {
+  return {
+    lat: parseFloat(lat.toFixed(COORDINATE.PRECISION)),
+    lng: parseFloat(lng.toFixed(COORDINATE.PRECISION))
   };
 }
 
@@ -250,6 +251,12 @@ const checkIn = (req, res) => {
     }
     const validCoordinates = coordinatesValidation.value;
 
+    // Format coordinates with precision
+    const formattedCoordinates = formatCoordinates(
+      validCoordinates.lat,
+      validCoordinates.lng
+    );
+
     // 4. Initialize user progress if not exists
     if (!store.userProgress[validUserId]) {
       store.userProgress[validUserId] = {
@@ -276,24 +283,33 @@ const checkIn = (req, res) => {
     const checkInRecord = {
       id: `checkin_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
       village: validVillage,
-      coordinates: validCoordinates,
+      coordinates: formattedCoordinates,
       timestamp: new Date().toISOString()
     };
 
     userData.checkIns.push(checkInRecord);
     userData.totalCheckIns = (userData.totalCheckIns || 0) + 1;
 
-    // 7. Award badges
+    // 7. Award badges using config
     const awardedBadges = [];
     const checkIns = userData.checkIns;
     const uniqueVillages = getUniqueVillagesCount(checkIns);
     const streak = calculateStreak(checkIns);
 
+    // Get badge names from config
+    const {
+      FIRST_EXPLORER,
+      VILLAGE_EXPLORER,
+      MASTER_EXPLORER,
+      STREAK_MASTER,
+      DEDICATED_EXPLORER
+    } = BADGES.NAMES;
+
     // First check-in badge
     if (checkIns.length === 1) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.FIRST_EXPLORER,
+        FIRST_EXPLORER,
         'Visited your first village'
       );
       if (badge) awardedBadges.push(badge);
@@ -303,7 +319,7 @@ const checkIn = (req, res) => {
     if (uniqueVillages === 5) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.VILLAGE_EXPLORER,
+        VILLAGE_EXPLORER,
         'Visited 5 unique villages'
       );
       if (badge) awardedBadges.push(badge);
@@ -313,7 +329,7 @@ const checkIn = (req, res) => {
     if (uniqueVillages === 10) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.MASTER_EXPLORER,
+        MASTER_EXPLORER,
         'Visited 10 unique villages'
       );
       if (badge) awardedBadges.push(badge);
@@ -323,7 +339,7 @@ const checkIn = (req, res) => {
     if (streak === 5) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.STREAK_MASTER,
+        STREAK_MASTER,
         'Checked in for 5 consecutive days'
       );
       if (badge) awardedBadges.push(badge);
@@ -333,7 +349,7 @@ const checkIn = (req, res) => {
     if (streak === 10) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.DEDICATED_EXPLORER,
+        DEDICATED_EXPLORER,
         'Checked in for 10 consecutive days'
       );
       if (badge) awardedBadges.push(badge);
