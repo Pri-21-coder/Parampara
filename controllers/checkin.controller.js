@@ -1,129 +1,25 @@
 // controllers/checkin.controller.js
 const store = require('../data/store');
+const checkinConfig = require('../config/checkin.config');
+const validators = require('../utils/validators');
 
 // ============================================
-// CONSTANTS
+// DESTRUCTURE CONFIGURATION
 // ============================================
 
-const MAX_VILLAGE_LENGTH = 100;
-const MIN_VILLAGE_LENGTH = 2;
-const COORDINATE_PRECISION = 6;
-
-const BADGE_NAMES = {
-  FIRST_EXPLORER: 'First Explorer',
-  VILLAGE_EXPLORER: 'Village Explorer',
-  MASTER_EXPLORER: 'Master Explorer',
-  STREAK_MASTER: 'Streak Master',
-  DEDICATED_EXPLORER: 'Dedicated Explorer'
-};
+const { VILLAGE, COORDINATE, BADGES, CHECKIN } = checkinConfig;
 
 // ============================================
-// VALIDATION FUNCTIONS
+// HELPER FUNCTIONS (Business Logic)
 // ============================================
 
 /**
- * Validate userId
+ * Format coordinates with precision from config
  */
-function validateUserId(userId) {
-  const errors = [];
-
-  if (!userId || typeof userId !== 'string') {
-    errors.push('userId is required and must be a string.');
-    return { valid: false, errors };
-  }
-
-  const trimmed = userId.trim();
-  if (trimmed.length === 0) {
-    errors.push('userId cannot be empty or only whitespace.');
-  }
-
-  // Check for dangerous characters (XSS protection)
-  if (/[<>{}]/.test(trimmed)) {
-    errors.push('userId contains invalid characters.');
-  }
-
+function formatCoordinates(lat, lng) {
   return {
-    valid: errors.length === 0,
-    value: trimmed,
-    errors
-  };
-}
-
-/**
- * Validate village name
- */
-function validateVillage(village) {
-  const errors = [];
-
-  if (!village || typeof village !== 'string') {
-    errors.push('village is required and must be a string.');
-    return { valid: false, errors };
-  }
-
-  const trimmed = village.trim();
-  if (trimmed.length === 0) {
-    errors.push('village cannot be empty or only whitespace.');
-  }
-
-  if (trimmed.length < MIN_VILLAGE_LENGTH) {
-    errors.push(`village name must be at least ${MIN_VILLAGE_LENGTH} characters.`);
-  }
-
-  if (trimmed.length > MAX_VILLAGE_LENGTH) {
-    errors.push(`village name cannot exceed ${MAX_VILLAGE_LENGTH} characters.`);
-  }
-
-  // Check for dangerous characters (XSS protection)
-  if (/[<>{}]/.test(trimmed)) {
-    errors.push('village name contains invalid characters.');
-  }
-
-  return {
-    valid: errors.length === 0,
-    value: trimmed,
-    errors
-  };
-}
-
-/**
- * Validate coordinates
- */
-function validateCoordinates(coordinates) {
-  const errors = [];
-
-  if (!coordinates || typeof coordinates !== 'object' || Array.isArray(coordinates)) {
-    errors.push('coordinates are required and must be an object.');
-    return { valid: false, errors };
-  }
-
-  const { lat, lng } = coordinates;
-
-  // Validate latitude
-  if (lat === undefined || lat === null) {
-    errors.push('latitude is required.');
-  } else if (typeof lat !== 'number') {
-    errors.push('latitude must be a number.');
-  } else if (isNaN(lat)) {
-    errors.push('latitude must be a valid number.');
-  } else if (lat < -90 || lat > 90) {
-    errors.push('latitude must be between -90 and 90.');
-  }
-
-  // Validate longitude
-  if (lng === undefined || lng === null) {
-    errors.push('longitude is required.');
-  } else if (typeof lng !== 'number') {
-    errors.push('longitude must be a number.');
-  } else if (isNaN(lng)) {
-    errors.push('longitude must be a valid number.');
-  } else if (lng < -180 || lng > 180) {
-    errors.push('longitude must be between -180 and 180.');
-  }
-
-  return {
-    valid: errors.length === 0,
-    value: { lat, lng },
-    errors
+    lat: parseFloat(lat.toFixed(COORDINATE.PRECISION)),
+    lng: parseFloat(lng.toFixed(COORDINATE.PRECISION))
   };
 }
 
@@ -217,8 +113,8 @@ const checkIn = (req, res) => {
   try {
     const { userId, village, coordinates } = req.body;
 
-    // 1. Validate userId
-    const userIdValidation = validateUserId(userId);
+    // 1. Validate userId using imported validator
+    const userIdValidation = validators.validateUserId(userId);
     if (!userIdValidation.valid) {
       return res.status(400).json({
         success: false,
@@ -228,8 +124,8 @@ const checkIn = (req, res) => {
     }
     const validUserId = userIdValidation.value;
 
-    // 2. Validate village
-    const villageValidation = validateVillage(village);
+    // 2. Validate village using imported validator with config
+    const villageValidation = validators.validateVillage(village, { VILLAGE });
     if (!villageValidation.valid) {
       return res.status(400).json({
         success: false,
@@ -239,8 +135,8 @@ const checkIn = (req, res) => {
     }
     const validVillage = villageValidation.value;
 
-    // 3. Validate coordinates
-    const coordinatesValidation = validateCoordinates(coordinates);
+    // 3. Validate coordinates using imported validator
+    const coordinatesValidation = validators.validateCoordinates(coordinates);
     if (!coordinatesValidation.valid) {
       return res.status(400).json({
         success: false,
@@ -249,6 +145,12 @@ const checkIn = (req, res) => {
       });
     }
     const validCoordinates = coordinatesValidation.value;
+
+    // Format coordinates with precision
+    const formattedCoordinates = formatCoordinates(
+      validCoordinates.lat,
+      validCoordinates.lng
+    );
 
     // 4. Initialize user progress if not exists
     if (!store.userProgress[validUserId]) {
@@ -276,24 +178,32 @@ const checkIn = (req, res) => {
     const checkInRecord = {
       id: `checkin_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
       village: validVillage,
-      coordinates: validCoordinates,
+      coordinates: formattedCoordinates,
       timestamp: new Date().toISOString()
     };
 
     userData.checkIns.push(checkInRecord);
     userData.totalCheckIns = (userData.totalCheckIns || 0) + 1;
 
-    // 7. Award badges
+    // 7. Award badges using config
     const awardedBadges = [];
     const checkIns = userData.checkIns;
     const uniqueVillages = getUniqueVillagesCount(checkIns);
     const streak = calculateStreak(checkIns);
 
+    const {
+      FIRST_EXPLORER,
+      VILLAGE_EXPLORER,
+      MASTER_EXPLORER,
+      STREAK_MASTER,
+      DEDICATED_EXPLORER
+    } = BADGES.NAMES;
+
     // First check-in badge
     if (checkIns.length === 1) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.FIRST_EXPLORER,
+        FIRST_EXPLORER,
         'Visited your first village'
       );
       if (badge) awardedBadges.push(badge);
@@ -303,7 +213,7 @@ const checkIn = (req, res) => {
     if (uniqueVillages === 5) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.VILLAGE_EXPLORER,
+        VILLAGE_EXPLORER,
         'Visited 5 unique villages'
       );
       if (badge) awardedBadges.push(badge);
@@ -313,7 +223,7 @@ const checkIn = (req, res) => {
     if (uniqueVillages === 10) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.MASTER_EXPLORER,
+        MASTER_EXPLORER,
         'Visited 10 unique villages'
       );
       if (badge) awardedBadges.push(badge);
@@ -323,7 +233,7 @@ const checkIn = (req, res) => {
     if (streak === 5) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.STREAK_MASTER,
+        STREAK_MASTER,
         'Checked in for 5 consecutive days'
       );
       if (badge) awardedBadges.push(badge);
@@ -333,7 +243,7 @@ const checkIn = (req, res) => {
     if (streak === 10) {
       const badge = awardBadge(
         userData,
-        BADGE_NAMES.DEDICATED_EXPLORER,
+        DEDICATED_EXPLORER,
         'Checked in for 10 consecutive days'
       );
       if (badge) awardedBadges.push(badge);
@@ -386,8 +296,8 @@ const getCheckInHistory = (req, res) => {
     const { userId } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
-    // Validate userId
-    const userIdValidation = validateUserId(userId);
+    // Validate userId using imported validator
+    const userIdValidation = validators.validateUserId(userId);
     if (!userIdValidation.valid) {
       return res.status(400).json({
         success: false,
@@ -397,23 +307,16 @@ const getCheckInHistory = (req, res) => {
     }
     const validUserId = userIdValidation.value;
 
-    // Validate pagination
-    const parsedPage = parseInt(page, 10);
-    const parsedLimit = parseInt(limit, 10);
-
-    if (isNaN(parsedPage) || parsedPage < 1) {
+    // Validate pagination using imported validator
+    const paginationValidation = validators.validatePagination(page, limit, 100);
+    if (!paginationValidation.valid) {
       return res.status(400).json({
         success: false,
-        error: 'Page must be a positive integer'
+        error: 'Validation failed',
+        details: paginationValidation.errors
       });
     }
-
-    if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
-      return res.status(400).json({
-        success: false,
-        error: 'Limit must be between 1 and 100'
-      });
-    }
+    const { page: parsedPage, limit: parsedLimit } = paginationValidation;
 
     const userData = store.userProgress[validUserId];
     if (!userData) {
@@ -474,7 +377,7 @@ const getCheckInStats = (req, res) => {
   try {
     const { userId } = req.params;
 
-    const userIdValidation = validateUserId(userId);
+    const userIdValidation = validators.validateUserId(userId);
     if (!userIdValidation.valid) {
       return res.status(400).json({
         success: false,
