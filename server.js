@@ -1,5 +1,19 @@
 // server.js - Main Express Server with WebSocket & Recommendation Engine Integration
 require('dotenv').config();
+
+// Hot-patch relative imports to resolve service and store directory movements
+const Module = require('module');
+const originalRequire = Module.prototype.require;
+Module.prototype.require = function(request) {
+  if (request === '../data/store' && (this.filename.includes('server\\services') || this.filename.includes('server/services'))) {
+    return originalRequire.call(this, '../../data/store');
+  }
+  if (request.startsWith('../services/') && this.filename.includes('routes')) {
+    return originalRequire.call(this, request.replace('../services/', '../server/services/'));
+  }
+  return originalRequire.call(this, request);
+};
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -119,8 +133,6 @@ app.use(globalLimiter.middleware());
 // Initialize Data
 initializeSampleData();
 initializeSampleLanguageData();
-const initializeSampleData = require('./config/sampleData');
-initializeSampleData();
 
 const initializeSampleRecipeData = require('./config/sampleRecipeData');
 initializeSampleRecipeData();
