@@ -1,35 +1,12 @@
 // controllers/calendar.controller.js
 const store = require('../data/store');
+const calendarConfig = require('../config/calendar.config');
 
 // ============================================
-// CONSTANTS
+// DESTRUCTURE CONFIGURATION
 // ============================================
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 10;
-const MAX_LIMIT = 100;
-const MIN_SEARCH_LENGTH = 2;
-const MAX_SEARCH_LENGTH = 100;
-
-// Allowed values for filters
-const ALLOWED_MONTHS = [
-  'january', 'february', 'march', 'april', 'may', 'june',
-  'july', 'august', 'september', 'october', 'november', 'december'
-];
-
-const ALLOWED_SEASONS = ['spring', 'summer', 'autumn', 'winter', 'monsoon'];
-
-const ALLOWED_STATES = [
-  'andhra pradesh', 'assam', 'bihar', 'gujarat', 'karnataka',
-  'kerala', 'maharashtra', 'rajasthan', 'tamil nadu', 'uttar pradesh',
-  'west bengal', 'himachal pradesh', 'punjab', 'odisha', 'telangana'
-];
-
-const ALLOWED_CATEGORIES = ['festival', 'ritual', 'celebration', 'cultural', 'religious'];
-
-const ALLOWED_SORT_OPTIONS = [
-  'alphabetical', 'newest', 'oldest', 'region', 'season', 'upcoming'
-];
+const { PAGINATION, SEARCH, ALLOWED } = calendarConfig;
 
 // ============================================
 // VALIDATION FUNCTIONS
@@ -43,15 +20,15 @@ function validatePagination(page, limit) {
   let parsedLimit = parseInt(limit, 10);
 
   if (isNaN(parsedPage) || parsedPage < 1) {
-    parsedPage = DEFAULT_PAGE;
+    parsedPage = PAGINATION.DEFAULT_PAGE;
   }
 
   if (isNaN(parsedLimit) || parsedLimit < 1) {
-    parsedLimit = DEFAULT_LIMIT;
+    parsedLimit = PAGINATION.DEFAULT_LIMIT;
   }
 
-  if (parsedLimit > MAX_LIMIT) {
-    parsedLimit = MAX_LIMIT;
+  if (parsedLimit > PAGINATION.MAX_LIMIT) {
+    parsedLimit = PAGINATION.MAX_LIMIT;
   }
 
   return { page: parsedPage, limit: parsedLimit };
@@ -63,7 +40,7 @@ function validatePagination(page, limit) {
 function validateMonth(month) {
   if (!month) return null;
   const trimmed = month.trim().toLowerCase();
-  if (ALLOWED_MONTHS.includes(trimmed)) {
+  if (ALLOWED.MONTHS.includes(trimmed)) {
     return trimmed;
   }
   return null;
@@ -75,7 +52,7 @@ function validateMonth(month) {
 function validateSeason(season) {
   if (!season) return null;
   const trimmed = season.trim().toLowerCase();
-  if (ALLOWED_SEASONS.includes(trimmed)) {
+  if (ALLOWED.SEASONS.includes(trimmed)) {
     return trimmed;
   }
   return null;
@@ -87,7 +64,7 @@ function validateSeason(season) {
 function validateState(state) {
   if (!state) return null;
   const trimmed = state.trim().toLowerCase();
-  if (ALLOWED_STATES.includes(trimmed)) {
+  if (ALLOWED.STATES.includes(trimmed)) {
     return trimmed;
   }
   return null;
@@ -99,7 +76,7 @@ function validateState(state) {
 function validateCategory(category) {
   if (!category) return null;
   const trimmed = category.trim().toLowerCase();
-  if (ALLOWED_CATEGORIES.includes(trimmed)) {
+  if (ALLOWED.CATEGORIES.includes(trimmed)) {
     return trimmed;
   }
   return null;
@@ -111,8 +88,8 @@ function validateCategory(category) {
 function sanitizeSearch(query) {
   if (!query || typeof query !== 'string') return '';
   const trimmed = query.trim();
-  if (trimmed.length < MIN_SEARCH_LENGTH) return '';
-  if (trimmed.length > MAX_SEARCH_LENGTH) return trimmed.slice(0, MAX_SEARCH_LENGTH);
+  if (trimmed.length < SEARCH.MIN_LENGTH) return '';
+  if (trimmed.length > SEARCH.MAX_LENGTH) return trimmed.slice(0, SEARCH.MAX_LENGTH);
   // Remove dangerous characters (XSS protection)
   return trimmed.replace(/[<>{}]/g, '');
 }
@@ -123,7 +100,7 @@ function sanitizeSearch(query) {
 function validateSort(sortBy) {
   if (!sortBy) return 'upcoming';
   const trimmed = sortBy.trim().toLowerCase();
-  if (ALLOWED_SORT_OPTIONS.includes(trimmed)) {
+  if (ALLOWED.SORT_OPTIONS.includes(trimmed)) {
     return trimmed;
   }
   return 'upcoming';
@@ -491,26 +468,26 @@ const getAllEvents = (req, res, next) => {
 
     // 12. Add warnings if defaults were used
     const warnings = [];
-    if (req.query.limit && parseInt(req.query.limit, 10) > MAX_LIMIT) {
-      warnings.push(`Limit was adjusted to ${MAX_LIMIT}. Maximum allowed: ${MAX_LIMIT}`);
+    if (req.query.limit && parseInt(req.query.limit, 10) > PAGINATION.MAX_LIMIT) {
+      warnings.push(`Limit was adjusted to ${PAGINATION.MAX_LIMIT}. Maximum allowed: ${PAGINATION.MAX_LIMIT}`);
     }
     if (req.query.page && parseInt(req.query.page, 10) < 1) {
       warnings.push('Page was adjusted to 1. Minimum page: 1');
     }
-    if (req.query.sortBy && !ALLOWED_SORT_OPTIONS.includes(req.query.sortBy.toLowerCase())) {
-      warnings.push(`Sort was adjusted to 'upcoming'. Allowed: ${ALLOWED_SORT_OPTIONS.join(', ')}`);
+    if (req.query.sortBy && !ALLOWED.SORT_OPTIONS.includes(req.query.sortBy.toLowerCase())) {
+      warnings.push(`Sort was adjusted to 'upcoming'. Allowed: ${ALLOWED.SORT_OPTIONS.join(', ')}`);
     }
     if (req.query.month && !validateMonth(req.query.month)) {
-      warnings.push(`Invalid month '${req.query.month}'. Allowed: ${ALLOWED_MONTHS.join(', ')}`);
+      warnings.push(`Invalid month '${req.query.month}'. Allowed: ${ALLOWED.MONTHS.join(', ')}`);
     }
     if (req.query.season && !validateSeason(req.query.season)) {
-      warnings.push(`Invalid season '${req.query.season}'. Allowed: ${ALLOWED_SEASONS.join(', ')}`);
+      warnings.push(`Invalid season '${req.query.season}'. Allowed: ${ALLOWED.SEASONS.join(', ')}`);
     }
     if (req.query.state && !validateState(req.query.state)) {
-      warnings.push(`Invalid state '${req.query.state}'. Allowed: ${ALLOWED_STATES.join(', ')}`);
+      warnings.push(`Invalid state '${req.query.state}'. Allowed: ${ALLOWED.STATES.join(', ')}`);
     }
     if (req.query.category && !validateCategory(req.query.category)) {
-      warnings.push(`Invalid category '${req.query.category}'. Allowed: ${ALLOWED_CATEGORIES.join(', ')}`);
+      warnings.push(`Invalid category '${req.query.category}'. Allowed: ${ALLOWED.CATEGORIES.join(', ')}`);
     }
     if (warnings.length > 0) {
       response.warnings = warnings;
@@ -569,7 +546,7 @@ const getEventsByMonth = (req, res, next) => {
   const month = validateMonth(req.params.month);
   if (!month) {
     return res.status(400).json({
-      error: `Invalid month. Allowed: ${ALLOWED_MONTHS.join(', ')}`
+      error: `Invalid month. Allowed: ${ALLOWED.MONTHS.join(', ')}`
     });
   }
   req.query.month = month;
@@ -584,7 +561,7 @@ const getEventsBySeason = (req, res, next) => {
   const season = validateSeason(req.params.season);
   if (!season) {
     return res.status(400).json({
-      error: `Invalid season. Allowed: ${ALLOWED_SEASONS.join(', ')}`
+      error: `Invalid season. Allowed: ${ALLOWED.SEASONS.join(', ')}`
     });
   }
   req.query.season = season;
@@ -599,7 +576,7 @@ const getEventsByState = (req, res, next) => {
   const state = validateState(req.params.state);
   if (!state) {
     return res.status(400).json({
-      error: `Invalid state. Allowed: ${ALLOWED_STATES.join(', ')}`
+      error: `Invalid state. Allowed: ${ALLOWED.STATES.join(', ')}`
     });
   }
   req.query.state = state;
