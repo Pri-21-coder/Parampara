@@ -1,5 +1,5 @@
 // services/itineraryPlannerService.js
-const store = require('../data/store');
+const store = require('../../data/store');
 const { v4: uuidv4 } = require('uuid');
 
 class ItineraryPlannerService {
