@@ -760,3 +760,27 @@
     opacity: 0;
   }
 }
+.nav-fullmenu {
+  display: none !important;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: var(--card-bg, #fff);
+  z-index: 9999;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.nav-fullmenu.active,
+.nav-fullmenu.open {
+  display: flex !important;
+  flex-direction: column;
+}
+
+
+.nav-fullmenu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
