@@ -588,6 +588,12 @@ app.get('/preservation', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'preservation.html'));
 });
 // Blockchain page
+
+
+app.get('/blockchain', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
+});
+
 app.get('/blockchain', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
 });
@@ -606,6 +612,7 @@ app.get('/developer-portal', (req, res) => {
 app.get('/impact-metrics', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'impact-metrics.html'));
 });
+
 // Add analytics dashboard routes
 const analyticsDashboardRoutes = require('./routes/analyticsDashboard.routes');
 app.use('/api/analytics', analyticsDashboardRoutes);
