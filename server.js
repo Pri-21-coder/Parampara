@@ -588,6 +588,15 @@ app.get('/preservation', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'preservation.html'));
 });
 // Blockchain page
+
+
+app.get('/blockchain', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
+});
+// Add analytics dashboard routes
+const analyticsDashboardRoutes = require('./routes/analyticsDashboard.routes');
+app.use('/api/analytics', analyticsDashboardRoutes);
+
 app.get('/blockchain', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
 });
@@ -617,11 +626,44 @@ app.use('/api/exchange', culturalExchangeRoutes);
 app.get('/cultural-exchange', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'cultural-exchange.html'));
 });
+
 // Analytics Dashboard page
 app.get('/analytics-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'analytics-dashboard.html'));
 });
 // Add virtual tour routes
+const virtualTourRoutes = require('./routes/virtualTour.routes');
+app.use('/api/tours', virtualTourRoutes);
+
+// Virtual Tour page
+app.get('/virtual-tour', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'virtual-tour.html'));
+});
+
+// Add mobile app routes
+const mobileAppRoutes = require('./routes/mobileApp.routes');
+app.use('/api/mobile', mobileAppRoutes);
+
+// Add storytelling routes
+const storytellingRoutes = require('./routes/storytelling.routes');
+app.use('/api/story', storytellingRoutes);
+
+// Storytelling page
+app.get('/storytelling', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'storytelling.html'));
+});
+// Add language learning routes
+const languageLearningRoutes = require('./routes/languageLearning.routes');
+app.use('/api/language', languageLearningRoutes);
+// Add itinerary planner routes
+const itineraryRoutes = require('./routes/itineraryPlanner.routes');
+app.use('/api/itinerary', itineraryRoutes);
+
+// Itinerary Planner page
+app.get('/itinerary-planner', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'itinerary-planner.html'));
+});
+
 
 // app.get('/blockchain', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
@@ -666,6 +708,15 @@ app.use('/api/language', languageLearningRoutes);
 // const languageLearningRoutes = require('./routes/languageLearning.routes');
 // app.use('/api/language', languageLearningRoutes);
 
+
+// Itinerary Planner routes (disabled - service missing)
+// const itineraryRoutes = require('./routes/itineraryPlanner.routes');
+// app.use('/api/itinerary', itineraryRoutes);
+// app.get('/itinerary-planner', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'itinerary-planner.html'));
+// });
+
+
 // Itinerary Planner routes
 
 const itineraryRoutes = require('./routes/itineraryPlanner.routes');
@@ -673,6 +724,7 @@ app.use('/api/itinerary', itineraryRoutes);
 app.get('/itinerary-planner', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'itinerary-planner.html'));
 });
+
 // Language Learning page
 app.get('/language-learning', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'language-learning.html'));

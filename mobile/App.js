@@ -7,6 +7,19 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  Image,
+  TextInput,
+  FlatList,
+  Alert,
+  Platform,
+  PermissionsAndroid,
+  ActivityIndicator
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Geolocation from '@react-native-community/geolocation';
+import ImagePicker from 'react-native-image-picker';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+
   FlatList,
   Alert,
   Platform,
@@ -26,6 +39,7 @@ if (isMobile) {
   AudioRecorderPlayer = require('react-native-audio-recorder-player').default;
 }
 
+
 const App = () => {
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +49,9 @@ const App = () => {
   const [location, setLocation] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [syncStatus, setSyncStatus] = useState('synced');
+
+  const audioRecorderPlayer = new AudioRecorderPlayer();
+
   const [deviceId, setDeviceId] = useState(null);
 
   // Fix: Initialize audio recorder only on mobile
@@ -81,7 +98,9 @@ const App = () => {
 
       const data = await response.json();
       if (data.success) {
+
         setDeviceId(data.device.id);
+
         await AsyncStorage.setItem('deviceId', data.device.id);
       }
     } catch (error) {
@@ -90,6 +109,7 @@ const App = () => {
   };
 
   const getLocation = () => {
+
     if (!isMobile) {
       setLocation({ lat: 22.5726, lng: 88.3639 });
       return;
@@ -104,8 +124,10 @@ const App = () => {
       },
       (error) => {
         console.error('Error getting location:', error);
+
         // Fallback location
         setLocation({ lat: 22.5726, lng: 88.3639 });
+
       },
       { enableHighAccuracy: true, timeout: 15000 }
     );
@@ -116,6 +138,7 @@ const App = () => {
       const response = await fetch(`http://localhost:3000/api/mobile/offline?userId=${userId}`);
       const data = await response.json();
       if (data.success) {
+        setOfflineContent(data.content);
         setOfflineContent(data.content || []);
       }
     } catch (error) {
@@ -146,6 +169,18 @@ const App = () => {
   };
 
   const recordAudio = async () => {
+
+    if (isRecording) {
+      // Stop recording
+      const result = await audioRecorderPlayer.stopRecorder();
+      setIsRecording(false);
+      
+      // Upload recording
+      await uploadAudio(result);
+    } else {
+      // Start recording
+      try {
+
     if (!isMobile) {
       Alert.alert('Info', 'Audio recording is only available on mobile devices');
       return;
@@ -182,12 +217,15 @@ const App = () => {
           }
         }
 
+
         const path = await audioRecorderPlayer.startRecorder();
         setIsRecording(true);
         Alert.alert('Recording', 'Recording started...');
       } catch (error) {
         console.error('Error recording:', error);
+
         Alert.alert('Error', 'Failed to start recording');
+
       }
     }
   };
@@ -225,6 +263,7 @@ const App = () => {
       const response = await fetch(`http://localhost:3000/api/mobile/audio?userId=${userId}`);
       const data = await response.json();
       if (data.success) {
+        setAudioRecordings(data.recordings);
         setAudioRecordings(data.recordings || []);
       }
     } catch (error) {
@@ -233,6 +272,25 @@ const App = () => {
   };
 
   const selectImage = async () => {
+    const options = {
+      title: 'Select Image',
+      storageOptions: {
+        skipBackup: true,
+        path: 'images'
+      }
+    };
+
+    ImagePicker.showImagePicker(options, async (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const source = { uri: response.uri };
+        await uploadImage(source, response);
+      }
+    });
+
     if (!isMobile) {
       Alert.alert('Info', 'Image upload is only available on mobile devices');
       return;
@@ -296,7 +354,9 @@ const App = () => {
       const response = await fetch(`http://localhost:3000/api/mobile/images?userId=${userId}`);
       const data = await response.json();
       if (data.success) {
+        setImages(data.images);
         setImages(data.images || []);
+
       }
     } catch (error) {
       console.error('Error loading images:', error);
@@ -340,9 +400,14 @@ const App = () => {
 
   const renderOfflineContent = ({ item }) => (
     <View style={styles.contentCard}>
+      <Text style={styles.contentTitle}>{item.name}</Text>
+      <Text style={styles.contentInfo}>Type: {item.type}</Text>
+      <Text style={styles.contentInfo}>Size: {item.size} MB</Text>
+
       <Text style={styles.contentTitle}>{item.name || 'Untitled'}</Text>
       <Text style={styles.contentInfo}>Type: {item.type || 'Unknown'}</Text>
       <Text style={styles.contentInfo}>Size: {item.size || 0} MB</Text>
+ 
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => deleteOfflineContent(item.id)}
@@ -373,6 +438,7 @@ const App = () => {
       <ScrollView>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>🏛️ Parampara Mobile</Text>
+          <Text style={styles.userId}>User: {userId}</Text>
           <Text style={styles.userId}>User: {userId || 'Loading...'}</Text>
           {deviceId && (
             <Text style={styles.userId}>Device: {deviceId.slice(0, 12)}...</Text>
@@ -405,6 +471,8 @@ const App = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={styles.actionButton}
+
             style={[styles.actionButton, syncStatus === 'syncing' && styles.syncingButton]}
             onPress={syncOfflineData}
           >
@@ -416,6 +484,17 @@ const App = () => {
 
         {/* Content */}
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>📚 Offline Content</Text>
+          <FlatList
+            data={offlineContent}
+            renderItem={renderOfflineContent}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No offline content</Text>
+            }
+          />
+
           <Text style={styles.sectionTitle}>📚 Offline Content ({offlineContent.length})</Text>
           {offlineContent.length > 0 ? (
             <FlatList
@@ -507,9 +586,11 @@ const styles = StyleSheet.create({
   recordingButton: {
     backgroundColor: '#f44336'
   },
+
   syncingButton: {
     backgroundColor: '#FF9800'
   },
+
   buttonText: {
     color: 'white',
     fontSize: 14,
