@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # Auth Service
+  auth-service:
+    build: ./services/auth
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - JWT_SECRET=${JWT_SECRET}
+      - MONGO_URI=mongodb://mongodb:27017/auth
+    depends_on:
+      - mongodb
+    networks:
+      - microservices-net
+
+  # Materials Service
+  material-service:
+    build: ./services/materials
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - MONGO_URI=mongodb://mongodb:27017/materials
+    depends_on:
+      - mongodb
+    networks:
+      - microservices-net
+
+  # Tests Service
+  test-service:
+    build: ./services/tests
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - MONGO_URI=mongodb://mongodb:27017/tests
+    depends_on:
+      - mongodb
+    networks:
+      - microservices-net
+
+  # Notifications Service
+  notification-service:
+    build: ./services/notifications
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+    networks:
+      - microservices-net
+
+  # Analytics Service
+  analytics-service:
+    build: ./services/analytics
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - MONGO_URI=mongodb://mongodb:27017/analytics
+    depends_on:
+      - mongodb
+    networks:
+      - microservices-net
+
+  # API Gateway
+  api-gateway:
+    build: ./gateway
+    ports:
+      - "80:80"
+    environment:
+      - PORT=80
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - MATERIALS_SERVICE_URL=http://material-service:3002
+      - TESTS_SERVICE_URL=http://test-service:3003
+      - NOTIFICATIONS_SERVICE_URL=http://notification-service:3004
+      - ANALYTICS_SERVICE_URL=http://analytics-service:3005
+    depends_on:
+      - auth-service
+      - material-service
+      - test-service
+      - notification-service
+      - analytics-service
+    networks:
+      - microservices-net
+
+  # MongoDB
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - microservices-net
+
+networks:
+  microservices-net:
+    driver: bridge
+
+volumes:
+  mongodb_data:
