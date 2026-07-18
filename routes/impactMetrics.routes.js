@@ -1,7 +1,7 @@
 // routes/impactMetrics.routes.js
 const express = require('express');
 const router = express.Router();
-const ImpactMetricsService = require('../services/impactMetricsService');
+const ImpactMetricsService = require('../server/services/impactMetricsService');
 
 let metricsService = null;
 
