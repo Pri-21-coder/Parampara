@@ -1,7 +1,7 @@
 // routes/developerPortal.routes.js
 const express = require('express');
 const router = express.Router();
-const DeveloperPortalService = require('../services/developerPortalService');
+const DeveloperPortalService = require('../server/services/developerPortalService');
 
 let portalService = null;
 

@@ -1,7 +1,7 @@
 // routes/marketplace.routes.js
 const express = require('express');
 const router = express.Router();
-const MarketplaceService = require('../services/marketplaceService');
+const MarketplaceService = require('../server/services/marketplaceService');
 
 let marketplaceService = null;
 
