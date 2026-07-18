@@ -588,12 +588,14 @@ app.get('/preservation', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'preservation.html'));
 });
 // Blockchain page
+
 app.get('/blockchain', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
 });
 // Add impact metrics routes
 const impactMetricsRoutes = require('./routes/impactMetrics.routes');
 app.use('/api/impact', impactMetricsRoutes);
+
 // Add developer portal routes
 const developerPortalRoutes = require('./routes/developerPortal.routes');
 app.use('/api/developer', developerPortalRoutes);
@@ -602,6 +604,7 @@ app.use('/api/developer', developerPortalRoutes);
 app.get('/developer-portal', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'developer-portal.html'));
 });
+
 // Impact Metrics page
 app.get('/impact-metrics', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'impact-metrics.html'));
