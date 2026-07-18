@@ -1,7 +1,7 @@
 // routes/analyticsDashboard.routes.js
 const express = require('express');
 const router = express.Router();
-const AnalyticsDashboardService = require('../services/analyticsDashboardService');
+const AnalyticsDashboardService = require('../server/services/analyticsDashboardService');
 
 let dashboardService = null;
 

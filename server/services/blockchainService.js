@@ -1,6 +1,6 @@
 // services/blockchainService.js
 const { v4: uuidv4 } = require('uuid');
-const store = require('../data/store');
+const store = require('../../data/store');
 
 class BlockchainService {
   constructor() {

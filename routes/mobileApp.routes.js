@@ -1,7 +1,11 @@
 // routes/mobileApp.routes.js
 const express = require('express');
 const router = express.Router();
+
 const MobileAppService = require('../services/mobileAppService');
+
+const MobileAppService = require('../server/services/mobileAppService');
+
 
 let mobileService = null;
 
@@ -459,4 +463,5 @@ router.get('/version', (req, res, next) => {
   }
 });
 
+module.exports = router;
 module.exports = router;

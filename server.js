@@ -1,5 +1,19 @@
 // server.js - Main Express Server with WebSocket & Recommendation Engine Integration
 require('dotenv').config();
+
+// Hot-patch relative imports to resolve service and store directory movements
+const Module = require('module');
+const originalRequire = Module.prototype.require;
+Module.prototype.require = function(request) {
+  if (request === '../data/store' && (this.filename.includes('server\\services') || this.filename.includes('server/services'))) {
+    return originalRequire.call(this, '../../data/store');
+  }
+  if (request.startsWith('../services/') && this.filename.includes('routes')) {
+    return originalRequire.call(this, request.replace('../services/', '../server/services/'));
+  }
+  return originalRequire.call(this, request);
+};
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -119,8 +133,6 @@ app.use(globalLimiter.middleware());
 // Initialize Data
 initializeSampleData();
 initializeSampleLanguageData();
-const initializeSampleData = require('./config/sampleData');
-initializeSampleData();
 
 const initializeSampleRecipeData = require('./config/sampleRecipeData');
 initializeSampleRecipeData();
@@ -559,11 +571,24 @@ app.get('/api/recommendations/health', async (req, res) => {
     });
   }
 });
+// Add blockchain routes
+const blockchainRoutes = require('./routes/blockchain.routes');
+app.use('/api/blockchain', blockchainRoutes);
+// Add preservation AI routes
+const preservationAIRoutes = require('./routes/preservationAI.routes');
+app.use('/api/preservation', preservationAIRoutes);
+
 // Blockchain routes (temporarily disabled - service dependencies need fixing)
 // const blockchainRoutes = require('./routes/blockchain.routes');
 // app.use('/api/blockchain', blockchainRoutes);
 
+
+// Preservation page
+app.get('/preservation', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'preservation.html'));
+});
 // Blockchain page
+
 
 app.get('/blockchain', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
@@ -571,6 +596,36 @@ app.get('/blockchain', (req, res) => {
 // Add analytics dashboard routes
 const analyticsDashboardRoutes = require('./routes/analyticsDashboard.routes');
 app.use('/api/analytics', analyticsDashboardRoutes);
+
+app.get('/blockchain', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
+});
+// Add impact metrics routes
+const impactMetricsRoutes = require('./routes/impactMetrics.routes');
+app.use('/api/impact', impactMetricsRoutes);
+// Add developer portal routes
+const developerPortalRoutes = require('./routes/developerPortal.routes');
+app.use('/api/developer', developerPortalRoutes);
+
+// Developer Portal page
+app.get('/developer-portal', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'developer-portal.html'));
+});
+// Impact Metrics page
+app.get('/impact-metrics', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'impact-metrics.html'));
+});
+// Add analytics dashboard routes
+const analyticsDashboardRoutes = require('./routes/analyticsDashboard.routes');
+app.use('/api/analytics', analyticsDashboardRoutes);
+// Add cultural exchange routes
+const culturalExchangeRoutes = require('./routes/culturalExchange.routes');
+app.use('/api/exchange', culturalExchangeRoutes);
+
+// Cultural Exchange page
+app.get('/cultural-exchange', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cultural-exchange.html'));
+});
 
 // Analytics Dashboard page
 app.get('/analytics-dashboard', (req, res) => {
@@ -609,6 +664,7 @@ app.get('/itinerary-planner', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'itinerary-planner.html'));
 });
 
+
 // app.get('/blockchain', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
 // });
@@ -619,11 +675,29 @@ app.get('/itinerary-planner', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public', 'analytics-dashboard.html'));
 // });
 // Virtual Tour routes
+
 const virtualTourRoutes = require('./routes/virtualTour.routes');
 app.use('/api/tours', virtualTourRoutes);
 app.get('/virtual-tour', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'virtual-tour.html'));
 });
+
+// Add mobile app routes
+const mobileAppRoutes = require('./routes/mobileApp.routes');
+app.use('/api/mobile', mobileAppRoutes);
+// Add storytelling routes
+const storytellingRoutes = require('./routes/storytelling.routes');
+app.use('/api/story', storytellingRoutes);
+
+// Storytelling page
+app.get('/storytelling', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'storytelling.html'));
+});
+// Add language learning routes
+const languageLearningRoutes = require('./routes/languageLearning.routes');
+app.use('/api/language', languageLearningRoutes);
+// Add itinerary planner routes
+
 // Storytelling routes (disabled - service missing)
 // const storytellingRoutes = require('./routes/storytelling.routes');
 // app.use('/api/story', storytellingRoutes);
@@ -644,6 +718,7 @@ app.get('/virtual-tour', (req, res) => {
 
 
 // Itinerary Planner routes
+
 const itineraryRoutes = require('./routes/itineraryPlanner.routes');
 app.use('/api/itinerary', itineraryRoutes);
 app.get('/itinerary-planner', (req, res) => {

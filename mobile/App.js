@@ -20,6 +20,26 @@ import Geolocation from '@react-native-community/geolocation';
 import ImagePicker from 'react-native-image-picker';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 
+  FlatList,
+  Alert,
+  Platform,
+  ActivityIndicator,
+  PermissionsAndroid
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Geolocation from '@react-native-community/geolocation';
+
+// Fix: Check if running on mobile or web
+const isMobile = Platform.OS === 'android' || Platform.OS === 'ios';
+
+// Fix: Only import mobile-specific modules on mobile
+let ImagePicker, AudioRecorderPlayer;
+if (isMobile) {
+  ImagePicker = require('react-native-image-picker').default;
+  AudioRecorderPlayer = require('react-native-audio-recorder-player').default;
+}
+
+
 const App = () => {
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +51,11 @@ const App = () => {
   const [syncStatus, setSyncStatus] = useState('synced');
 
   const audioRecorderPlayer = new AudioRecorderPlayer();
+
+  const [deviceId, setDeviceId] = useState(null);
+
+  // Fix: Initialize audio recorder only on mobile
+  const audioRecorderPlayer = isMobile ? new AudioRecorderPlayer() : null;
 
   useEffect(() => {
     initializeApp();
@@ -73,6 +98,9 @@ const App = () => {
 
       const data = await response.json();
       if (data.success) {
+
+        setDeviceId(data.device.id);
+
         await AsyncStorage.setItem('deviceId', data.device.id);
       }
     } catch (error) {
@@ -81,6 +109,12 @@ const App = () => {
   };
 
   const getLocation = () => {
+
+    if (!isMobile) {
+      setLocation({ lat: 22.5726, lng: 88.3639 });
+      return;
+    }
+
     Geolocation.getCurrentPosition(
       (position) => {
         setLocation({
@@ -90,6 +124,10 @@ const App = () => {
       },
       (error) => {
         console.error('Error getting location:', error);
+
+        // Fallback location
+        setLocation({ lat: 22.5726, lng: 88.3639 });
+
       },
       { enableHighAccuracy: true, timeout: 15000 }
     );
@@ -101,6 +139,7 @@ const App = () => {
       const data = await response.json();
       if (data.success) {
         setOfflineContent(data.content);
+        setOfflineContent(data.content || []);
       }
     } catch (error) {
       console.error('Error loading offline content:', error);
@@ -130,6 +169,7 @@ const App = () => {
   };
 
   const recordAudio = async () => {
+
     if (isRecording) {
       // Stop recording
       const result = await audioRecorderPlayer.stopRecorder();
@@ -140,11 +180,52 @@ const App = () => {
     } else {
       // Start recording
       try {
+
+    if (!isMobile) {
+      Alert.alert('Info', 'Audio recording is only available on mobile devices');
+      return;
+    }
+
+    if (isRecording) {
+      // Stop recording
+      try {
+        const result = await audioRecorderPlayer.stopRecorder();
+        setIsRecording(false);
+        // Upload recording
+        await uploadAudio(result);
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+      }
+    } else {
+      // Start recording
+      try {
+        // Request permissions
+        if (Platform.OS === 'android') {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+            {
+              title: 'Microphone Permission',
+              message: 'App needs access to your microphone to record audio.',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            }
+          );
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert('Permission Denied', 'Cannot record audio without permission');
+            return;
+          }
+        }
+
+
         const path = await audioRecorderPlayer.startRecorder();
         setIsRecording(true);
         Alert.alert('Recording', 'Recording started...');
       } catch (error) {
         console.error('Error recording:', error);
+
+        Alert.alert('Error', 'Failed to start recording');
+
       }
     }
   };
@@ -183,6 +264,7 @@ const App = () => {
       const data = await response.json();
       if (data.success) {
         setAudioRecordings(data.recordings);
+        setAudioRecordings(data.recordings || []);
       }
     } catch (error) {
       console.error('Error loading audio recordings:', error);
@@ -208,6 +290,35 @@ const App = () => {
         await uploadImage(source, response);
       }
     });
+
+    if (!isMobile) {
+      Alert.alert('Info', 'Image upload is only available on mobile devices');
+      return;
+    }
+
+    // Fix: Use image picker correctly
+    try {
+      const options = {
+        title: 'Select Image',
+        storageOptions: {
+          skipBackup: true,
+          path: 'images'
+        }
+      };
+
+      ImagePicker.showImagePicker(options, async (response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else {
+          const source = { uri: response.uri };
+          await uploadImage(source, response);
+        }
+      });
+    } catch (error) {
+      console.error('Error selecting image:', error);
+    }
   };
 
   const uploadImage = async (source, response) => {
@@ -244,6 +355,8 @@ const App = () => {
       const data = await response.json();
       if (data.success) {
         setImages(data.images);
+        setImages(data.images || []);
+
       }
     } catch (error) {
       console.error('Error loading images:', error);
@@ -290,6 +403,11 @@ const App = () => {
       <Text style={styles.contentTitle}>{item.name}</Text>
       <Text style={styles.contentInfo}>Type: {item.type}</Text>
       <Text style={styles.contentInfo}>Size: {item.size} MB</Text>
+
+      <Text style={styles.contentTitle}>{item.name || 'Untitled'}</Text>
+      <Text style={styles.contentInfo}>Type: {item.type || 'Unknown'}</Text>
+      <Text style={styles.contentInfo}>Size: {item.size || 0} MB</Text>
+ 
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => deleteOfflineContent(item.id)}
@@ -321,6 +439,10 @@ const App = () => {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>🏛️ Parampara Mobile</Text>
           <Text style={styles.userId}>User: {userId}</Text>
+          <Text style={styles.userId}>User: {userId || 'Loading...'}</Text>
+          {deviceId && (
+            <Text style={styles.userId}>Device: {deviceId.slice(0, 12)}...</Text>
+          )}
         </View>
 
         {/* Location */}
@@ -350,6 +472,8 @@ const App = () => {
 
           <TouchableOpacity
             style={styles.actionButton}
+
+            style={[styles.actionButton, syncStatus === 'syncing' && styles.syncingButton]}
             onPress={syncOfflineData}
           >
             <Text style={styles.buttonText}>
@@ -370,6 +494,18 @@ const App = () => {
               <Text style={styles.emptyText}>No offline content</Text>
             }
           />
+
+          <Text style={styles.sectionTitle}>📚 Offline Content ({offlineContent.length})</Text>
+          {offlineContent.length > 0 ? (
+            <FlatList
+              data={offlineContent}
+              renderItem={renderOfflineContent}
+              keyExtractor={(item) => item.id || Math.random().toString()}
+              scrollEnabled={false}
+            />
+          ) : (
+            <Text style={styles.emptyText}>No offline content</Text>
+          )}
         </View>
 
         {/* Sample Content */}
@@ -450,6 +586,11 @@ const styles = StyleSheet.create({
   recordingButton: {
     backgroundColor: '#f44336'
   },
+
+  syncingButton: {
+    backgroundColor: '#FF9800'
+  },
+
   buttonText: {
     color: 'white',
     fontSize: 14,

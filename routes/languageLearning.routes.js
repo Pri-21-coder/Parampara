@@ -1,7 +1,7 @@
 // routes/languageLearning.routes.js
 const express = require('express');
 const router = express.Router();
-const LanguageLearningService = require('../services/languageLearningService');
+const LanguageLearningService = require('../server/services/languageLearningService');
 
 let languageService = null;
 

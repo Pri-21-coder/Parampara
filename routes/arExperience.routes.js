@@ -1,7 +1,7 @@
 // routes/arExperience.routes.js
 const express = require('express');
 const router = express.Router();
-const ARExperienceService = require('../services/arExperienceService');
+const ARExperienceService = require('../server/services/arExperienceService');
 
 let arService = null;
 
