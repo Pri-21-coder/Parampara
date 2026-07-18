@@ -1470,3 +1470,9 @@ function updateRouteMetrics() {
   document.getElementById('route-waypoints').textContent = waypoints;
 }
 
+document.getElementById('hamburgerBtn').addEventListener('click', function () {
+  const menu = document.getElementById('navFullMenu');
+  const overlay = document.getElementById('navOverlay');
+  menu.classList.toggle('active');  // Yeh class toggle karna zaroori hai
+  overlay.classList.toggle('active');
+});
