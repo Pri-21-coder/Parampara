@@ -635,6 +635,7 @@ app.get('/preservation', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'preservation.html'));
 });
 // Blockchain page
+
 app.get('/blockchain', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blockchain.html'));
 });
