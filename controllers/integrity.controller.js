@@ -767,6 +767,49 @@ const integrityController = {
     }
   },
 
+  getSummary: (req, res) => {
+    return integrityController.getStats(req, res);
+  },
+
+  getHistory: (req, res) => {
+    return integrityController.getScans(req, res);
+  },
+
+  getAnalytics: (req, res) => {
+    try {
+      const scans = store.integrityScans || [];
+      const issues = store.integrityIssues || [];
+      
+      const analytics = {
+        totalScans: scans.length,
+        totalIssuesFound: issues.length,
+        scansTimeline: scans.map(s => ({
+          scanId: s.id,
+          timestamp: s.timestamp,
+          issuesCount: s.issuesCount || 0,
+          durationMs: s.durationMs || 0
+        })),
+        issuesBySeverity: {
+          critical: issues.filter(i => i.severity === 'critical').length,
+          high: issues.filter(i => i.severity === 'high').length,
+          medium: issues.filter(i => i.severity === 'medium').length,
+          low: issues.filter(i => i.severity === 'low').length
+        }
+      };
+
+      res.json({
+        success: true,
+        data: analytics
+      });
+    } catch (error) {
+      logger.error('Error getting analytics:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get analytics'
+      });
+    }
+  },
+
   clearAll: (req, res) => {
     try {
       store.integrityIssues = [];

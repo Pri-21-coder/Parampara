@@ -1,7 +1,7 @@
 // routes/culturalExchange.routes.js
 const express = require('express');
 const router = express.Router();
-const CulturalExchangeService = require('../services/culturalExchangeService');
+const CulturalExchangeService = require('../server/services/culturalExchangeService');
 
 let exchangeService = null;
 

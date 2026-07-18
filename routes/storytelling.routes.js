@@ -1,7 +1,7 @@
 // routes/storytelling.routes.js
 const express = require('express');
 const router = express.Router();
-const StorytellingEngineService = require('../services/storytellingEngineService');
+const StorytellingEngineService = require('../server/services/storytellingEngineService');
 
 let storytellingService = null;
 

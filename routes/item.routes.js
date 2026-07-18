@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const { getItems, createItem, deleteItem } = require('../controllers/item.controller');
-const moderateContent = require('../middleware/moderation');
+const { moderateContent } = require('../middleware/moderation');
 const { cacheMiddleware } = require('../middleware/lruCache');
 const { authenticateToken, requirePermission } = require('../middleware/auth');
 const { verifyOwnership } = require('../middleware/ownership');

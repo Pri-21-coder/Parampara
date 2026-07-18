@@ -1,7 +1,7 @@
 // routes/itineraryPlanner.routes.js
 const express = require('express');
 const router = express.Router();
-const ItineraryPlannerService = require('../services/itineraryPlannerService');
+const ItineraryPlannerService = require('../server/services/itineraryPlannerService');
 
 let plannerService = null;
 
