@@ -1,5 +1,17 @@
-// server.js - Main Express Server with WebSocket & Recommendation Engine Integration
+/**
+ * ==========================================================================
+ * PARAMPARA BACKEND SERVER (server.js)
+ * ==========================================================================
+ * Main Express server coordinating:
+ * 1. Express API Routing & Multi-Tenant Middleware
+ * 2. WebSocket Server Integration (Collaborative Map & Real-time Feeds)
+ * 3. Content Moderation with Trie-based Filtering
+ * 4. Recommendation Engine Integration
+ * 5. Content Security Policy (CSP) Headers via Helmet
+ * ==========================================================================
+ */
 require('dotenv').config();
+
 
 // Hot-patch relative imports to resolve service and store directory movements
 const Module = require('module');
@@ -92,6 +104,9 @@ app.use(
         connectSrc: [
           "'self'",
           'https://api.maptiler.com',
+          'https://unpkg.com',
+          'https://cdn.jsdelivr.net',
+          'https://cdnjs.cloudflare.com',
           `ws://localhost:${WS_PORT}`,
           `wss://*.onrender.com`,
         ],
@@ -141,6 +156,23 @@ initializeSampleArtifactData();
 
 const initializeSampleCalendarData = require('./config/sampleCalendarData');
 initializeSampleCalendarData();
+
+// ==========================================================================
+// CORE API ROUTE REGISTRATIONS
+// ==========================================================================
+// The following routes are registered in the root server scope before applying
+// the tenant isolation middleware. These act as default/fallback endpoints
+// that serve global database records or bypass strict tenant filters:
+// - /api/items: Handles marketplace & showcase items retrieval/creation.
+// - /api/paths: Handles recommended tourism paths and cultural trails.
+// - /api/progress: Tracks user progression, badges, and gamified milestones.
+// - /api/posts: Serves live updates and stories from villages.
+// - /api/chat: Handles interaction with AI assistant and translation helpers.
+// - /api/checkin: Handles user check-in events at heritage spots.
+// - /api/language: Standard endpoint to fetch supported language settings.
+// - /api/recipes: Manages traditional rural recipes archive.
+// - /api/nature: Serves natural heritage and biodiversity datasets.
+// ==========================================================================
 
 // API Routes (existing)
 app.use('/api/items', itemRoutes);
@@ -490,6 +522,21 @@ app.get('/api/map-style', async (req, res) => {
     });
   }
 });
+
+// ==========================================================================
+// COLLABORATIVE WEBSOCKET LAYER (Real-time Broadcast & Synchronization)
+// ==========================================================================
+// The CollaborativeMapServer instance handles real-time synchronization:
+// 1. Accepts connections from remote clients interested in the shared map.
+// 2. Dispatches initial state updates (all currently marked cultural spots).
+// 3. Implements standard connection protocols and keeps tracks of active clients.
+// 4. Listens for incoming client actions:
+//    - ADD_MARKER: Broadcasts new map marker to all other connected clients.
+//    - UPDATE_MARKER: Synchronizes coordinates and description updates.
+//    - REMOVE_MARKER: Evicts markers when cultural events conclude.
+//    - USER_PING: Keeps connection alive and tracks user active positions.
+// 5. Handles connection closures and cleans up client reference maps.
+// ==========================================================================
 
 // ==================== WEBSOCKET SERVER INTEGRATION ====================
 

@@ -1,6 +1,17 @@
+/**
+ * ==========================================================================
+ * PARAMPARA SERVICE WORKER (sw.js)
+ * ==========================================================================
+ * Implements offline support and asset caching for local performance:
+ * - Cache-first strategy for static assets (HTML, CSS, JS).
+ * - Network-first with dynamic fallback for API routes and tenant configs.
+ * - IndexedDB storage integration for large offline records sync.
+ * - Auto-purges outdated caches on new service worker version activation.
+ * ==========================================================================
+ */
 importScripts('/scripts/idb-storage.js');
 
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const CORE_CACHE = `parampara-core-${CACHE_VERSION}`;
 const API_CACHE = `parampara-api-${CACHE_VERSION}`;
 const MEDIA_CACHE = `parampara-media-${CACHE_VERSION}`;
@@ -173,6 +184,11 @@ async function enforceLRULimit(cacheName) {
   }
 }
 
+// staleWhileRevalidate caching pattern:
+// 1. Attempts to serve from the cache immediately for maximum load speed.
+// 2. Fires a background network request to fetch the latest version of the resource.
+// 3. Updates the cache dynamically once the network fetch completes.
+// 4. Ensures the next load will have the latest updated content.
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);

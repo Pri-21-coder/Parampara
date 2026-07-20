@@ -1,5 +1,16 @@
 
-// Main JavaScript for Home Page
+/**
+ * ==========================================================================
+ * PARAMPARA HOME PAGE CONTROLLER (main.js)
+ * ==========================================================================
+ * Orchestrates home page features and static data rendering:
+ * 1. Asynchronously fetches village posts from the multi-tenant endpoint.
+ * 2. Establishes Server-Sent Events (SSE) connection for real-time post updates.
+ * 3. Builds and customizes Contributor Badges using dynamic canvas contexts.
+ * 4. Tracks page interactions and dispatches diagnostics telemetry.
+ * 5. Controls rating overlays and displays platform reviews feedback.
+ * ==========================================================================
+ */
 
 // Load village posts on page load
 document.addEventListener("DOMContentLoaded", async () => {
@@ -716,6 +727,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
+  // ==========================================================================
+  // CONTRIBUTOR BADGE RENDERING ENGINE (HTML5 Canvas)
+  // ==========================================================================
+  // The Contributor Badge rendering engine generates dynamic vector badges 
+  // on a 500x500 client-side HTML5 canvas element. 
+  // Rendering steps:
+  // 1. Validates canvas context availability (safely aborts if unsupported).
+  // 2. Extracts form input values (Contributor Name, Contributor Role, Village).
+  // 3. Resolves current theme parameters (Gold, Emerald, Indigo palettes).
+  // 4. Applies a diagonal LinearGradient background across the canvas workspace.
+  // 5. Draws selected texture overlays (Rays, Mandalas, or Geometric stars).
+  // 6. Applies drop shadows and borders to define emblem container borders.
+  // 7. Renders the Contributor title, role description, and village location.
+  // 8. Updates the live page canvas preview in real time on every keystroke.
+  // ==========================================================================
   function drawBadge() {
     if (!badgeCanvas) return;
     const ctx = badgeCanvas.getContext('2d');
@@ -897,4 +923,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
->>>>>>> upstream/main
